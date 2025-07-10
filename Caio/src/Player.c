@@ -13,6 +13,7 @@ Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteS
     player->anim->frames = (FramesAnimation){true, 10.0f, 0.0f, 1, 0, 3, 0, 6};
 
     player->display = (Vector2){0, 120.0f};
+    player->deltaX = 160.0f;
 
     player->source = source;
     player->destination = destination;
@@ -37,7 +38,7 @@ void Player_SetStepSize(Player* player, float stepSize){
 
 void Player_Update(Player* player, float deltaTime){
     Player_UpdatePosition(player, deltaTime);
-    Player_UpdateSprite(player);
+    Player_UpdateSprite(player, true, true);
 
     player->coordinates.x = player->destination.x / player->stepDistance;
     player->coordinates.y = player->destination.y / player->stepDistance;
@@ -73,26 +74,33 @@ void Player_ChangeCharacter(Player* player){
     player->characterChoice = !player->characterChoice;
 }
 
-void Player_UpdateSprite(Player* player){
+void Player_UpdateSprite(Player* player, bool useKeys, bool reverse){
     player->anim->frames.framesCounter++;
 
     if (player->anim->frames.framesCounter >= (60/player->anim->frames.framesSpeed) && player->anim->frames.animating){
         player->anim->frames.framesCounter = 0;
         player->anim->frames.currentFrame += player->anim->frames.animationDirection;
 
-        if (player->anim->frames.currentFrame > 2){
-            player->anim->frames.animationDirection = -1;
-            player->anim->frames.currentFrame = 1;
+        if(reverse){
+            if (player->anim->frames.currentFrame > player->anim->frames.amountOfFrames - 1){
+                player->anim->frames.animationDirection = -1;
+                player->anim->frames.currentFrame = player->anim->frames.amountOfFrames - 2;
+            }
+            if (player->anim->frames.currentFrame < 0){
+                player->anim->frames.animationDirection = 1;
+                player->anim->frames.currentFrame = 1;
+            }
         }
-        if (player->anim->frames.currentFrame < 0){
-            player->anim->frames.animationDirection = 1;
-            player->anim->frames.currentFrame = 1;
+        else{
+            if(player->anim->frames.currentFrame > player->anim->frames.amountOfFrames - 1){
+                player->anim->frames.currentFrame = 0;
+            }
         }
 
         if (player->anim->frames.currentFrame != 0) player->anim->frames.padding += player->anim->frames.framesPadding * player->anim->frames.animationDirection;
         else player->anim->frames.padding = 0.0f;
 
-        player->display.x = (float)player->anim->frames.currentFrame*160.0f + player->anim->frames.padding;
+        player->display.x = (float)player->anim->frames.currentFrame*player->deltaX + player->anim->frames.padding;
     }
 
     if(!player->anim->frames.animating){
@@ -104,7 +112,7 @@ void Player_UpdateSprite(Player* player){
 
     int character = (player->characterChoice) ? 2020.0f : 0.0f;
 
-    if(!player->anim->position->animating){
+    if(!player->anim->position->animating && useKeys){
         if(IsKeyDown(player->keys.up) || player->moving.up) player->display.y = 450.0f;
         if(IsKeyDown(player->keys.down) || player->moving.down) player->display.y = 120.0f;
         if(IsKeyDown(player->keys.left) || player->moving.left) player->display.y = 780.0f;
@@ -129,7 +137,7 @@ void Player_StepTo(Player* player, Vector2 direction, bool updateSprite){
         player->moving.left = (direction.x == -1) ? true : false;
         player->moving.right = (direction.x == 1) ? true : false;
 
-        if(updateSprite) Player_UpdateSprite(player);
+        if(updateSprite) Player_UpdateSprite(player, true, true);
 
         MoveItemTo(player->anim->position, startPoint, finalPoint, 0.3f);
     }

@@ -504,26 +504,39 @@ int fightScreen(void* enemys){
     float elapsed = 0;
     float elapsedN = 0;
 
-    bool changePlayer = false;
-
-    Player_SetDestRec(player, (Rectangle){-player->destination.width, 0, player->destination.width, player->destination.height});
+    bool changePlayer = true;
 
     if(changePlayer){
-        Player_SetSourceRec(player, (Rectangle){0.0f, 1330.f, 640.0f, 640.0f});
-        Player_SetDestRec(player, (Rectangle){-300, GetScreenHeight()/2, 300, 300});
+        Player_SetSpriteSheet(player, "sprites/PlayerAnim/noBKG_KnightIdle_strip.png");
+        player->display = (Vector2){64.0f, 0.0};
+        player->deltaX = 64.0f;
+        player->anim->frames = (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 15, 0, 11};
 
-        Player_MoveTo(player, (Vector2){GetScreenWidth() * 1/5 - player->destination.width/2, GetScreenHeight() * 2/3 - player->destination.height/2}, 1.2f);
+        Player_SetSourceRec(player, (Rectangle){0.0f, 0.0f, 64.0f, 64.0f});
+        Player_SetDestRec(player, (Rectangle){-240, GetScreenHeight()/2 - 240/2, 240, 240});
+
+        Player_MoveTo(player, (Vector2){130.0f - player->destination.width/2, 300.0f - player->destination.height/2}, 1.2f);
     }
 
-    Player_SetSourceRec(enemyLocal, (Rectangle){3340.0f, 3350.0f, 640.0f, 640.0f});
-    Player_SetDestRec(enemyLocal, (Rectangle){0, 0, (GetScreenWidth()/3) * 0.85f, (GetScreenWidth()/3) * 0.85f});
-    Player_MoveTo(enemyLocal, (Vector2){GetScreenWidth(), 308.0f - enemyLocal->destination.height}, 0.0f);
+    bool changeEnemy = true;
+
+    if(changeEnemy){
+        Player_SetSpriteSheet(enemyLocal, "sprites/skeletonAnim/skeletonIdle.png");
+        enemyLocal->characterChoice = 0.0f;
+        enemyLocal->display = (Vector2){0.0f, 0.0f};
+        enemyLocal->deltaX = 65.25f;
+        enemyLocal->anim->frames = (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 4, 0, 7};
+
+        Player_SetSourceRec(enemyLocal, (Rectangle){0.0f, 0.0f, 65.25f, 64.0f});
+        Player_SetDestRec(enemyLocal, (Rectangle){0, 0, (GetScreenWidth()/3) * 0.85f, (GetScreenWidth()/3) * 0.85f});
+        Player_MoveTo(enemyLocal, (Vector2){GetScreenWidth(), 306.0f - enemyLocal->destination.height/2}, 0.0f);
+    }
 
     ChangePositionFunction(enemyLocal->anim->position, easedFunction);
 
     // BACKGROUND
 
-    ImageObject* background = Image_Init("sprites/battleBackground.jpg");
+    ImageObject* background = Image_Init("sprites/battleBackground.png");
     background->destination = (Rectangle){0, 0, GetScreenWidth(), GetScreenHeight()};
 
     // END BACKGROUND
@@ -704,11 +717,15 @@ int fightScreen(void* enemys){
             randSpeed2 = (randSpeed2 <= minSpeed) ? minSpeed : randSpeed2 - 1;
         }
 
+        player->anim->frames.animating = true;
+
         Player_UpdatePosition(player, deltaTime);
         Player_UpdateSize(player, deltaTime);
+        Player_UpdateSprite(player, false, false);
 
         Player_UpdatePosition(enemyLocal, deltaTime);
         Player_UpdateSize(enemyLocal, deltaTime);
+        Player_UpdateSprite(enemyLocal, false, false);
 
         bc->destination.x = (bc->destination.x - randSpeed1 <= -bc->destination.width/2.0f) ? 0 : bc->destination.x - randSpeed1;
         bb->destination.x = (bb->destination.x - randSpeed2 <= -bb->destination.width/2.0f) ? 0 : bb->destination.x - randSpeed2;
@@ -761,7 +778,7 @@ int fightScreen(void* enemys){
                 bb->destination.y = Slerp(startPointB, finalPointB, t);
 
                 if(pg > 1.0f){
-                    Player_MoveTo(enemyLocal, (Vector2){400.0f - enemyLocal->destination.width/2, 308.0f - enemyLocal->destination.height}, 2.5f);
+                    Player_MoveTo(enemyLocal, (Vector2){400.0f - enemyLocal->destination.width/2, 306.0f - enemyLocal->destination.height/2}, 2.5f);
 
                     introduction = false;
                     elapsedN = 0;
