@@ -43,6 +43,14 @@ typedef struct FramesAnimation{
     int framesSpeed;
 } FramesAnimation;
 
+typedef struct Turn{
+    bool animationEnd;
+    bool animationBegin;
+    bool animationBool;
+
+    bool animating;
+} Turn;
+
 void MoveItemTo(PositionAnimation* item, Vector2 startPoint, Vector2 finalPoint, float duration);
 
 Vector2 UpdateItemPosition(PositionAnimation* item, float deltaTime);

@@ -198,14 +198,6 @@ void generateGrass(Lista* lista, ImageObject* spriteSheet, Vector2 coords, float
     }
 }
 
-typedef struct Turn{
-    bool animationEnd;
-    bool animationBegin;
-    bool animationBool;
-
-    bool animating;
-} Turn;
-
 Turn openInventory(ImageObject* background, float deltaTime){
     static bool inventoryOpened = false;
     static float elapsed = 0;
@@ -521,15 +513,16 @@ int fightScreen(void* enemys){
     bool changeEnemy = true;
 
     if(changeEnemy){
-        Player_SetSpriteSheet(enemyLocal, "sprites/skeletonAnim/skeletonIdle.png");
+        Player_SetSpriteSheet(enemyLocal, "sprites/skeletonAnim/SkeletonEnemy.png");
         enemyLocal->characterChoice = 0.0f;
         enemyLocal->display = (Vector2){0.0f, 0.0f};
-        enemyLocal->deltaX = 65.25f;
+        enemyLocal->deltaX = 64.0f;
+        enemyLocal->deltaY = 64.0f;
         enemyLocal->anim->frames = (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 4, 0, 7};
 
-        Player_SetSourceRec(enemyLocal, (Rectangle){0.0f, 0.0f, 65.25f, 64.0f});
-        Player_SetDestRec(enemyLocal, (Rectangle){0, 0, (GetScreenWidth()/3) * 0.85f, (GetScreenWidth()/3) * 0.85f});
-        Player_MoveTo(enemyLocal, (Vector2){GetScreenWidth(), 306.0f - enemyLocal->destination.height/2}, 0.0f);
+        Player_SetSourceRec(enemyLocal, (Rectangle){0.0f, 0.0f, -64.0f, 64.0f});
+        Player_SetDestRec(enemyLocal, (Rectangle){0, 0, 240, 240});
+        Player_MoveTo(enemyLocal, (Vector2){GetScreenWidth(), player->destination.y + player->destination.height - enemyLocal->destination.height}, 0.0f);
     }
 
     ChangePositionFunction(enemyLocal->anim->position, easedFunction);
@@ -702,6 +695,8 @@ int fightScreen(void* enemys){
     ImageObject* healthBarSprite = Image_Init("sprites/healthBar.png");
     ImageObject* healthBarFiller = Image_Init("sprites/healthBarBar.png");
 
+    Turn enemyAnimState = {false, false, false, false};
+
     while(!WindowShouldClose()){
         float deltaTime = GetFrameTime();
         Vector2 mousePos = GetMousePosition();
@@ -723,9 +718,31 @@ int fightScreen(void* enemys){
         Player_UpdateSize(player, deltaTime);
         Player_UpdateSprite(player, false, false);
 
+        enemyLocal->anim->frames.animating = true;
+
+        if(IsKeyPressed(KEY_B)){
+            Player_ChangeSprite(enemy, 13, 0);
+        }
+
         Player_UpdatePosition(enemyLocal, deltaTime);
         Player_UpdateSize(enemyLocal, deltaTime);
-        Player_UpdateSprite(enemyLocal, false, false);
+        enemyAnimState = Player_UpdateSprite(enemyLocal, false, false);
+
+        if(enemyAnimState.animationEnd){
+            Player_ChangeSprite(enemy, 4, 3);
+        }
+
+        if(enemyLocal->anim->position->animating){
+            Player_ChangeSprite(enemy, 12, 2);
+        }
+
+        if(enemyLocal->stats.health <= 0){
+            Player_ChangeSprite(enemy, 13, 1);
+        }
+
+        if(enemyAnimState.animationEnd && enemy->deltaY == enemy->display.y){
+            printf("\nEnemy died.");
+        }
 
         bc->destination.x = (bc->destination.x - randSpeed1 <= -bc->destination.width/2.0f) ? 0 : bc->destination.x - randSpeed1;
         bb->destination.x = (bb->destination.x - randSpeed2 <= -bb->destination.width/2.0f) ? 0 : bb->destination.x - randSpeed2;
@@ -778,7 +795,7 @@ int fightScreen(void* enemys){
                 bb->destination.y = Slerp(startPointB, finalPointB, t);
 
                 if(pg > 1.0f){
-                    Player_MoveTo(enemyLocal, (Vector2){400.0f - enemyLocal->destination.width/2, 306.0f - enemyLocal->destination.height/2}, 2.5f);
+                    Player_MoveTo(enemyLocal, (Vector2){400.0f - enemyLocal->destination.width/2, player->destination.y + player->destination.height - enemyLocal->destination.height}, 2.5f);
 
                     introduction = false;
                     elapsedN = 0;

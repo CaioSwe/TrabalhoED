@@ -50,6 +50,7 @@ typedef struct Player{
     
     Vector2 display;
     float deltaX;
+    float deltaY;
     Vector2 coordinates;
 
     Rectangle source;
@@ -85,7 +86,9 @@ void Player_UpdateSize(Player* player, float deltaTime);
 
 void Player_ChangeCharacter(Player* player);
 
-void Player_UpdateSprite(Player* player, bool useKeys, bool reverse);
+Turn Player_UpdateSprite(Player* player, bool useKeys, bool reverse);
+
+void Player_ChangeSprite(Player* player, int amountOfFrames, int pos);
 
 void Player_StepTo(Player* player, Vector2 direction, bool updateSprite);
 

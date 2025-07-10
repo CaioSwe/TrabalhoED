@@ -74,7 +74,9 @@ void Player_ChangeCharacter(Player* player){
     player->characterChoice = !player->characterChoice;
 }
 
-void Player_UpdateSprite(Player* player, bool useKeys, bool reverse){
+Turn Player_UpdateSprite(Player* player, bool useKeys, bool reverse){
+    Turn animState = {false, false, false, false};
+    
     player->anim->frames.framesCounter++;
 
     if (player->anim->frames.framesCounter >= (60/player->anim->frames.framesSpeed) && player->anim->frames.animating){
@@ -94,6 +96,7 @@ void Player_UpdateSprite(Player* player, bool useKeys, bool reverse){
         else{
             if(player->anim->frames.currentFrame > player->anim->frames.amountOfFrames - 1){
                 player->anim->frames.currentFrame = 0;
+                animState.animationEnd = true;
             }
         }
 
@@ -125,6 +128,18 @@ void Player_UpdateSprite(Player* player, bool useKeys, bool reverse){
 
     player->source.x = player->display.x;
     player->source.y = player->display.y + character;
+
+    animState.animating = player->anim->frames.animating;
+    return animState;
+}
+
+void Player_ChangeSprite(Player* player, int amountOfFrames, int pos){
+    if(player->display.y == pos * player->deltaY) return;
+    
+    player->display.y = pos * player->deltaY;
+    player->anim->frames.amountOfFrames = amountOfFrames;
+    player->anim->frames.currentFrame = 0;
+    player->anim->frames.framesCounter = 0;
 }
 
 void Player_StepTo(Player* player, Vector2 direction, bool updateSprite){
@@ -201,10 +216,10 @@ void Player_UpdateDef(Player* player, float newDef){
 }
 
 void Player_getHealing(Player* player){
-    player->stats.health += 20;
+    player->stats.health += 10;
 }
 
 void Player_Print(Player* player){
-    printf("\nPlayer healed 20hp");
-    player->stats.health += 2.0f;
+    printf("\nPlayer healed 10hp");
+    player->stats.health += 1.0f;
 }
