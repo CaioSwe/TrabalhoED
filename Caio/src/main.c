@@ -16,10 +16,10 @@
 
 #pragma endregion "Structs"
 
-Player* player;
-Player* enemy;
+Player* player = NULL;
+Player* enemy = NULL;
 
-Lista* allItems;
+Lista* allItems = NULL;
 
 Camera2D camera = {0};
 float cameraInitZoom = TAM / 8;
@@ -39,12 +39,14 @@ void imprimirImageObjectPro(const void* item) {
 void imprimirImageObjectProBH(const void* item) {
     const ImageObject* image = (const ImageObject*)item;
 
-    bool isInsidePlayerX = (image->destination.x < (player->destination.x + player->destination.width) && image->destination.x > player->destination.x);
-    bool isInsidePlayerY = (image->destination.y < (player->destination.y + player->destination.height) && image->destination.y > (player->destination.y));
+    Rectangle playerDestRec = Player_getDestRec(player);
+
+    bool isInsidePlayerX = (image->destination.x < (playerDestRec.x + playerDestRec.width) && image->destination.x > playerDestRec.x);
+    bool isInsidePlayerY = (image->destination.y < (playerDestRec.y + playerDestRec.height) && image->destination.y > (playerDestRec.y));
 
     bool isInsidePlayer = isInsidePlayerX && isInsidePlayerY;
 
-    if(isInsidePlayer && (image->destination.y + image->destination.height) < (player->destination.y + player->destination.height)){
+    if(isInsidePlayer && (image->destination.y + image->destination.height) < (playerDestRec.y + playerDestRec.height)){
         Image_DrawPro((ImageObject*)image);
     }
     else if(!isInsidePlayer){
@@ -55,12 +57,14 @@ void imprimirImageObjectProBH(const void* item) {
 void imprimirImageObjectProFW(const void* item) {
     const ImageObject* image = (const ImageObject*)item;
 
-    bool isInsidePlayerX = (image->destination.x < (player->destination.x + player->destination.width) && image->destination.x > player->destination.x);
-    bool isInsidePlayerY = (image->destination.y < (player->destination.y + player->destination.height) && image->destination.y > (player->destination.y));
+    Rectangle playerDestRec = Player_getDestRec(player);
+
+    bool isInsidePlayerX = (image->destination.x < (playerDestRec.x + playerDestRec.width) && image->destination.x > playerDestRec.x);
+    bool isInsidePlayerY = (image->destination.y < (playerDestRec.y + playerDestRec.height) && image->destination.y > (playerDestRec.y));
 
     bool isInsidePlayer = isInsidePlayerX && isInsidePlayerY;
 
-    if(isInsidePlayer && (image->destination.y + image->destination.height) >= (player->destination.y + player->destination.height)){
+    if(isInsidePlayer && (image->destination.y + image->destination.height) >= (playerDestRec.y + playerDestRec.height)){
         Image_DrawPro((ImageObject*)image);
     }
 }
@@ -109,7 +113,7 @@ bool Player_PrintVoid(const void* item){
 }
 
 bool attackVoid(const void* item){
-    Player_TakeDamage((Player*)item, 10.0f);
+    Player_setAction((Player*)item, ATTACK);
     return true;
 }
 
@@ -255,6 +259,28 @@ Turn changeTurn(float deltaTime){
     return (Turn){false, animBegan, playersTurn, true};
 }
 
+bool flashScreenHurt(float deltaTime){
+    static float elapsed = 0;
+    static Rectangle filler = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    static Color fillerColor = {255, 0, 0, 0};
+
+    elapsed += deltaTime;
+
+    float pg = elapsed / 0.5f;
+    float t = (-pg+1)/2.0f;
+
+    fillerColor.a = Slerp(0, 255, t);
+
+    if(pg > 1.0f){
+        elapsed = 0;
+        fillerColor.a = 0;
+        return true;
+    }
+
+    DrawRectangleRec(filler, fillerColor);
+    return false;
+}
+
 bool hurtAnimation(Rectangle* rec, Vector2 initialPos, Color* healthBarBorderColor, float deltaTime){
     static float elapsed = 0;
     
@@ -272,19 +298,20 @@ bool hurtAnimation(Rectangle* rec, Vector2 initialPos, Color* healthBarBorderCol
         healthBarBorderColor->r = 255;
         return true;
     }
+
     return false;
 }
 
 bool healedAnimation(Color* healthBarColor, float deltaTime){
     static float elapsed = 0;
-    
+
     elapsed += deltaTime;
     
     float pg = elapsed / 2.0f;
-    float t2 = pow(sin(3*3.14*pg), 2);
-
-    healthBarColor->r = Slerp(255, 0, t2);
-    healthBarColor->b = Slerp(255, 0, t2);
+    float t = pow(sin(3*3.14*pg), 2);
+    
+    healthBarColor->r = Slerp(255, 0, t);
+    healthBarColor->b = Slerp(255, 0, t);
 
     if(pg > 1.0f){
         elapsed = 0;
@@ -292,7 +319,67 @@ bool healedAnimation(Color* healthBarColor, float deltaTime){
         healthBarColor->r = 255;
         return true;
     }
+
     return false;
+}
+
+void healthBarP(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vector2 initialPos, float health, float maxHealth, float deltaTime){
+    static float relativeHealth = 10; // MUDAR
+    static float elapsed = 0;
+    static bool hurt = false;
+    static bool hurt2 = false;
+    static bool healed = false;
+    static Color healthBarColor = WHITE;
+    static Color healthBarBorderColor = WHITE;
+
+    if(health < relativeHealth){
+        relativeHealth = health;
+        hurt = true;
+        hurt2 = true;
+    }
+    if(health > relativeHealth){
+        relativeHealth = health;
+        healed = true;
+    }
+
+    if(hurt2){
+        if(flashScreenHurt(deltaTime)){
+            hurt2 = false;
+        }
+    }
+
+    if(hurt){
+        if(hurtAnimation(&healthBarSprite->destination, (Vector2){healthBarSprite->destination.x, healthBarSprite->destination.y}, &healthBarBorderColor, deltaTime)){
+            hurt = false;
+        }
+    }
+    if(healed){
+        if(healedAnimation(&healthBarColor, deltaTime)){
+            healed = false;
+        }
+    }
+
+    elapsed += deltaTime;
+    
+    float pg = elapsed / 2.0f;
+    float t = cos(2*3.14*pg);
+
+    healthBarSprite->destination.y = Slerp(initialPos.y, initialPos.y + 3, t);
+
+    if(pg > 1.0f){
+        elapsed = 0;
+    }
+
+    healthBarSprite->color = healthBarColor;
+    healthBarFiller->color = healthBarBorderColor;
+
+    healthBarFiller->destination = healthBarSprite->destination;
+
+    healthBarFiller->destination.x = healthBarSprite->destination.x + 1.0f;
+    healthBarFiller->destination.width = (healthBarSprite->destination.width * health) / maxHealth;
+
+    Image_DrawPro(healthBarFiller);
+    Image_DrawPro(healthBarSprite);
 }
 
 void healthBar(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vector2 initialPos, float health, float maxHealth, float deltaTime){
@@ -443,9 +530,7 @@ int menuOpen(){
     return 0;
 }
 
-int fightScreen(void* enemys){
-    Player* enemyLocal = (Player*)enemys;
-
+int fightScreen(Player* enemyLocal){
     ImageObject* bc = Image_Init("sprites/parallax.png");
     bc->source = (Rectangle){0, 0, 2560.0f, 640.0f};
 
@@ -500,32 +585,41 @@ int fightScreen(void* enemys){
 
     if(changePlayer){
         Player_SetSpriteSheet(player, "sprites/PlayerAnim/noBKG_KnightIdle_strip.png");
-        player->display = (Vector2){64.0f, 0.0};
-        player->deltaX = 64.0f;
-        player->anim->frames = (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 15, 0, 11};
+        Player_setDisplay(player, (Vector2){64.0f, 0.0});
+        Player_setDeltaX(player, 64.0f);
+
+        Player_setAnimationFrames(player, (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 15, 0, 11});
 
         Player_SetSourceRec(player, (Rectangle){0.0f, 0.0f, 64.0f, 64.0f});
-        Player_SetDestRec(player, (Rectangle){-240, GetScreenHeight()/2 - 240/2, 240, 240});
 
-        Player_MoveTo(player, (Vector2){130.0f - player->destination.width/2, 300.0f - player->destination.height/2}, 1.2f);
+        Rectangle playerDestRec = (Rectangle){-240, GetScreenHeight()/2 - 240/2, 240, 240};
+
+        Player_SetDestRec(player, playerDestRec);
+
+        Player_MoveTo(player, (Vector2){130.0f - playerDestRec.width/2, 300.0f - playerDestRec.height/2}, 1.2f);
     }
 
     bool changeEnemy = true;
 
     if(changeEnemy){
         Player_SetSpriteSheet(enemyLocal, "sprites/skeletonAnim/SkeletonEnemy.png");
-        enemyLocal->characterChoice = 0.0f;
-        enemyLocal->display = (Vector2){0.0f, 0.0f};
-        enemyLocal->deltaX = 64.0f;
-        enemyLocal->deltaY = 64.0f;
-        enemyLocal->anim->frames = (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 4, 0, 7};
+        Player_setCharacter(enemyLocal, 0.0f);
+        
+        Player_setDisplay(enemyLocal, (Vector2){0.0f, 0.0f});
+        Player_setDeltaX(enemyLocal, 64.0f);
+        Player_setDeltaY(enemyLocal, 64.0f);
+        Player_setAnimationFrames(enemyLocal, (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 4, 0, 7});
 
         Player_SetSourceRec(enemyLocal, (Rectangle){0.0f, 0.0f, -64.0f, 64.0f});
-        Player_SetDestRec(enemyLocal, (Rectangle){0, 0, 240, 240});
-        Player_MoveTo(enemyLocal, (Vector2){GetScreenWidth(), player->destination.y + player->destination.height - enemyLocal->destination.height}, 0.0f);
+        
+        Rectangle enemyDestRec = (Rectangle){0, 0, 240, 240};
+        Rectangle playerDestRec = Player_getDestRec(player);
+
+        Player_SetDestRec(enemyLocal, enemyDestRec);
+        Player_MoveTo(enemyLocal, (Vector2){GetScreenWidth(), playerDestRec.y + playerDestRec.height - enemyDestRec.height}, 0.0f);
     }
 
-    ChangePositionFunction(enemyLocal->anim->position, easedFunction);
+    ChangePositionFunction(Player_getAnimationPosition(player), easedFunction);
 
     // BACKGROUND
 
@@ -602,16 +696,20 @@ int fightScreen(void* enemys){
     bool permShowing = false;
     int statsOpacity = 0;
 
-    Button* health = Button_Init(TextFormat("%.0f/%.0f", player->stats.health, player->stats.maxHealth));
-    Button* atkStat = Button_Init(TextFormat("%.1f", player->stats.attack));
-    Button* defStat = Button_Init(TextFormat("%.1f%%", player->stats.defense * 100));
-    Button* itemsQntUtils = Button_Init(TextFormat("%d", listaTamanho(player->inventario.utils)));
-    Button* itemsQntWep = Button_Init(TextFormat("%d", listaTamanho(player->inventario.weapons)));
-    Button* runStat = Button_Init(TextFormat("%.1f%%", player->stats.evasionRate * 100));
+    Stats playerStats = Player_getStats(player);
 
-    Button* healthEnemy = Button_Init(TextFormat("%.0f/%.0f", enemyLocal->stats.health, enemyLocal->stats.maxHealth));
-    Button* atkStatEnemy = Button_Init(TextFormat("%.1f", enemyLocal->stats.attack));
-    Button* defStatEnemy = Button_Init(TextFormat("%.1f%%", enemyLocal->stats.defense));
+    Button* health = Button_Init(TextFormat("%.0f/%.0f", playerStats.health, playerStats.maxHealth));
+    Button* atkStat = Button_Init(TextFormat("%.1f", playerStats.attack));
+    Button* defStat = Button_Init(TextFormat("%.1f%%", playerStats.defense * 100));
+    Button* itemsQntUtils = Button_Init(TextFormat("%d", listaTamanho(Player_getInventarioUtils(player))));
+    Button* itemsQntWep = Button_Init(TextFormat("%d", listaTamanho(Player_getInventarioWeapons(player))));
+    Button* runStat = Button_Init(TextFormat("%.1f%%", playerStats.evasionRate * 100));
+
+    Stats enemyStats = Player_getStats(enemyLocal);
+
+    Button* healthEnemy = Button_Init(TextFormat("%.0f/%.0f", enemyStats.health, enemyStats.maxHealth));
+    Button* atkStatEnemy = Button_Init(TextFormat("%.1f", enemyStats.attack));
+    Button* defStatEnemy = Button_Init(TextFormat("%.1f%%", enemyStats.defense));
 
     Lista* statsButtons = criaLista();
 
@@ -658,8 +756,8 @@ int fightScreen(void* enemys){
 
     Arvore* enemyChoice = criaFolha(isLife50Void, enemyLocal);
     inserirEsqArvore(enemyChoice, isLife30Void, player);
-    inserirDirArvore(enemyChoice, Player_PrintVoid, enemyLocal);
-    inserirEsqArvore(enemyChoice->dir, attackVoid, player);
+    inserirDirArvore(enemyChoice, attackVoid, enemyLocal);
+    inserirEsqArvore(enemyChoice->dir, attackVoid, enemyLocal);
 
     bool switchTurns = false;
     Turn whoseTurn = {false, false, true, false};
@@ -695,13 +793,26 @@ int fightScreen(void* enemys){
     ImageObject* healthBarSprite = Image_Init("sprites/healthBar.png");
     ImageObject* healthBarFiller = Image_Init("sprites/healthBarBar.png");
 
+    ImageObject* healthBarSpriteP = Image_Init("sprites/healthBar.png");
+    ImageObject* healthBarFillerP = Image_Init("sprites/healthBarBar.png");
+
     Turn enemyAnimState = {false, false, false, false};
+    bool loopEnemy = false;
+
+    Player_setLocked(player, true);
 
     while(!WindowShouldClose()){
         float deltaTime = GetFrameTime();
         Vector2 mousePos = GetMousePosition();
         cursor->x = mousePos.x;
         cursor->y = mousePos.y;
+
+        Rectangle playerDestRec = Player_getDestRec(player);
+        Rectangle enemyDestRec = Player_getDestRec(enemyLocal);
+
+        Decision enemyDecision = Player_getAction(enemyLocal);
+        enemyStats = Player_getStats(enemyLocal);
+        playerStats = Player_getStats(player);
 
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             printf("\nx = %f, y = %f", mousePos.x, mousePos.y);
@@ -712,36 +823,46 @@ int fightScreen(void* enemys){
             randSpeed2 = (randSpeed2 <= minSpeed) ? minSpeed : randSpeed2 - 1;
         }
 
-        player->anim->frames.animating = true;
+        Player_setAnimationFramesAnimating(player, true);
 
         Player_UpdatePosition(player, deltaTime);
         Player_UpdateSize(player, deltaTime);
-        Player_UpdateSprite(player, false, false);
+        Player_UpdateSprite(player, false, true);
 
-        enemyLocal->anim->frames.animating = true;
-
-        if(IsKeyPressed(KEY_B)){
-            Player_ChangeSprite(enemy, 13, 0);
+        if(enemyDecision == ATTACK){
+            Player_ChangeSprite(enemy, 12, 0);
+            Player_TakeDamage(player, 5.0f);
+            
+            Player_setAction(enemy, IDLE);
+            loopEnemy = false;
         }
 
         Player_UpdatePosition(enemyLocal, deltaTime);
         Player_UpdateSize(enemyLocal, deltaTime);
-        enemyAnimState = Player_UpdateSprite(enemyLocal, false, false);
 
-        if(enemyAnimState.animationEnd){
-            Player_ChangeSprite(enemy, 4, 3);
+        if(enemyDecision == DEAD){
+            loopEnemy = false;
+        }
+    
+        Player_setAnimationFramesAnimating(enemyLocal, true);
+
+        enemyAnimState = Player_UpdateSprite(enemyLocal, false, loopEnemy);
+
+        if(enemyAnimState.animationEnd && enemyDecision != DEAD){
+            Player_ChangeSprite(enemyLocal, 4, 3);
+            loopEnemy = true;
         }
 
-        if(enemyLocal->anim->position->animating){
-            Player_ChangeSprite(enemy, 12, 2);
+        if(Player_getAnimationPositionAnimating(enemyLocal)){
+            Player_ChangeSprite(enemyLocal, 12, 2);
         }
 
-        if(enemyLocal->stats.health <= 0){
-            Player_ChangeSprite(enemy, 13, 1);
+        if(enemyStats.health <= 0){
+            Player_ChangeSprite(enemyLocal, 13, 1);
         }
 
-        if(enemyAnimState.animationEnd && enemy->deltaY == enemy->display.y){
-            printf("\nEnemy died.");
+        if(Player_getDeltaY(enemyLocal) == Player_getDisplay(enemyLocal).y){
+            Player_setAction(enemyLocal, DEAD);
         }
 
         bc->destination.x = (bc->destination.x - randSpeed1 <= -bc->destination.width/2.0f) ? 0 : bc->destination.x - randSpeed1;
@@ -751,7 +872,8 @@ int fightScreen(void* enemys){
         bp->destination.x = bc->destination.x;
 
         if(Button_IsPressed(atk, mousePos) && whoseTurn.animationBool){
-            Player_TakeDamage(enemy, player->stats.attack);
+            Player_TakeDamage(enemyLocal, playerStats.attack);
+            Player_ChangeSprite(enemyLocal, 4, 4);
             think = true;
         }
 
@@ -780,8 +902,8 @@ int fightScreen(void* enemys){
             }
 
             if(Wait2(((double)(0.5f))) && think){
-                if(!whoseTurn.animationBool) percorrerArvore(enemyChoice);
-                switchTurns = true;
+                if(!whoseTurn.animationBool && enemyDecision != DEAD) percorrerArvore(enemyChoice);
+                if(enemyDecision != DEAD) switchTurns = true;
                 think = false;
             }
 
@@ -795,7 +917,7 @@ int fightScreen(void* enemys){
                 bb->destination.y = Slerp(startPointB, finalPointB, t);
 
                 if(pg > 1.0f){
-                    Player_MoveTo(enemyLocal, (Vector2){400.0f - enemyLocal->destination.width/2, player->destination.y + player->destination.height - enemyLocal->destination.height}, 2.5f);
+                    Player_MoveTo(enemyLocal, (Vector2){(GetScreenWidth() - 130.0f) - enemyDestRec.width/2, playerDestRec.y + playerDestRec.height - enemyDestRec.height}, 2.5f);
 
                     introduction = false;
                     elapsedN = 0;
@@ -806,8 +928,11 @@ int fightScreen(void* enemys){
 
             Player_Draw(enemyLocal);
 
-            healthBarSprite->destination = (Rectangle){enemyLocal->destination.x + enemyLocal->destination.width/2 - enemyLocal->destination.width*3/8, enemyLocal->destination.y - 20, enemyLocal->destination.width*3/4, 20};
-            healthBar(healthBarSprite, healthBarFiller, (Vector2){healthBarSprite->destination.x, healthBarSprite->destination.y}, enemyLocal->stats.health, enemyLocal->stats.maxHealth, deltaTime);
+            healthBarSprite->destination = (Rectangle){enemyDestRec.x + enemyDestRec.width/2 - enemyDestRec.width*3/8, enemyDestRec.y - 20, enemyDestRec.width*3/4, 20};
+            healthBar(healthBarSprite, healthBarFiller, (Vector2){healthBarSprite->destination.x, healthBarSprite->destination.y}, enemyStats.health, enemyStats.maxHealth, deltaTime);
+
+            healthBarSpriteP->destination = (Rectangle){playerDestRec.x + playerDestRec.width/2 - playerDestRec.width*3/8, playerDestRec.y - 20, playerDestRec.width*3/4, 20};
+            healthBarP(healthBarSpriteP, healthBarFillerP, (Vector2){healthBarSpriteP->destination.x, healthBarSpriteP->destination.y}, playerStats.health, playerStats.maxHealth, deltaTime);
 
             EndMode2D();
 
@@ -860,8 +985,8 @@ int fightScreen(void* enemys){
             LinkButtonColors(atkStatEnemy, showStats, statsOpacity, WHITE);
             LinkButtonColors(defStatEnemy, showStats, statsOpacity, WHITE);
 
-            Button_SetText(health, TextFormat("%.0f/%.0f", player->stats.health, player->stats.maxHealth));
-            Button_SetText(healthEnemy, TextFormat("%.0f/%.0f", enemyLocal->stats.health, enemyLocal->stats.maxHealth));
+            Button_SetText(health, TextFormat("%.0f/%.0f", playerStats.health, playerStats.maxHealth));
+            Button_SetText(healthEnemy, TextFormat("%.0f/%.0f", enemyStats.health, enemyStats.maxHealth));
 
             percorrerLista(statsButtons, Button_DrawIconVoid);
 
@@ -885,7 +1010,7 @@ int fightScreen(void* enemys){
             }
 
             if(cameraZoomIn){            
-                bool w = cameraAnimation(&camera, (Vector2){GetScreenWidth()/2, GetScreenHeight()/2}, (Vector2){enemyLocal->destination.x + enemyLocal->destination.width/2, enemyLocal->destination.y + enemyLocal->destination.height/2}, deltaTime);
+                bool w = cameraAnimation(&camera, (Vector2){GetScreenWidth()/2, GetScreenHeight()/2}, (Vector2){enemyDestRec.x + enemyDestRec.width/2, enemyDestRec.y + enemyDestRec.height/2}, deltaTime);
                 if(w){
                     cameraZoomIn = false;
                 }
@@ -1000,7 +1125,9 @@ int telaJogo(){
         Player_Update(player, deltaTime);
         Player_Update(enemy, deltaTime);
 
-        camera.target = (Vector2){player->destination.x + player->destination.width/2, player->destination.y + player->destination.height/2};
+        Rectangle playerDestRec = Player_getDestRec(player);
+
+        camera.target = (Vector2){playerDestRec.x + playerDestRec.width/2, playerDestRec.y + playerDestRec.height/2};
 
         moveRandom(enemy, 1.5f);
 

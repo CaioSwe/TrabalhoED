@@ -7,6 +7,14 @@
 #include "Lista.h"
 #include "Animation.h"
 
+typedef enum Decision{
+    IDLE,
+    ATTACK,
+    HEAL,
+    DEFEND,
+    DEAD
+} Decision;
+
 typedef struct MoveSet{
     int up;
     int down;
@@ -14,18 +22,9 @@ typedef struct MoveSet{
     int right;
 } MoveSet;
 
-typedef struct Moving{
-    bool up;
-    bool down;
-    bool left;
-    bool right;
-} Moving;
+typedef struct Moving Moving;
 
-typedef struct Animation{
-    PositionAnimation* position;
-    ScaleAnimation* scale;
-    FramesAnimation frames;
-} Animation;
+typedef struct Animation Animation;
 
 typedef struct Stats{
     float maxHealth;
@@ -33,38 +32,16 @@ typedef struct Stats{
     float attack;
     float defense;
     float evasionRate;
+
+    bool attacking;
     bool defending;
 
     int gold;
 } Stats;
 
-typedef struct Inventario{
-    Lista* utils;
-    Lista* weapons;
-} Inventario;
+typedef struct Inventario Inventario;
 
-typedef struct Player{
-    Texture2D spriteSheet;
-
-    Animation* anim;
-    
-    Vector2 display;
-    float deltaX;
-    float deltaY;
-    Vector2 coordinates;
-
-    Rectangle source;
-    Rectangle destination;
-
-    float stepDistance;
-    bool characterChoice;
-
-    MoveSet keys;
-    Moving moving;
-
-    Stats stats;
-    Inventario inventario;
-} Player;
+typedef struct Player Player;
 
 Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteSheet);
 
@@ -86,7 +63,7 @@ void Player_UpdateSize(Player* player, float deltaTime);
 
 void Player_ChangeCharacter(Player* player);
 
-Turn Player_UpdateSprite(Player* player, bool useKeys, bool reverse);
+Turn Player_UpdateSprite(Player* player, bool reverse, bool loop);
 
 void Player_ChangeSprite(Player* player, int amountOfFrames, int pos);
 
@@ -123,5 +100,47 @@ void Player_UpdateDef(Player* player, float newDef);
 void Player_getHealing(Player* player);
 
 void Player_Print(Player* player);
+
+////////////////////////////////////////////////////////////////////////////
+
+Rectangle Player_getDestRec(Player* player);
+
+Vector2 Player_getDisplay(Player* player);
+
+Decision Player_getAction(Player* player);
+
+float Player_getDeltaY(Player* player);
+
+PositionAnimation* Player_getAnimationPosition(Player* player);
+
+ScaleAnimation* Player_getAnimationScale(Player* player);
+
+FramesAnimation Player_getAnimationFrames(Player* player);
+
+Stats Player_getStats(Player* player);
+
+Lista* Player_getInventarioUtils(Player* player);
+
+Lista* Player_getInventarioWeapons(Player* player);
+
+bool Player_getAnimationPositionAnimating(Player* player);
+
+/////////////////////////////////////////////////////////////////////////////
+
+void Player_setAction(Player* player, Decision decision);
+
+void Player_setDisplay(Player* player, Vector2 newDisplay);
+
+void Player_setDeltaX(Player* player, float newDelta);
+
+void Player_setDeltaY(Player* player, float newDelta);
+
+void Player_setAnimationFrames(Player* player, FramesAnimation frames);
+
+void Player_setCharacter(Player* player, float point);
+
+void Player_setAnimationFramesAnimating(Player* player, bool state);
+
+void Player_setLocked(Player* player, bool locked);
 
 #endif

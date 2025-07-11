@@ -54,7 +54,7 @@ void changeScreen(int (*screen)()){
     screen();
 }
 
-void changeScreenItem(int (*screen)(void*), void* item){
+void changeScreenItem(int (*screen)(Player*), Player* item){
     Blackout();
     LoadingScreen();
 

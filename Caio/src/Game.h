@@ -2,6 +2,7 @@
 #define _Game_h_
 
 #include "TextObject.h"
+#include "Player.h"
 
 void LoadingDraw(TextObject* loading);
 
@@ -13,6 +14,6 @@ void Blackout();
 
 void changeScreen(int (*screen)());
 
-void changeScreenItem(int (*screen)(void*), void* item);
+void changeScreenItem(int (*screen)(Player*), Player* item);
 
 #endif

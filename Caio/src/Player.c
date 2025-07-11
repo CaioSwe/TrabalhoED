@@ -1,5 +1,49 @@
 #include "Player.h"
 
+typedef struct Moving{
+    bool up;
+    bool down;
+    bool left;
+    bool right;
+} Moving;
+
+typedef struct Animation{
+    PositionAnimation* position;
+    ScaleAnimation* scale;
+    FramesAnimation frames;
+} Animation;
+
+typedef struct Inventario{
+    Lista* utils;
+    Lista* weapons;
+} Inventario;
+
+typedef struct Player{
+    Texture2D spriteSheet;
+
+    Animation* anim;
+    
+    Vector2 display;
+    float deltaX;
+    float deltaY;
+    Vector2 coordinates;
+
+    Rectangle source;
+    Rectangle destination;
+
+    float stepDistance;
+    bool characterChoice;
+
+    MoveSet keys;
+    Moving moving;
+    bool locked;
+
+    Stats stats;
+    Inventario inventario;
+
+    Decision action;
+} Player;
+
 Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteSheet){
     Player* player = (Player*)malloc(sizeof(Player));
 
@@ -21,9 +65,11 @@ Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteS
     player->stepDistance = 1.0f;
     player->characterChoice = false;
 
-    player->stats = (Stats){10.0f, 10.0f, 2.0f, 0.05f, 0.1f, false, 0}; // Vida máxima, Vida, Ataque, Defesa, Evasão (Base), Ouro
+    player->stats = (Stats){10.0f, 10.0f, 2.0f, 0.05f, 0.1f, false, false, 0}; // Vida máxima, Vida, Ataque, Defesa, Evasão (Base), Ouro
 
     player->inventario = (Inventario){criaLista(), criaLista()};
+
+    player->action = IDLE;
 
     return player;
 }
@@ -49,7 +95,7 @@ void Player_SetMoveSet(Player* player, MoveSet moveSet){
 }
 
 void Player_UpdatePosition(Player* player, float deltaTime){
-    if(!player->anim->position->animating){
+    if(!player->anim->position->animating && !player->locked){
         if(IsKeyDown(player->keys.up)) Player_StepTo(player, (Vector2){0,-1}, true);
         if(IsKeyDown(player->keys.down)) Player_StepTo(player, (Vector2){0,1}, true);
         if(IsKeyDown(player->keys.left)) Player_StepTo(player, (Vector2){-1,0}, true);
@@ -74,7 +120,7 @@ void Player_ChangeCharacter(Player* player){
     player->characterChoice = !player->characterChoice;
 }
 
-Turn Player_UpdateSprite(Player* player, bool useKeys, bool reverse){
+Turn Player_UpdateSprite(Player* player, bool reverse, bool loop){
     Turn animState = {false, false, false, false};
     
     player->anim->frames.framesCounter++;
@@ -95,8 +141,12 @@ Turn Player_UpdateSprite(Player* player, bool useKeys, bool reverse){
         }
         else{
             if(player->anim->frames.currentFrame > player->anim->frames.amountOfFrames - 1){
-                player->anim->frames.currentFrame = 0;
                 animState.animationEnd = true;
+                player->anim->frames.currentFrame = player->anim->frames.amountOfFrames - 1;
+
+                if(loop){
+                    player->anim->frames.currentFrame = 0;
+                }
             }
         }
 
@@ -115,7 +165,7 @@ Turn Player_UpdateSprite(Player* player, bool useKeys, bool reverse){
 
     int character = (player->characterChoice) ? 2020.0f : 0.0f;
 
-    if(!player->anim->position->animating && useKeys){
+    if(!player->anim->position->animating && !player->locked){
         if(IsKeyDown(player->keys.up) || player->moving.up) player->display.y = 450.0f;
         if(IsKeyDown(player->keys.down) || player->moving.down) player->display.y = 120.0f;
         if(IsKeyDown(player->keys.left) || player->moving.left) player->display.y = 780.0f;
@@ -222,4 +272,84 @@ void Player_getHealing(Player* player){
 void Player_Print(Player* player){
     printf("\nPlayer healed 10hp");
     player->stats.health += 1.0f;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+Rectangle Player_getDestRec(Player* player){
+    return player->destination;
+}
+
+Vector2 Player_getDisplay(Player* player){
+    return player->display;
+}
+
+Decision Player_getAction(Player* player){
+    return player->action;
+}
+
+float Player_getDeltaY(Player* player){
+    return player->deltaY;
+}
+
+PositionAnimation* Player_getAnimationPosition(Player* player){
+    return player->anim->position;
+}
+
+ScaleAnimation* Player_getAnimationScale(Player* player){
+    return player->anim->scale;
+}
+
+FramesAnimation Player_getAnimationFrames(Player* player){
+    return player->anim->frames;
+}
+
+Stats Player_getStats(Player* player){
+    return player->stats;
+}
+
+Lista* Player_getInventarioUtils(Player* player){
+    return player->inventario.utils;
+}
+
+Lista* Player_getInventarioWeapons(Player* player){
+    return player->inventario.weapons;
+}
+
+bool Player_getAnimationPositionAnimating(Player* player){
+    return player->anim->position->animating;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+void Player_setAction(Player* player, Decision decision){
+    player->action = decision;
+}
+
+void Player_setDisplay(Player* player, Vector2 newDisplay){
+    player->display = newDisplay;
+}
+
+void Player_setDeltaX(Player* player, float newDelta){
+    player->deltaX = newDelta;
+}
+
+void Player_setDeltaY(Player* player, float newDelta){
+    player->deltaY = newDelta;
+}
+
+void Player_setAnimationFrames(Player* player, FramesAnimation frames){
+    player->anim->frames = frames;
+}
+
+void Player_setCharacter(Player* player, float point){
+    player->characterChoice = point;
+}
+
+void Player_setAnimationFramesAnimating(Player* player, bool state){
+    player->anim->frames.animating = state;
+}
+
+void Player_setLocked(Player* player, bool locked){
+    player->locked = locked;
 }
