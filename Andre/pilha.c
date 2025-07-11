@@ -1,6 +1,4 @@
 #include "pilha.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 //Estrutura de uma Pilha
 typedef struct cel{

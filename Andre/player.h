@@ -1,3 +1,10 @@
+#ifndef _Player_h_
+#define _Player_h_
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
 typedef struct player Player;
 typedef struct stats Stats;
 
@@ -9,3 +16,5 @@ int     getPlayerMaxHP(Player*     );
 
 int     getPlayerGold(Player*);
 void    setPlayerGold(Player*, int);
+
+#endif

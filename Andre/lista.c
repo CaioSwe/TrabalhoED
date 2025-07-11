@@ -1,7 +1,4 @@
 #include "lista.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <windows.h>
 
 typedef struct cel{
     int         valor;

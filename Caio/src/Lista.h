@@ -29,6 +29,8 @@ int listaTamanho(Lista*);
 
 void imprimirLista(Lista*, void(*imprimir)(const void*));
 
+void imprimirListaRel(Lista*, void*, void(*imprimir)(const void*, const void*));
+
 void percorrerLista(Lista*, void(*f)(const void*));
 
 bool isInLista(Lista*, bool(*f)(const void*, const void*), const void*);

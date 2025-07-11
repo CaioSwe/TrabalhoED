@@ -1,11 +1,4 @@
 #include "movimentacao.h"
-#include "inventario.h"
-#include "mapa.h"
-#include "pilha.h"
-#include "lista.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <windows.h>
 
 bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
     for(int i = 0; i < tam; i++){

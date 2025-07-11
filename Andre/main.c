@@ -1,12 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 #include "pilha.h"
 #include "lista.h"
 #include "inventario.h"
 #include "movimentacao.h"
 #include "mapa.h"
 #include "player.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
 #define TAM 12
 

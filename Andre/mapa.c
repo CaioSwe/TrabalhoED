@@ -1,9 +1,4 @@
 #include "mapa.h"
-#include "player.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <windows.h>
 
 int** criarMapa(int tam){
     int*** mapa = (int***)malloc(tam*sizeof(int**));

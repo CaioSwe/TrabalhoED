@@ -16,11 +16,6 @@
 
 #pragma endregion "Structs"
 
-Player* player = NULL;
-Player* enemy = NULL;
-
-Lista* allItems = NULL;
-
 Camera2D camera = {0};
 float cameraInitZoom = TAM / 8;
 
@@ -36,10 +31,11 @@ void imprimirImageObjectPro(const void* item) {
     Image_DrawPro((ImageObject*)image);
 }
 
-void imprimirImageObjectProBH(const void* item) {
+void imprimirImageObjectProBH(const void* item, const void* target) {
     const ImageObject* image = (const ImageObject*)item;
+    const Player* player = (const Player*)target;
 
-    Rectangle playerDestRec = Player_getDestRec(player);
+    Rectangle playerDestRec = Player_getDestRec((Player*)player);
 
     bool isInsidePlayerX = (image->destination.x < (playerDestRec.x + playerDestRec.width) && image->destination.x > playerDestRec.x);
     bool isInsidePlayerY = (image->destination.y < (playerDestRec.y + playerDestRec.height) && image->destination.y > (playerDestRec.y));
@@ -54,10 +50,11 @@ void imprimirImageObjectProBH(const void* item) {
     }
 }
 
-void imprimirImageObjectProFW(const void* item) {
+void imprimirImageObjectProFW(const void* item, const void* target) {
     const ImageObject* image = (const ImageObject*)item;
+    const Player* player = (const Player*)target;
 
-    Rectangle playerDestRec = Player_getDestRec(player);
+    Rectangle playerDestRec = Player_getDestRec((Player*)player);
 
     bool isInsidePlayerX = (image->destination.x < (playerDestRec.x + playerDestRec.width) && image->destination.x > playerDestRec.x);
     bool isInsidePlayerY = (image->destination.y < (playerDestRec.y + playerDestRec.height) && image->destination.y > (playerDestRec.y));
@@ -169,16 +166,6 @@ void moveRandom(Player* instance, double interval){
     }
 }
 
-void placeEnemy(Vector2 coords, float squareSize){
-    static bool placedEnemy = false;
-    int chance2 = rand() % 100;
-
-    if(!placedEnemy && chance2 <= 5){
-        placedEnemy = true;
-        Player_MoveTo(enemy, (Vector2){(int)coords.x*squareSize, (int)coords.y*squareSize}, 0.0f);
-    }
-}
-
 void generateGrass(Lista* lista, ImageObject* spriteSheet, Vector2 coords, float squareSize){
     int quantGrama = rand() % 17;
 
@@ -228,7 +215,6 @@ Turn openInventory(ImageObject* background, float deltaTime){
 Turn changeTurn(float deltaTime){
     static bool playersTurn = false;
     static float elapsed = 0;
-    static bool animBegan = false;
 
     static Rectangle yourTurn = (Rectangle){0, SCREEN_HEIGHT/2, SCREEN_WIDTH, 0};
     
@@ -237,7 +223,7 @@ Turn changeTurn(float deltaTime){
     
     Text_Pos(yourTurnText, (Vector2){GetScreenWidth()/2 - MeasureText(yourTurnText->text, yourTurnText->fontsize)/2, yourTurn.y + yourTurn.height/2 - yourTurnText->fontsize/2});
 
-    animBegan = (elapsed == 0);
+    bool animBegan = (elapsed == 0);
 
     elapsed += deltaTime;
     
@@ -530,7 +516,23 @@ int menuOpen(){
     return 0;
 }
 
-int fightScreen(Player* enemyLocal){
+typedef enum GAMESTATE{
+    MAINSCREEN,
+    FREE,
+    BATTLE,
+    ENDSCREEN
+} GAMESTATE;
+
+typedef struct Resources{
+    Player* player;
+    Player* enemy;
+    float squareSize;
+} Resources;
+
+GAMESTATE fightScreen(Resources resources){
+    Player* player = resources.player;
+    Player* enemy = resources.enemy;
+
     ImageObject* bc = Image_Init("sprites/parallax.png");
     bc->source = (Rectangle){0, 0, 2560.0f, 640.0f};
 
@@ -581,45 +583,37 @@ int fightScreen(Player* enemyLocal){
     float elapsed = 0;
     float elapsedN = 0;
 
-    bool changePlayer = true;
+    Player_SetSpriteSheet(player, "sprites/PlayerAnim/noBKG_KnightIdle_strip.png");
+    Player_setCharacter(player, 0.0f);
 
-    if(changePlayer){
-        Player_SetSpriteSheet(player, "sprites/PlayerAnim/noBKG_KnightIdle_strip.png");
-        Player_setDisplay(player, (Vector2){64.0f, 0.0});
-        Player_setDeltaX(player, 64.0f);
+    Player_setDisplay(player, (Vector2){0.0f, 0.0f});
+    Player_setDeltaX(player, 64.0f);
+    Player_setDeltaY(player, 0.0f);
+    Player_setAnimationFrames(player, (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 15, 0, 11});
 
-        Player_setAnimationFrames(player, (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 15, 0, 11});
+    Player_SetSourceRec(player, (Rectangle){0.0f, 0.0f, 64.0f, 64.0f});
 
-        Player_SetSourceRec(player, (Rectangle){0.0f, 0.0f, 64.0f, 64.0f});
+    Rectangle playerDestRec = (Rectangle){-240.0f, (float)(GetScreenHeight()/2 - 240/2), 240.0f, 240.0f};
 
-        Rectangle playerDestRec = (Rectangle){-240, GetScreenHeight()/2 - 240/2, 240, 240};
+    Player_SetDestRec(player, playerDestRec);
+    Player_MoveTo(player, (Vector2){130.0f - playerDestRec.width/2, 300.0f - playerDestRec.height/2}, 1.2f);
 
-        Player_SetDestRec(player, playerDestRec);
+    Player_SetSpriteSheet(enemy, "sprites/skeletonAnim/SkeletonEnemy.png");
+    Player_setCharacter(enemy, 0.0f);
+    
+    Player_setDisplay(enemy, (Vector2){0.0f, 0.0f});
+    Player_setDeltaX(enemy, 64.0f);
+    Player_setDeltaY(enemy, 64.0f);
+    Player_setAnimationFrames(enemy, (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 4, 0, 7});
 
-        Player_MoveTo(player, (Vector2){130.0f - playerDestRec.width/2, 300.0f - playerDestRec.height/2}, 1.2f);
-    }
+    Player_SetSourceRec(enemy, (Rectangle){0.0f, 0.0f, -64.0f, 64.0f});
+    
+    Rectangle enemyDestRec = (Rectangle){0, 0, 240, 240};
 
-    bool changeEnemy = true;
+    Player_SetDestRec(enemy, enemyDestRec);
+    Player_MoveTo(enemy, (Vector2){GetScreenWidth(), playerDestRec.y + playerDestRec.height - enemyDestRec.height}, 0.0f);
 
-    if(changeEnemy){
-        Player_SetSpriteSheet(enemyLocal, "sprites/skeletonAnim/SkeletonEnemy.png");
-        Player_setCharacter(enemyLocal, 0.0f);
-        
-        Player_setDisplay(enemyLocal, (Vector2){0.0f, 0.0f});
-        Player_setDeltaX(enemyLocal, 64.0f);
-        Player_setDeltaY(enemyLocal, 64.0f);
-        Player_setAnimationFrames(enemyLocal, (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 4, 0, 7});
-
-        Player_SetSourceRec(enemyLocal, (Rectangle){0.0f, 0.0f, -64.0f, 64.0f});
-        
-        Rectangle enemyDestRec = (Rectangle){0, 0, 240, 240};
-        Rectangle playerDestRec = Player_getDestRec(player);
-
-        Player_SetDestRec(enemyLocal, enemyDestRec);
-        Player_MoveTo(enemyLocal, (Vector2){GetScreenWidth(), playerDestRec.y + playerDestRec.height - enemyDestRec.height}, 0.0f);
-    }
-
-    ChangePositionFunction(Player_getAnimationPosition(player), easedFunction);
+    ChangePositionFunction(Player_getAnimationPosition(player), linearFunction);
 
     // BACKGROUND
 
@@ -705,7 +699,7 @@ int fightScreen(Player* enemyLocal){
     Button* itemsQntWep = Button_Init(TextFormat("%d", listaTamanho(Player_getInventarioWeapons(player))));
     Button* runStat = Button_Init(TextFormat("%.1f%%", playerStats.evasionRate * 100));
 
-    Stats enemyStats = Player_getStats(enemyLocal);
+    Stats enemyStats = Player_getStats(enemy);
 
     Button* healthEnemy = Button_Init(TextFormat("%.0f/%.0f", enemyStats.health, enemyStats.maxHealth));
     Button* atkStatEnemy = Button_Init(TextFormat("%.1f", enemyStats.attack));
@@ -754,10 +748,10 @@ int fightScreen(Player* enemyLocal){
     atkStatEnemy->padding.x = showStats->width + showStats->padding.x - atkStatEnemy->width;
     defStatEnemy->padding.x = showStats->width + showStats->padding.x - defStatEnemy->width;
 
-    Arvore* enemyChoice = criaFolha(isLife50Void, enemyLocal);
+    Arvore* enemyChoice = criaFolha(isLife50Void, enemy);
     inserirEsqArvore(enemyChoice, isLife30Void, player);
-    inserirDirArvore(enemyChoice, attackVoid, enemyLocal);
-    inserirEsqArvore(enemyChoice->dir, attackVoid, enemyLocal);
+    inserirDirArvore(enemyChoice, attackVoid, enemy);
+    inserirEsqArvore(enemyChoice->dir, attackVoid, enemy);
 
     bool switchTurns = false;
     Turn whoseTurn = {false, false, true, false};
@@ -807,11 +801,13 @@ int fightScreen(Player* enemyLocal){
         cursor->x = mousePos.x;
         cursor->y = mousePos.y;
 
-        Rectangle playerDestRec = Player_getDestRec(player);
-        Rectangle enemyDestRec = Player_getDestRec(enemyLocal);
+        playerDestRec = Player_getDestRec(player);
+        enemyDestRec = Player_getDestRec(enemy);
 
-        Decision enemyDecision = Player_getAction(enemyLocal);
-        enemyStats = Player_getStats(enemyLocal);
+        printf("\n%d // %d // %d", Player_getAction(enemy), whoseTurn.animationEnd, whoseTurn.animationBegin);
+
+        Decision enemyDecision = Player_getAction(enemy);
+        enemyStats = Player_getStats(enemy);
         playerStats = Player_getStats(player);
 
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
@@ -826,43 +822,55 @@ int fightScreen(Player* enemyLocal){
         Player_setAnimationFramesAnimating(player, true);
 
         Player_UpdatePosition(player, deltaTime);
-        Player_UpdateSize(player, deltaTime);
+        //Player_UpdateSize(player, deltaTime);
         Player_UpdateSprite(player, false, true);
 
-        if(enemyDecision == ATTACK){
-            Player_ChangeSprite(enemy, 12, 0);
-            Player_TakeDamage(player, 5.0f);
-            
-            Player_setAction(enemy, IDLE);
-            loopEnemy = false;
+        switch(enemyDecision){
+            case ATTACK:
+                Player_ChangeSprite(enemy, 12, 0);
+                Player_TakeDamage(player, 5.0f);    
+                Player_setAction(enemy, IDLE);
+                loopEnemy = false;
+                break;
+            case DEAD:
+                Player_ChangeSprite(enemy, 13, 1);
+                loopEnemy = false;
+                break;
+            case WALK:
+                Player_ChangeSprite(enemy, 12, 2);
+                break;
+            case IDLE:
+                Player_ChangeSprite(enemy, 4, 3);
+                loopEnemy = true;
+                break;
         }
 
-        Player_UpdatePosition(enemyLocal, deltaTime);
-        Player_UpdateSize(enemyLocal, deltaTime);
-
-        if(enemyDecision == DEAD){
-            loopEnemy = false;
-        }
+        Player_UpdatePosition(enemy, deltaTime);
+        Player_UpdateSize(enemy, deltaTime);
     
-        Player_setAnimationFramesAnimating(enemyLocal, true);
+        Player_setAnimationFramesAnimating(enemy, true);
 
-        enemyAnimState = Player_UpdateSprite(enemyLocal, false, loopEnemy);
+        enemyAnimState = Player_UpdateSprite(enemy, false, loopEnemy);
 
-        if(enemyAnimState.animationEnd && enemyDecision != DEAD){
-            Player_ChangeSprite(enemyLocal, 4, 3);
-            loopEnemy = true;
-        }
+        if(enemyAnimState.animationEnd){
+            printf("\n Animation ended.");
 
-        if(Player_getAnimationPositionAnimating(enemyLocal)){
-            Player_ChangeSprite(enemyLocal, 12, 2);
-        }
+            if(Player_getAnimationPositionAnimating(enemy)){
+                Player_setAction(enemy, WALK);
+            }
+            else if(enemyDecision != DEAD){
+                Player_setAction(enemy, IDLE);
+            }
+            
+            if(enemyStats.health <= 0){
+                Player_setAction(enemy, DEAD);
+            }
 
-        if(enemyStats.health <= 0){
-            Player_ChangeSprite(enemyLocal, 13, 1);
-        }
-
-        if(Player_getDeltaY(enemyLocal) == Player_getDisplay(enemyLocal).y){
-            Player_setAction(enemyLocal, DEAD);
+            if(whoseTurn.animationEnd && enemyDecision != DEAD){
+                percorrerArvore(enemyChoice);
+                switchTurns = true;
+                printf(" -> Percorreu arvore");
+            }
         }
 
         bc->destination.x = (bc->destination.x - randSpeed1 <= -bc->destination.width/2.0f) ? 0 : bc->destination.x - randSpeed1;
@@ -872,9 +880,10 @@ int fightScreen(Player* enemyLocal){
         bp->destination.x = bc->destination.x;
 
         if(Button_IsPressed(atk, mousePos) && whoseTurn.animationBool){
-            Player_TakeDamage(enemyLocal, playerStats.attack);
-            Player_ChangeSprite(enemyLocal, 4, 4);
-            think = true;
+            Player_TakeDamage(enemy, playerStats.attack);
+            Player_ChangeSprite(enemy, 4, 4);
+
+            switchTurns = true;
         }
 
         if(Button_IsPressed(item, mousePos)){
@@ -897,16 +906,6 @@ int fightScreen(Player* enemyLocal){
                 }
             }
 
-            if(!whoseTurn.animationBool && whoseTurn.animationEnd){
-                think = true;
-            }
-
-            if(Wait2(((double)(0.5f))) && think){
-                if(!whoseTurn.animationBool && enemyDecision != DEAD) percorrerArvore(enemyChoice);
-                if(enemyDecision != DEAD) switchTurns = true;
-                think = false;
-            }
-
             if(introduction){
                 elapsedN += deltaTime;
                 
@@ -917,7 +916,7 @@ int fightScreen(Player* enemyLocal){
                 bb->destination.y = Slerp(startPointB, finalPointB, t);
 
                 if(pg > 1.0f){
-                    Player_MoveTo(enemyLocal, (Vector2){(GetScreenWidth() - 130.0f) - enemyDestRec.width/2, playerDestRec.y + playerDestRec.height - enemyDestRec.height}, 2.5f);
+                    Player_MoveTo(enemy, (Vector2){(GetScreenWidth() - 130.0f) - enemyDestRec.width/2, 180.0f}, 2.5f);
 
                     introduction = false;
                     elapsedN = 0;
@@ -925,8 +924,7 @@ int fightScreen(Player* enemyLocal){
             }
 
             Player_Draw(player);
-
-            Player_Draw(enemyLocal);
+            Player_Draw(enemy);
 
             healthBarSprite->destination = (Rectangle){enemyDestRec.x + enemyDestRec.width/2 - enemyDestRec.width*3/8, enemyDestRec.y - 20, enemyDestRec.width*3/4, 20};
             healthBar(healthBarSprite, healthBarFiller, (Vector2){healthBarSprite->destination.x, healthBarSprite->destination.y}, enemyStats.health, enemyStats.maxHealth, deltaTime);
@@ -1034,7 +1032,12 @@ int fightScreen(Player* enemyLocal){
     return 0;
 }
 
-int telaJogo(){
+GAMESTATE telaJogo(Resources resources){
+    Player* player = resources.player;
+    Player* enemy = resources.enemy;
+
+    float squaresize = resources.squareSize;
+
     Lista* effects = criaLista();
     Lista* paredes = criaLista();
     Lista* chao = criaLista();
@@ -1046,9 +1049,6 @@ int telaJogo(){
     ImageObject* crosshair = Image_Init("sprites/white.png");
 
     ImageObject* paredesTileSet = Image_Init("sprites/paredes.png");
-    
-    float screensize = (SCREEN_WIDTH + SCREEN_HEIGHT) / 2;
-    float squaresize = screensize/TAM;
 
     paredesTileSet->source = (Rectangle){0, 0, 90, 90};
     paredesTileSet->destination = (Rectangle){0, 0, squaresize/2, squaresize/2};
@@ -1068,13 +1068,6 @@ int telaJogo(){
 
     srand(time(NULL));
 
-    Rectangle source = {0.0f, 120.0f, 160.0f, 200.0f};
-    Rectangle dest = {0, 0, squaresize, squaresize};
-
-    player = Player_Init(source, dest, "sprites/Player_spritesheet.png");
-    
-    enemy = Player_Init(source, dest, "sprites/Player_spritesheet.png");
-
     Player_SetMoveSet(player, (MoveSet){KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT});
     Player_SetStepSize(player, squaresize);
 
@@ -1092,6 +1085,8 @@ int telaJogo(){
 
     //////////////////////
 
+    bool placedEnemy = false;
+
     // INICIALIZA O MAPA
     for(int i = 0; i < TAM; i++){
         for(int j = 0; j < TAM; j++){
@@ -1106,13 +1101,15 @@ int telaJogo(){
 
             // GENERATE GRASS ONLY ON '0' SQUARES
             generateGrass(effects, grama, (Vector2){i, j}, squaresize);
-            placeEnemy((Vector2){i, j}, squaresize);
+
+            int chance2 = rand() % 100;
+
+            if(!placedEnemy && chance2 <= 5){
+                placedEnemy = true;
+                Player_MoveTo(enemy, (Vector2){(int)i*squaresize, (int)j*squaresize}, 0.0f);
+            }
         }
     }
-
-    // NAO SEI SE DEIXO ISSO
-    ImageObject* selectedTileSet = paredesTileSet;
-    Lista* selectedList = paredes;
 
     bool triggerCutscene = false;
 
@@ -1154,24 +1151,25 @@ int telaJogo(){
 
             imprimirLista(chao, imprimirImageObject);
             imprimirLista(paredes, imprimirImageObjectPro);
-            imprimirLista(effects, imprimirImageObjectProBH);
+            imprimirListaRel(effects, player, imprimirImageObjectProBH);
             
             Player_Draw(player);
             Player_Draw(enemy);
 
-            imprimirLista(effects, imprimirImageObjectProFW);
+            if(cutsceneListener(triggerCutscene, 0.5f, deltaTime, battleTransition)){
+                triggerCutscene = false;
+                EndMode2D();
+                EndDrawing();
+                return BATTLE;
+            }
+
+            imprimirListaRel(effects, player, imprimirImageObjectProFW);
 
             crosshair->x = posX * squaresize;
             crosshair->y = posY * squaresize;
             Image_Draw(crosshair);
 
             EndMode2D();
-
-            if(cutsceneListener(triggerCutscene, 0.5f, deltaTime, battleTransition)){
-                triggerCutscene = false;
-                EndDrawing();
-                changeScreenItem(fightScreen, enemy);
-            }
 
         EndDrawing();
     }
@@ -1190,7 +1188,36 @@ int main(){
     _chdir(GetApplicationDirectory());
     SetExitKey(KEY_A);
 
-    changeScreen(telaJogo);
+    GAMESTATE gamestate = FREE;
+
+    float screensize = (SCREEN_WIDTH + SCREEN_HEIGHT) / 2;
+    float squaresize = screensize/TAM;
+
+    Rectangle source = {0.0f, 120.0f, 160.0f, 200.0f};
+    Rectangle dest = {0, 0, squaresize, squaresize};
+
+    Player* player = Player_Init(source, dest, "sprites/Player_spritesheet.png");
+    Player* enemy = Player_Init(source, dest, "sprites/Player_spritesheet.png");
+
+    Resources resources = {player, enemy, squaresize};
+
+    while(!WindowShouldClose()){
+        switch (gamestate){
+            case MAINSCREEN:
+                break;
+            case FREE:
+                gamestate = telaJogo(resources);
+                break;
+            case BATTLE:
+                gamestate = fightScreen(resources);
+                break;
+            case ENDSCREEN:
+                break;
+
+            default:
+                break;
+        }
+    }
 
     return 0;
 }

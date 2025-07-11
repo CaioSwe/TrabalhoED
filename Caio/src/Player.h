@@ -12,6 +12,7 @@ typedef enum Decision{
     ATTACK,
     HEAL,
     DEFEND,
+    WALK,
     DEAD
 } Decision;
 

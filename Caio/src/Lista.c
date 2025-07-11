@@ -152,6 +152,16 @@ void imprimirLista(Lista* lista, void(*imprimir)(const void*)){
     }
 }
 
+void imprimirListaRel(Lista* lista, void* target, void(*imprimir)(const void*, const void*)){
+    Celula* atual = lista->inicio;
+
+    while(atual != NULL){
+        void* c = (void*)atual->item;
+        imprimir(c, target);
+        atual = atual->prox;
+    }
+}
+
 void percorrerLista(Lista* lista, void (*f)(const void*)) {
     if (!lista) return;
     

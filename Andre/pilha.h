@@ -1,3 +1,9 @@
+#ifndef _Pilha_h_
+#define _Pilha_h_
+
+#include <stdio.h>
+#include <stdlib.h>
+
 typedef struct pilha Pilha;
 
 Pilha* criarPilha          (           );
@@ -6,3 +12,5 @@ int    push                (Pilha*, int);
 int    pop                 (Pilha*     );
 int    tamanhoPilha        (Pilha*     );
 void   imprimirPilha       (Pilha*     );
+
+#endif

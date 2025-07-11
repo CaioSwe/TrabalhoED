@@ -26,7 +26,7 @@ $(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 
 # Clean build artifacts
 clean:
-	del /Q $(SRC_DIR)\*.o $(TARGET)
+	rm -f $(SRC_DIR)/*.o $(TARGET)
 
 # Mark phony targets
 .PHONY: all clean

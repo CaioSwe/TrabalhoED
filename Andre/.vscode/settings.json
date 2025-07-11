@@ -4,6 +4,7 @@
         "stdio.h": "c",
         "stdlib.h": "c",
         "movimentacao.h": "c",
-        "inventario.h": "c"
+        "inventario.h": "c",
+        "player.h": "c"
     }
 }

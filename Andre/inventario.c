@@ -1,11 +1,4 @@
 #include "inventario.h"
-#include "lista.h"
-#include "player.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <windows.h>
 
 int itemChoice(){
     int input;

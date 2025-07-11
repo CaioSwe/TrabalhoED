@@ -1,33 +1,35 @@
-# Atribuir à variável EXEC o nome do seu programa principal (sem extensão)
-# Atribuir à variável TAD o nome do seu TAD (sem extensão)
+PROJ_NAME = ted
 
-EXEC = P1
+ALUNO = waldemarsn
+LIBS =-lm
+OBJETOS = main.o inventario.o lista.o mapa.o movimentacao.o pilha.o player.o
 
-TADS = pilha.h lista.h inventario.h movimentacao.h mapa.h
-OBJS = main.o pilha.o lista.o inventario.o movimentacao.o mapa.o
+# Compilador
+CC = gcc
 
-all: $(EXEC)
+# Flags
+CFLAGS = -ggdb -O0 -std=c99 -fstack-protector-all -Werror=implicit-function-declaration
+LDFLAGS = -O0
 
-$(EXEC): $(OBJS)
-	gcc $(OBJS) -o $(EXEC)
+$(PROJ_NAME): $(OBJETOS)
+	$(CC) -o $(PROJ_NAME) $(LDFLAGS) $(OBJETOS) $(LIBS)
 
-main.o: main.c $(TADS)
-	gcc main.c $(TADS) -o main.o
+%.o : %.c
+	$(CC) -c $(CFLAGS) $< -o $@
 
-pilha.o: pilha.c pilha.h
-	gcc pilha.c -o pilha.o
+# Empacotar para entrega
+#
+# - se necessario: sudo apt install zip
+pack: $(PROJ_NAME)
+	rm -f ../$(ALUNO).zip
+	echo $(ALUNO)
+	date >> .entrega
+	cd ..; zip $(ALUNO).zip -r src/*.c src/*.h src/Makefile LEIA-ME.txt .entrega
 
-lista.o: lista.c lista.h
-	gcc lista.c -o lista.o
+# Regra para executar com Valgrind
+valgrind: $(PROJ_NAME)
+	valgrind --leak-check=full ./$(PROJ_NAME)
 
-inventario.o: inventario.c inventario.h lista.o
-	gcc inventario.c -o inventario.o
-
-movimentacao.o: movimentacao.c movimentacao.h mapa.o inventario.o pilha.o lista.o
-	gcc movimentacao.c -o movimentacao.o
-
-mapa.o: mapa.c mapa.h
-	gcc mapa.c -o mapa.o
-
+# Limpar arquivos
 clean:
-	rm -f $(OBJS) $(EXECUTAVEL)
+	rm -f *.o $(PROJ_NAME)
