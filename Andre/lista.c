@@ -21,44 +21,12 @@ Lista* criaLista(){
     l->ulti  = NULL;
     l->tamanho = 0;
     
-    printf("\nLista criada!");
+    // printf("\nLista criada!");
     return l;
 }
 
-int inserirInicio(Lista* lista, int v){
-    Celula *nova = malloc(sizeof(Celula));
-    nova->valor  = v;
-
-    nova->prox  = lista->prim;
-    lista->prim = nova;
-
-    printf("\nCelula inserida no inicio!");
-    lista->tamanho++;
-    return 0;
-}
-
-int inserirMeio(Lista *lista, int v, int p){
-    Celula *nova, *anterior;
-
-    nova        = malloc(sizeof(Celula));
-    nova->valor = v;
-
-    if(lista->prim == NULL){ // A Lista está vazia
-        nova->prox  = lista->prim;
-        lista->prim = nova;
-    }else{
-        anterior = buscarElemento(lista, p);
-
-        nova->prox = anterior->prox;
-        anterior->prox = nova;
-    }
-    printf("\nCelula inserida no meio!");
-    lista->tamanho++;
-    return 0;
-}
-
 int inserirFim(Lista *lista, int v){
-    Celula* aux = lista->prim;
+    Celula* aux  = lista->prim;
     Celula *nova = malloc(sizeof(Celula));
     nova->valor  = v;
 
@@ -74,7 +42,7 @@ int inserirFim(Lista *lista, int v){
     }
 
     lista->tamanho++;
-    printf("\n\nYou've collected the item");
+    printf("\nYou've collected the item");
     Sleep(1500);
     system("cls");
     
@@ -82,71 +50,44 @@ int inserirFim(Lista *lista, int v){
     return 0;
 }
 
-int removerInicio(Lista* lista){
-    Celula* del = lista->prim;
-    int v = del->valor;
-
-    lista->prim = lista->prim->prox;
-
-    free(del);
-
-    printf("\nCelula removida no inicio!");
-    lista->tamanho--;
-    return v;
-}
-
-int removerMeio(Lista* lista, int v){
+int removerMeio(Lista* lista, int p){
     Celula* ant = NULL;
     Celula* del = lista->prim;
-
-    while (del != NULL && del->valor != v){
+    
+    int i = 1;
+    while(del != NULL && i != p){
         ant = del;
         del = del->prox;
+        i++;
     }
-
-    if (del == NULL){
+    
+    if(del == NULL){
         printf("\nCelula nao encontrada");
         return 0;
     }
-
-    ant->prox = del->prox;
-    int conteudo = del->valor;
-    free(del);
     
-    printf("\nCelula removida no meio!");
-    lista->tamanho--;
-    return conteudo;
-}
-
-int removerFim(Lista* lista){
-    Celula* ant = NULL;
-    Celula* del = lista->prim;
-
-    while(del->prox != NULL){
-        ant = del;
-        del = del->prox;
+    if(i == 1){
+        lista->prim = del->prox;
+        free(del);
+    }else{
+        ant->prox = del->prox;
+        free(del);
     }
-
-    int v = del->valor;
-    ant->prox = NULL;
-    lista->ulti = ant->prox;
-
-    printf("\nCelula removida no fim!");
+        
     lista->tamanho--;
-    return v;
+    return 0;
 }
 
-Celula* buscarElemento(Lista* lista, int v){
+Celula* buscarElemento(Lista* lista, int p){
     Celula* cel = lista->prim;
 
-    while(cel != NULL){
-        if(cel->valor == v)
-                return cel;
-        else
-            cel = cel->prox;
+    int i = 1;
+    while(i != p && cel != NULL){
+        cel = cel->prox;
+        i++;
     }
 
-    return NULL; /* não achou o elemento */
+    return cel;
 }
 
 void imprimirLista(Lista* lista){
@@ -156,10 +97,10 @@ void imprimirLista(Lista* lista){
     int i = 1;
     while(aux != NULL){
         switch(aux->valor){
-            case 1:  printf("%d - Health Potion\n", i);      i++; break;
-            case 2:  printf("%d - Monster1s Repelent\n", i); i++; break;
-            case 3:  printf("%d - Treasure Chest\n", i);     i++; break;
-            default: printf("%d - ITEM ERROR\n", i);         i++; break;
+            case 1:  printf("%d - Health Potion\n", i, aux->valor);      i++; break;
+            case 2:  printf("%d - Monster's Repelent\n", i, aux->valor); i++; break;
+            case 3:  printf("%d - Treasure Chest\n", i, aux->valor);     i++; break;
+            default: printf("%d - ITEM ERROR\n", i, aux->valor);         i++; break;
         }
         aux = aux->prox;
     }

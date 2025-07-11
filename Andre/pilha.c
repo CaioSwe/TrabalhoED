@@ -18,8 +18,8 @@ Pilha* criarPilha(){
     Pilha* p = (Pilha*)malloc(sizeof(Pilha));
     p->topo    = NULL;
     p->tamanho = 0;
-    printf("\nPilha criada!");
 
+    // printf("\nPilha criada!");
     return p;
 }
 

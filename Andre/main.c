@@ -23,14 +23,15 @@ int main(){
     moverBaixo   (mapa, TAM, s, l, p); 
     moverBaixo   (mapa, TAM, s, l, p); 
     moverBaixo   (mapa, TAM, s, l, p); 
-    moverBaixo   (mapa, TAM, s, l, p); 
+    moverBaixo   (mapa, TAM, s, l, p);
 
     abrirInventario(l, p);
-
+    
     moverDireita (mapa, TAM, s, l, p); 
     moverDireita (mapa, TAM, s, l, p); 
     moverDireita (mapa, TAM, s, l, p); 
     
+    abrirInventario(l, p);
       
     return 0;
 }

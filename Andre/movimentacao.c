@@ -14,6 +14,8 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ACABOU O JOGO
                 if(mapa[i-1][j] == 4){
+                    limparMapa(mapa, tam);
+
                     mapa[i-1][j] = 1;
                     mapa[i][j] = 0;
                     push(s, 8);
@@ -22,6 +24,8 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ARMADILHAS
                 else if(mapa[i-1][j] == 5){
+                    ativarTrap(p);
+
                     mapa[i-1][j] = 1;
                     mapa[i][j] = 0;
                     push(s, 8);
@@ -30,7 +34,7 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ITENS
                 else if(mapa[i-1][j] == 6){
-                    menuItem(l);
+                    menuItem(l, p);
 
                     mapa[i-1][j] = 1;
                     mapa[i][j] = 0;
@@ -71,6 +75,8 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ACABOU O JOGO
                 if(mapa[i+1][j] == 4){
+                    limparMapa(mapa, tam);
+
                     mapa[i+1][j] = 1;
                     mapa[i][j] = 0;
                     push(s, 2);
@@ -79,6 +85,8 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ARMADILHAS
                 else if(mapa[i+1][j] == 5){
+                    ativarTrap(p);
+                    
                     mapa[i+1][j] = 1;
                     mapa[i][j] = 0;
                     push(s, 2);
@@ -87,7 +95,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ITENS
                 else if(mapa[i+1][j] == 6){
-                    menuItem(l);
+                    menuItem(l, p);
 
                     mapa[i+1][j] = 1;
                     mapa[i][j] = 0;
@@ -128,6 +136,8 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ACABOU O JOGO
                 if(mapa[i][j-1] == 4){
+                    limparMapa(mapa, tam);
+
                     mapa[1][j-1] = 1;
                     mapa[i][j] = 0;
                     push(s, 4);
@@ -136,6 +146,8 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ARMADILHAS
                 else if(mapa[i][j-1] == 5){
+                    ativarTrap(p);
+                    
                     mapa[i][j-1] = 1;
                     mapa[i][j] = 0;
                     push(s, 4);
@@ -144,7 +156,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ITENS
                 else if(mapa[i][j-1] == 6){
-                    menuItem(l);
+                    menuItem(l, p);
 
                     mapa[i][j-1] = 1;
                     mapa[i][j] = 0;
@@ -185,6 +197,8 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ACABOU O JOGO
                 if(mapa[i][j+1] == 4){
+                    limparMapa(mapa, tam);
+
                     mapa[1][j+1] = 1;
                     mapa[i][j] = 0;
                     push(s, 6);
@@ -193,6 +207,8 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ARMADILHAS
                 else if(mapa[i][j+1] == 5){
+                    ativarTrap(p);
+                    
                     mapa[i][j+1] = 1;
                     mapa[i][j] = 0;
                     push(s, 6);
@@ -201,7 +217,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ITENS
                 else if(mapa[i][j+1] == 6){
-                    menuItem(l);
+                    menuItem(l, p);
 
                     mapa[i][j+1] = 1;
                     mapa[i][j] = 0;
@@ -233,4 +249,21 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
             }
         }
     }
+}
+
+void desfazerMovimento(int** mapa, int tam, Pilha* s){
+    system("cls");
+    int qntdMov = 0;
+
+    do{
+        printf("How many moves would you like to undo?");
+        scanf("%d", &qntdMov);
+        if(qntdMov > tamanhoPilha(s)){
+            printf("You've not walked that many steps yet, adventurer!");
+            qntdMov = 0;
+        }else{
+
+        }
+    }while(qntdMov > tamanhoPilha(s));
+
 }

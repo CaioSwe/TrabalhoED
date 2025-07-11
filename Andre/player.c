@@ -4,9 +4,9 @@
 #include "player.h"
 
 typedef struct stats{
-    float maxHealth;
-    float health;
-    float attack;
+    int maxHealth;
+    int health;
+    int attack;
     float defense;
     float evasionRate;
     bool  defending;
@@ -37,3 +37,11 @@ Player* criarPlayer(){
 
     return p;
 }
+
+int   getPlayerHP(Player* p            ) { return p->stats.health;   }
+void  setPlayerHP(Player* p, int health) { p->stats.health = health; }
+
+int   getPlayerGold(Player* p          ) { return p->stats.gold; }
+void  setPlayerGold(Player* p, int gold) { p->stats.gold = gold; }
+
+int   getPlayerMaxHP(Player* p) { return p->stats.maxHealth; }

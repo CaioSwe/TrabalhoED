@@ -1,4 +1,5 @@
 #include "mapa.h"
+#include "player.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -9,14 +10,8 @@ int** criarMapa(int tam){
     srand(time(NULL));
     int input;
 
-    // Gera um número aleatório entre 0 e (tam - 1)
-    // Isso garante que o número esteja dentro dos limites do mapa
-    // e que não seja igual a 0 ou tam-1, que são as bordas do mapa
-    // O número gerado será usado para definir a posição da saída da dungeon
-    // Isso garante que a saída não esteja na borda do mapa 
     int i_chance = rand() % (tam-2)+1;
-    printf("AAAAA %d AAAAA", i_chance);
-
+    
     *mapa = (int**)malloc(tam*sizeof(int*));
     if(mapa == NULL){ printf("\nERROR: Insuficient Memory!"); exit(1); }
 
@@ -78,10 +73,11 @@ int** criarMapa(int tam){
 
     (*mapa)[2][1] = 6;
     (*mapa)[3][1] = 6;
-    (*mapa)[4][1] = 6;
+    (*mapa)[4][1] = 5;
+    (*mapa)[4][2] = 6;
+    (*mapa)[4][3] = 6;
 
-    printf("\nMap generated!\n");
-
+    // printf("\nMap generated!\n");
     return *mapa;
 }
 
@@ -135,14 +131,29 @@ void printMapa(int** mapa, int tam){
             else if(mapa[i][j] == 0) {printf("   ");}
         }printf("\n");
     }printf("\n");
-    Sleep(1500);
+    Sleep(1000);
     system("cls");
 }
 
 void limparMapa(int** mapa, int tam){
+    system("cls");
+    printf("\nCongratulations!");
+    printf("\nYou've beaten the dungeon!");
+
     for(int i = 0; i < tam; i++){
             free(mapa[i]);
     }free(mapa);
+    printf("\n\n*Crumbling noises");
     
-    printf("\nMap cleared!\n");
+    printf("\n\nAs you leave the dungeon, you hear it crumbling behind you");
+}
+
+void ativarTrap(Player* p){
+    int hp = getPlayerHP(p);
+    printf("\n\nHP: %d", hp);
+
+    printf("\nOh no!\nYou've stepped on a trap!");
+    setPlayerHP(p, hp - 15);
+
+    printf("\nHP: %d\n\n", hp);
 }
