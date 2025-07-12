@@ -10,6 +10,7 @@
 typedef enum Decision{
     IDLE,
     ATTACK,
+    HURT,
     HEAL,
     DEFEND,
     WALK,

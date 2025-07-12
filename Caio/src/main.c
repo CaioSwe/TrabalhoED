@@ -368,13 +368,15 @@ void healthBarP(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vect
     Image_DrawPro(healthBarSprite);
 }
 
-void healthBar(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vector2 initialPos, float health, float maxHealth, float deltaTime){
+bool healthBar(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vector2 initialPos, float health, float maxHealth, float deltaTime){
     static float relativeHealth = 10; // MUDAR
     static float elapsed = 0;
     static bool hurt = false;
     static bool healed = false;
     static Color healthBarColor = WHITE;
     static Color healthBarBorderColor = WHITE;
+
+    bool state = (health < relativeHealth);
 
     if(health < relativeHealth){
         relativeHealth = health;
@@ -417,6 +419,8 @@ void healthBar(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vecto
 
     Image_DrawPro(healthBarFiller);
     Image_DrawPro(healthBarSprite);
+
+    return state;
 }
 
 bool cameraAnimation(Camera2D* camera, Vector2 startPoint, Vector2 zoomPoint, float deltaTime){
@@ -795,6 +799,8 @@ GAMESTATE fightScreen(Resources resources){
 
     Player_setLocked(player, true);
 
+    bool enemyTookDamage = false;
+
     while(!WindowShouldClose()){
         float deltaTime = GetFrameTime();
         Vector2 mousePos = GetMousePosition();
@@ -804,11 +810,9 @@ GAMESTATE fightScreen(Resources resources){
         playerDestRec = Player_getDestRec(player);
         enemyDestRec = Player_getDestRec(enemy);
 
-        printf("\n%d // %d // %d", Player_getAction(enemy), whoseTurn.animationEnd, whoseTurn.animationBegin);
-
         Decision enemyDecision = Player_getAction(enemy);
-        enemyStats = Player_getStats(enemy);
         playerStats = Player_getStats(player);
+        enemyStats = Player_getStats(enemy);
 
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             printf("\nx = %f, y = %f", mousePos.x, mousePos.y);
@@ -822,8 +826,37 @@ GAMESTATE fightScreen(Resources resources){
         Player_setAnimationFramesAnimating(player, true);
 
         Player_UpdatePosition(player, deltaTime);
-        //Player_UpdateSize(player, deltaTime);
         Player_UpdateSprite(player, false, true);
+
+        Player_UpdatePosition(enemy, deltaTime);
+        Player_setAnimationFramesAnimating(enemy, true);
+        enemyAnimState = Player_UpdateSprite(enemy, false, loopEnemy);
+
+        if(enemyAnimState.animationEnd){
+            printf("\n Animation ended.");
+
+            if(enemyDecision != DEAD){
+                Player_setAction(enemy, IDLE);
+            }
+
+            if(Player_getAnimationPositionAnimating(enemy)){
+                Player_setAction(enemy, WALK);
+            }
+            
+            if(enemyStats.health <= 0){
+                Player_setAction(enemy, DEAD);
+            }
+
+            if(!whoseTurn.animationBool && whoseTurn.animationEnd && enemyDecision != DEAD){
+                percorrerArvore(enemyChoice);
+                switchTurns = true;
+                printf(" -> Percorreu arvore");
+            }
+
+            if(enemyTookDamage){
+                Player_setAction(enemy, HURT);
+            }
+        }
 
         switch(enemyDecision){
             case ATTACK:
@@ -831,6 +864,9 @@ GAMESTATE fightScreen(Resources resources){
                 Player_TakeDamage(player, 5.0f);    
                 Player_setAction(enemy, IDLE);
                 loopEnemy = false;
+                break;
+            case HURT:
+                Player_ChangeSprite(enemy, 4, 4);
                 break;
             case DEAD:
                 Player_ChangeSprite(enemy, 13, 1);
@@ -845,33 +881,7 @@ GAMESTATE fightScreen(Resources resources){
                 break;
         }
 
-        Player_UpdatePosition(enemy, deltaTime);
-        Player_UpdateSize(enemy, deltaTime);
-    
-        Player_setAnimationFramesAnimating(enemy, true);
-
-        enemyAnimState = Player_UpdateSprite(enemy, false, loopEnemy);
-
-        if(enemyAnimState.animationEnd){
-            printf("\n Animation ended.");
-
-            if(Player_getAnimationPositionAnimating(enemy)){
-                Player_setAction(enemy, WALK);
-            }
-            else if(enemyDecision != DEAD){
-                Player_setAction(enemy, IDLE);
-            }
-            
-            if(enemyStats.health <= 0){
-                Player_setAction(enemy, DEAD);
-            }
-
-            if(whoseTurn.animationEnd && enemyDecision != DEAD){
-                percorrerArvore(enemyChoice);
-                switchTurns = true;
-                printf(" -> Percorreu arvore");
-            }
-        }
+        printf("\n%d // %d // %d // %d", Player_getAction(enemy), whoseTurn.animationEnd, enemyTookDamage, Player_getAnimationPositionAnimating(enemy));
 
         bc->destination.x = (bc->destination.x - randSpeed1 <= -bc->destination.width/2.0f) ? 0 : bc->destination.x - randSpeed1;
         bb->destination.x = (bb->destination.x - randSpeed2 <= -bb->destination.width/2.0f) ? 0 : bb->destination.x - randSpeed2;
@@ -927,7 +937,7 @@ GAMESTATE fightScreen(Resources resources){
             Player_Draw(enemy);
 
             healthBarSprite->destination = (Rectangle){enemyDestRec.x + enemyDestRec.width/2 - enemyDestRec.width*3/8, enemyDestRec.y - 20, enemyDestRec.width*3/4, 20};
-            healthBar(healthBarSprite, healthBarFiller, (Vector2){healthBarSprite->destination.x, healthBarSprite->destination.y}, enemyStats.health, enemyStats.maxHealth, deltaTime);
+            enemyTookDamage = healthBar(healthBarSprite, healthBarFiller, (Vector2){healthBarSprite->destination.x, healthBarSprite->destination.y}, enemyStats.health, enemyStats.maxHealth, deltaTime);
 
             healthBarSpriteP->destination = (Rectangle){playerDestRec.x + playerDestRec.width/2 - playerDestRec.width*3/8, playerDestRec.y - 20, playerDestRec.width*3/4, 20};
             healthBarP(healthBarSpriteP, healthBarFillerP, (Vector2){healthBarSpriteP->destination.x, healthBarSpriteP->destination.y}, playerStats.health, playerStats.maxHealth, deltaTime);
