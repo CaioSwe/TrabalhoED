@@ -50,7 +50,6 @@ void coletarItem(int opc, Lista* l, Player* p){
             break;
         }
     }while(opc != 0);
-
 }
 
 void menuItem(Lista* l, Player* p){
@@ -147,17 +146,22 @@ void usarItem(Lista* l, Player* p){
 
             // Health Potion
             case 1:
+                printf("\nHP: %d", getPlayerHP(p));
+
                 int hp = getPlayerHP(p) + 40;
                 if(hp <= 100) setPlayerHP(p, hp);
                 else          setPlayerHP(p, 100);
-                printf("Health Potion used!");
+                printf("\nHealth Potion used!");
+
+                printf("\nHP: %d", getPlayerHP(p));
+
                 Sleep(1500);
                 break;
 
             // Monster's Repelent
             case 2:
                 // NÃO FIZ AINDA //
-                printf("Monster's Repelent used!");
+                printf("\nMonster's Repelent used!");
                 Sleep(1500);
                 break;
         
