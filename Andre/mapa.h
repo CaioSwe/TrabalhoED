@@ -2,6 +2,7 @@
 #define _Mapa_h_
 
 #include "player.h"
+#include "game.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -9,7 +10,7 @@
 
 typedef struct player Player;
 
-int**  criarMapa (int                );
+int**  criarMapa (Player*, int       );
 void   populaMapa(int**, int         );
 void   printMapa (int**, int         );
 void   limparMapa(int**, int         );

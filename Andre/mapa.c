@@ -1,8 +1,10 @@
 #include "mapa.h"
 
-int** criarMapa(int tam){
-    int*** mapa = (int***)malloc(tam*sizeof(int**));
+int** criarMapa(Player* p, int tam){
     srand(time(NULL));
+
+    setPlayerPos(p, 1, 1);
+    int*** mapa = (int***)malloc(tam*sizeof(int**));
     int input;
 
     int i_chance = rand() % (tam-2)+1;
@@ -19,7 +21,7 @@ int** criarMapa(int tam){
             else if(i == i_chance && j == tam-1)                  {(*mapa)[i][j] = 4; } // A saída da dungeon
             else if(i == 0 || i == tam-1 || j == 0 || j == tam-1) {(*mapa)[i][j] = 3; } // As bordas da dungeon 
             else                                                  {(*mapa)[i][j] = 0; } // Espaçoes em branco
-        }        
+        }
     }
     
     // Preenche a dungeon com paredes
@@ -72,7 +74,7 @@ int** criarMapa(int tam){
     (*mapa)[4][2] = 6;
     (*mapa)[4][3] = 6;
 
-    // printf("\nMap generated!\n");
+    printf("\nMap generated!\n");
     return *mapa;
 }
 
@@ -149,7 +151,7 @@ void ativarTrap(int** mapa, int tam, Player* p){
 
     printf("\nOh no!\nYou've stepped on a trap!");
     setPlayerHP(p, hp - 15);
-    if(getPlayerHP(p) >= 0) gameOver(mapa, tam);
+    // if(getPlayerHP(p) >= 0) gameOver(mapa, tam);
 
     printf("\nHP: %d\n\n", getPlayerHP(p));
 }
