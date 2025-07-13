@@ -151,7 +151,7 @@ void ativarTrap(int** mapa, int tam, Player* p){
 
     printf("\nOh no!\nYou've stepped on a trap!");
     setPlayerHP(p, hp - 15);
-    // if(getPlayerHP(p) >= 0) gameOver(mapa, tam);
+    if(getPlayerHP(p) <= 0) gameOver(mapa, tam);
 
     printf("\nHP: %d\n\n", getPlayerHP(p));
 }
