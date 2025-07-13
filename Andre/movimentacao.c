@@ -245,18 +245,29 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
 }
 
 void desfazerMovimento(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
-    system("cls");
     int qntdMov = 0;
-
+    int move = 0;
     do{
-        printf("How many moves would you like to undo?");
+        system("cls");
+        imprimirPilha(s);
+        printf("\nHow many moves would you like to backtrack?\n");
         scanf("%d", &qntdMov);
         if(qntdMov > tamanhoPilha(s)){
-            printf("You've not walked that many steps yet, adventurer!");
+            printf("\n\nYou've not walked that many steps yet, adventurer!");
             qntdMov = 0;
         }else{
-
+            while(qntdMov != 0){
+                move = pop(s);
+                printf("Stack movement: %d", move);
+                Sleep(1500);
+                switch(move){
+                    case 8: printf("\nMoving down") ; Sleep(1500); moverBaixo   (mapa, tam, s, l, p); pop(s); break;
+                    case 2: printf("\nMoving up")   ; Sleep(1500); moverCima    (mapa, tam, s, l, p); pop(s); break;
+                    case 4: printf("\nMoving right"); Sleep(1500); moverDireita (mapa, tam, s, l, p); pop(s); break;
+                    case 6: printf("\nMoving left") ; Sleep(1500); moverEsquerda(mapa, tam, s, l, p); pop(s); break;                
+                }
+                qntdMov--;
+            }
         }
     }while(qntdMov > tamanhoPilha(s));
-
 }
