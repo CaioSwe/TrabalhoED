@@ -143,12 +143,13 @@ void limparMapa(int** mapa, int tam){
     printf("\n\nAs you leave the dungeon, you hear it crumbling behind you");
 }
 
-void ativarTrap(Player* p){
+void ativarTrap(int** mapa, int tam, Player* p){
     int hp = getPlayerHP(p);
     printf("\n\nHP: %d", hp);
 
     printf("\nOh no!\nYou've stepped on a trap!");
     setPlayerHP(p, hp - 15);
+    if(getPlayerHP(p) >= 0) gameOver(mapa, tam);
 
-    printf("\nHP: %d\n\n", hp);
+    printf("\nHP: %d\n\n", getPlayerHP(p));
 }
