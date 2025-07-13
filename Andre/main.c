@@ -4,10 +4,11 @@
 
 #include "pilha.h"
 #include "lista.h"
-#include "inventario.h"
-#include "movimentacao.h"
+#include "game.h"
 #include "mapa.h"
 #include "player.h"
+#include "inventario.h"
+#include "movimentacao.h"
 
 #define TAM 12
 
@@ -18,7 +19,7 @@ int main(){
     Player* p = criarPlayer();
     
     populaMapa(mapa, TAM);
-    printMapa (mapa, TAM); 
+    printMapa (mapa, TAM);
 
     moverEsquerda(mapa, TAM, s, l, p); 
     moverBaixo   (mapa, TAM, s, l, p); 
@@ -33,6 +34,8 @@ int main(){
     moverDireita (mapa, TAM, s, l, p); 
     
     abrirInventario(l, p);
+
+    desfazerMovimento(mapa, TAM, s, l, p);
       
     return 0;
 }

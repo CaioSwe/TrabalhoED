@@ -18,6 +18,6 @@ bool moverCima         (int**, int, Pilha*, Lista*, Player*);
 bool moverBaixo        (int**, int, Pilha*, Lista*, Player*);
 bool moverDireita      (int**, int, Pilha*, Lista*, Player*);
 bool moverEsquerda     (int**, int, Pilha*, Lista*, Player*);
-void desfazerMovimento (int**, int, Pilha*                 );
+void desfazerMovimento (int**, int, Pilha*, Lista*, Player*);
 
 #endif

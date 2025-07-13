@@ -17,7 +17,7 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ARMADILHAS
                 else if(mapa[i-1][j] == 5){
-                    ativarTrap(p);
+                    ativarTrap(mapa, tam, p);
 
                     mapa[i-1][j] = 1;
                     mapa[i][j] = 0;
@@ -78,7 +78,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ARMADILHAS
                 else if(mapa[i+1][j] == 5){
-                    ativarTrap(p);
+                    ativarTrap(mapa, tam, p);
                     
                     mapa[i+1][j] = 1;
                     mapa[i][j] = 0;
@@ -139,7 +139,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ARMADILHAS
                 else if(mapa[i][j-1] == 5){
-                    ativarTrap(p);
+                    ativarTrap(mapa, tam, p);
                     
                     mapa[i][j-1] = 1;
                     mapa[i][j] = 0;
@@ -200,7 +200,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // ARMADILHAS
                 else if(mapa[i][j+1] == 5){
-                    ativarTrap(p);
+                    ativarTrap(mapa, tam, p);
                     
                     mapa[i][j+1] = 1;
                     mapa[i][j] = 0;
@@ -244,7 +244,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
     }
 }
 
-void desfazerMovimento(int** mapa, int tam, Pilha* s){
+void desfazerMovimento(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
     system("cls");
     int qntdMov = 0;
 
