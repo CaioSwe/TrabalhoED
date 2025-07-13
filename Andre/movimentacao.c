@@ -37,6 +37,8 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // INIMIGOS
                 else if(mapa[i-1][j] == 7){
+                    if(getPlayerRepelent(p) <= 0) enterCombat();
+
                     mapa[i-1][j] = 1;
                     mapa[i][j] = 0;
                     push(s, 8);
@@ -98,6 +100,8 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // INIMIGOS
                 else if(mapa[i+1][j] == 7){
+                    if(getPlayerRepelent(p) <= 0) enterCombat();
+        
                     mapa[i+1][j] = 1;
                     mapa[i][j] = 0;
                     push(s, 2);
@@ -159,6 +163,8 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // INIMIGOS
                 else if(mapa[i][j-1] == 7){
+                    if(getPlayerRepelent(p) <= 0) enterCombat();
+                
                     mapa[i][j-1] = 1;
                     mapa[i][j] = 0;
                     push(s, 4);
@@ -220,6 +226,8 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 
                 // INIMIGOS
                 else if(mapa[i][j+1] == 7){
+                    if(getPlayerRepelent(p) <= 0) enterCombat();
+                 
                     mapa[i][j+1] = 1;
                     mapa[i][j] = 0;
                     push(s, 6);
