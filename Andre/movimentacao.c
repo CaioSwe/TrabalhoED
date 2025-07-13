@@ -71,7 +71,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
     int move = mapa[i][j];
     switch(move){
         case 3: // Caminho bloqueado por parede
-            printf("\nThe path upwards is blocked");
+            printf("\nThe path downwards is blocked");
             printMapa(mapa, tam);
 
             return false;
@@ -134,7 +134,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
     int move = mapa[i][j];
     switch(move){
         case 3: // Caminho bloqueado por parede
-            printf("\nThe path upwards is blocked");
+            printf("\nThe path leftwards is blocked");
             printMapa(mapa, tam);
 
             return false;
@@ -197,7 +197,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
     int move = mapa[i][j];
     switch(move){
         case 3: // Caminho bloqueado por parede
-            printf("\nThe path upwards is blocked");
+            printf("\nThe path rightwards is blocked");
             printMapa(mapa, tam);
 
             return false;

@@ -13,14 +13,16 @@
 #define TAM 12
 
 int main(){
-    int** mapa = criarMapa(TAM);
     Pilha*  s = criarPilha();
     Lista*  l = criaLista();
     Player* p = criarPlayer();
+    int** mapa = criarMapa(p, TAM);
     
     populaMapa(mapa, TAM);
     printMapa (mapa, TAM);
 
+    
+    moverCima    (mapa, TAM, s, l, p);
     moverEsquerda(mapa, TAM, s, l, p); 
     moverBaixo   (mapa, TAM, s, l, p); 
     moverBaixo   (mapa, TAM, s, l, p); 
