@@ -18,7 +18,7 @@ int main(){
     Player* p = criarPlayer();
     
     populaMapa(mapa, TAM);
-    printMapa (mapa, TAM);
+    printMapa (mapa, TAM); 
 
     moverEsquerda(mapa, TAM, s, l, p); 
     moverBaixo   (mapa, TAM, s, l, p); 
