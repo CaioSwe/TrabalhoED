@@ -45,3 +45,15 @@ int   getPlayerRepelent(Player* p            ) { return p->stats.repelent;   }
 void  setPlayerRepelent(Player* p, int amount) { p->stats.repelent = amount; }
 
 int   getPlayerMaxHP(Player* p) { return p->stats.maxHealth; }
+
+int*   getPlayerPos(Player* p){
+    int* pos = (int*)malloc(2*sizeof(int));
+    pos[0] = p->x; 
+    pos[1] = p->y; 
+    
+    return pos; 
+}
+void   setPlayerPos(Player* p, int x, int y) {
+    p->x = x; 
+    p->y = y;
+}

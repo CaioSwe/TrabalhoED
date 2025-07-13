@@ -1,255 +1,255 @@
 #include "movimentacao.h"
 
 bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
-    for(int i = 0; i < tam; i++){
-        for(int j = 0; j < tam; j++){            
-            if(mapa[i][j] == 1){ // Encontra o jogador no mapa
-                
-                // ACABOU O JOGO
-                if(mapa[i-1][j] == 4){
-                    limparMapa(mapa, tam);
+    int* pos = getPlayerPos(p);
 
-                    mapa[i-1][j] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 8);
-                    printMapa(mapa, tam);
-                }
-                
-                // ARMADILHAS
-                else if(mapa[i-1][j] == 5){
-                    ativarTrap(mapa, tam, p);
+    int i = pos[0] - 1;
+    int j = pos[1];
+    int move = mapa[i][j];
+    switch(move){
+        case 3: // Caminho bloqueado por parede
+            printf("\nThe path upwards is blocked");
+            printMapa(mapa, tam);
 
-                    mapa[i-1][j] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 8);
-                    printMapa(mapa, tam);
-                }
-                
-                // ITENS
-                else if(mapa[i-1][j] == 6){
-                    menuItem(l, p);
+            return false;
+            break;
 
-                    mapa[i-1][j] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 8);
-                    printMapa(mapa, tam);
-                }
-                
-                // INIMIGOS
-                else if(mapa[i-1][j] == 7){
-                    if(getPlayerRepelent(p) <= 0) enterCombat();
+        case 0: // Caminho está livre
+            mapa[ i ][j] = 1;
+            mapa[i+1][j] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 8);
+           
+            printMapa(mapa, tam);
+            break;
 
-                    mapa[i-1][j] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 8);
-                    printMapa(mapa, tam);
-                }
+        case 4: // Saída da dungeon, fim do jogo
+            limparMapa(mapa, tam);
+            break;
 
-                // Posição está livre, player pode se mover livremente
-                else if(mapa[i-1][j] == 0){
-                    mapa[i-1][j] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 8);
-                    printMapa(mapa, tam);
-                }else{
-                    printf("\nThe path upwards is blocked");
-                    printMapa(mapa, tam);
+        case 5: // Pisou em uma armadilha
+            ativarTrap(mapa, tam, p);
 
-                    return false;
-                }
-                return true;
-            }
-        }
+            mapa[ i ][j] = 1;
+            mapa[i+1][j] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 8);
+           
+            printMapa(mapa, tam);
+            break;
+        
+        case 6: // Passou por cima de um item
+            menuItem(l, p);
+
+            mapa[ i ][j] = 1;
+            mapa[i+1][j] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 8);
+            
+            printMapa(mapa, tam);
+            break;
+
+        case 7: // Encontrou um inimigo
+            // if(getPlayerRepelent(p) <= 0) enterCombat();
+
+            mapa[ i ][j] = 1;
+            mapa[i+1][j] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 8);
+           
+            printMapa(mapa, tam);
+            break;
     }
+    return true;
 }
 
 bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
-    for(int i = 0; i < tam; i++){
-        for(int j = 0; j < tam; j++){
-            if(mapa[i][j] == 1){ // Encontra o jogador no mapa
-                
-                // ACABOU O JOGO
-                if(mapa[i+1][j] == 4){
-                    limparMapa(mapa, tam);
+    int* pos = getPlayerPos(p);
 
-                    mapa[i+1][j] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 2);
-                    printMapa(mapa, tam);
-                }
-                
-                // ARMADILHAS
-                else if(mapa[i+1][j] == 5){
-                    ativarTrap(mapa, tam, p);
-                    
-                    mapa[i+1][j] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 2);
-                    printMapa(mapa, tam);
-                }
-                
-                // ITENS
-                else if(mapa[i+1][j] == 6){
-                    menuItem(l, p);
+    int i = pos[0] + 1;
+    int j = pos[1];
+    int move = mapa[i][j];
+    switch(move){
+        case 3: // Caminho bloqueado por parede
+            printf("\nThe path upwards is blocked");
+            printMapa(mapa, tam);
 
-                    mapa[i+1][j] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 2);
-                    printMapa(mapa, tam);
-                }
-                
-                // INIMIGOS
-                else if(mapa[i+1][j] == 7){
-                    if(getPlayerRepelent(p) <= 0) enterCombat();
+            return false;
+            break;
+
+        case 0: // Caminho está livre
+            mapa[ i ][j] = 1;
+            mapa[i-1][j] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 2);
+           
+            printMapa(mapa, tam);
+            break;
+
+        case 4: // Saída da dungeon, fim do jogo
+            limparMapa(mapa, tam);
+            break;
+
+        case 5: // Pisou em uma armadilha
+            ativarTrap(mapa, tam, p);
+
+            mapa[ i ][j] = 1;
+            mapa[i-1][j] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 2);
+           
+            printMapa(mapa, tam);
+            break;
         
-                    mapa[i+1][j] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 2);
-                    printMapa(mapa, tam);
-                }
+        case 6: // Passou por cima de um item
+            menuItem(l, p);
 
-                // Posição está livre
-                else if(mapa[i+1][j] == 0){
-                    mapa[i+1][j] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 2);
-                    printMapa(mapa, tam);
-                }else{
-                    printf("\nThe path downwards is blocked");
-                    printMapa(mapa, tam);
+            mapa[ i ][j] = 1;
+            mapa[i-1][j] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 2);
+            
+            printMapa(mapa, tam);
+            break;
 
-                    return false;
-                }
-                return true;
-            }
-        }
+        case 7: // Encontrou um inimigo
+            // if(getPlayerRepelent(p) <= 0) enterCombat();
+
+            mapa[ i ][j] = 1;
+            mapa[i-1][j] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 2);
+           
+            printMapa(mapa, tam);
+            break;
     }
+    return true;
 }
 
 bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
-    for(int i = 0; i < tam; i++){
-        for(int j = 0; j < tam; j++){
-            if(mapa[i][j] == 1){ // Encontra o jogador no mapa
-                
-                // ACABOU O JOGO
-                if(mapa[i][j-1] == 4){
-                    limparMapa(mapa, tam);
+    int* pos = getPlayerPos(p);
 
-                    mapa[1][j-1] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 4);
-                    printMapa(mapa, tam);
-                }
-                
-                // ARMADILHAS
-                else if(mapa[i][j-1] == 5){
-                    ativarTrap(mapa, tam, p);
-                    
-                    mapa[i][j-1] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 4);
-                    printMapa(mapa, tam);
-                }
-                
-                // ITENS
-                else if(mapa[i][j-1] == 6){
-                    menuItem(l, p);
+    int i = pos[0];
+    int j = pos[1] - 1;
+    int move = mapa[i][j];
+    switch(move){
+        case 3: // Caminho bloqueado por parede
+            printf("\nThe path upwards is blocked");
+            printMapa(mapa, tam);
 
-                    mapa[i][j-1] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 4);
-                    printMapa(mapa, tam);
-                }
-                
-                // INIMIGOS
-                else if(mapa[i][j-1] == 7){
-                    if(getPlayerRepelent(p) <= 0) enterCombat();
-                
-                    mapa[i][j-1] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 4);
-                    printMapa(mapa, tam);
-                }
+            return false;
+            break;
 
-                // Posição está livre
-                else if(mapa[i][j-1] == 0){
-                    mapa[i][j-1] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 4);
-                    printMapa(mapa, tam);
-                }else{
-                    printf("\nThe path leftwards is blocked");
-                    printMapa(mapa, tam);
+        case 0: // Caminho está livre
+            mapa[i][ j ] = 1;
+            mapa[i][j+1] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 4);
+           
+            printMapa(mapa, tam);
+            break;
 
-                    return false;
-                }
-                return true;
-            }
-        }
+        case 4: // Saída da dungeon, fim do jogo
+            limparMapa(mapa, tam);
+            break;
+
+        case 5: // Pisou em uma armadilha
+            ativarTrap(mapa, tam, p);
+
+            mapa[i][ j ] = 1;
+            mapa[i][j+1] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 4);
+           
+            printMapa(mapa, tam);
+            break;
+        
+        case 6: // Passou por cima de um item
+            menuItem(l, p);
+
+            mapa[i][ j ] = 1;
+            mapa[i][j+1] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 4);
+            
+            printMapa(mapa, tam);
+            break;
+
+        case 7: // Encontrou um inimigo
+            // if(getPlayerRepelent(p) <= 0) enterCombat();
+
+            mapa[i][ j ] = 1;
+            mapa[i][j+1] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 4);
+           
+            printMapa(mapa, tam);
+            break;
     }
+    return true;
 }
 
 bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
-    for(int i = 0; i < tam; i++){
-        for(int j = 0; j < tam; j++){
-            if(mapa[i][j] == 1){ // Encontra o jogador no mapa
-                
-                // ACABOU O JOGO
-                if(mapa[i][j+1] == 4){
-                    limparMapa(mapa, tam);
+    int* pos = getPlayerPos(p);
 
-                    mapa[1][j+1] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 6);
-                    printMapa(mapa, tam);
-                }
-                
-                // ARMADILHAS
-                else if(mapa[i][j+1] == 5){
-                    ativarTrap(mapa, tam, p);
-                    
-                    mapa[i][j+1] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 6);
-                    printMapa(mapa, tam);
-                }
-                
-                // ITENS
-                else if(mapa[i][j+1] == 6){
-                    menuItem(l, p);
+    int i = pos[0];
+    int j = pos[1] + 1;
+    int move = mapa[i][j];
+    switch(move){
+        case 3: // Caminho bloqueado por parede
+            printf("\nThe path upwards is blocked");
+            printMapa(mapa, tam);
 
-                    mapa[i][j+1] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 6);
-                    printMapa(mapa, tam);
-                }
-                
-                // INIMIGOS
-                else if(mapa[i][j+1] == 7){
-                    if(getPlayerRepelent(p) <= 0) enterCombat();
-                 
-                    mapa[i][j+1] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 6);
-                    printMapa(mapa, tam);
-                }
+            return false;
+            break;
 
-                // Posição está livre
-                else if(mapa[i][j+1] == 0){
-                    mapa[i][j+1] = 1;
-                    mapa[i][j] = 0;
-                    push(s, 6);
-                    printMapa(mapa, tam);
-                }else{
-                    printf("\nThe path rightwards is blocked");
-                    printMapa(mapa, tam);
+        case 0: // Caminho está livre
+            mapa[i][ j ] = 1;
+            mapa[i][j-1] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 6);
+           
+            printMapa(mapa, tam);
+            break;
 
-                    return false;
-                }
-                return true;
-            }
-        }
+        case 4: // Saída da dungeon, fim do jogo
+            limparMapa(mapa, tam);
+            break;
+
+        case 5: // Pisou em uma armadilha
+            ativarTrap(mapa, tam, p);
+
+            mapa[i][ j ] = 1;
+            mapa[i][j-1] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 6);
+           
+            printMapa(mapa, tam);
+            break;
+        
+        case 6: // Passou por cima de um item
+            menuItem(l, p);
+
+            mapa[i][ j ] = 1;
+            mapa[i][j-1] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 6);
+            
+            printMapa(mapa, tam);
+            break;
+
+        case 7: // Encontrou um inimigo
+            // if(getPlayerRepelent(p) <= 0) enterCombat();
+
+            mapa[i][ j ] = 1;
+            mapa[i][j-1] = 0;
+            setPlayerPos(p, i, j);
+            push(s, 6);
+           
+            printMapa(mapa, tam);
+            break;
     }
+    return true;
 }
 
 void desfazerMovimento(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
