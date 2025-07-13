@@ -16,7 +16,6 @@ typedef struct player{
     Stats stats;
 }Player;
 
-
 Player* criarPlayer(){
     Player* p = (Player*)malloc(sizeof(Player));
 
