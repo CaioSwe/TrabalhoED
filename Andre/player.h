@@ -19,6 +19,9 @@ void  setPlayerGold(Player*, int);
 int   getPlayerRepelent(Player*     );
 void  setPlayerRepelent(Player*, int);
 
+int*   getPlayerPos(Player*          );
+void   setPlayerPos(Player*, int, int);
+
 int   getPlayerMaxHP(Player*);
 
 #endif

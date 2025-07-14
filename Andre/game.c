@@ -1,10 +1,7 @@
 #include "game.h"
-#include "mapa.h"
-#include <stdio.h>
-#include <stdlib.h>
 
-void startGame(int** mapa, int tam){
-    criarMapa(tam);
+void startGame(Player* p, int** mapa, int tam){
+    criarMapa(p, tam);
     populaMapa(mapa, tam);
 }
 
