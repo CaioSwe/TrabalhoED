@@ -38,4 +38,7 @@ void  setEnemyHP(Enemy*, float);
 float getEnemyAttack(Enemy*);
 float getEnemyDefense(Enemy*);
 
+bool  getEnemyMimic(Enemy*      );
+void  setEnemyMimic(Enemy*, bool);
+
 #endif

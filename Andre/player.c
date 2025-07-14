@@ -18,6 +18,7 @@ typedef struct player{
 }Player;
 
 typedef struct enemy{
+    bool  mimic;
     float maxHealth;
     float health;
     float attack;
@@ -28,8 +29,8 @@ typedef struct enemy{
 Player* criarPlayer(){
     Player* p = (Player*)malloc(sizeof(Player));
 
-    p->x = 0;
-    p->y = 0;
+    p->x = 1;
+    p->y = 1;
     
     p->stats.maxHealth   = 100.0;
     p->stats.health      = 100.0;
@@ -44,9 +45,11 @@ Player* criarPlayer(){
 
     return p;
 }
+
 Enemy* criarEnemy(){
     Enemy* e = (Enemy*)malloc(sizeof(Enemy));
 
+    e->mimic       = false;
     e->maxHealth   = 75.0;
     e->health      = 75.0;
     e->attack      = 10.0;
@@ -90,3 +93,6 @@ void  setEnemyHP(Enemy* e, float health) { e->health = health; }
 
 float getEnemyAttack (Enemy* e) { return e->attack;  }
 float getEnemyDefense(Enemy* e) { return e->defense; }
+
+bool  getEnemyMimic(Enemy* e            ) { return e->mimic;  }
+void  setEnemyMimic(Enemy* e, bool mimic) { e->mimic = mimic; }
