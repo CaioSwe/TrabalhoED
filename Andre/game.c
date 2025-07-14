@@ -5,9 +5,14 @@ void startGame(Player* p, int** mapa, int tam){
     populaMapa(mapa, tam);
 }
 
-void gameOver(int** mapa, int tam, int end){
+void gameOver(int** mapa, int tam, int end, Player* p, Enemy* e, Pilha* s, Lista* l){
     switch(end){
         case 1:
+            free(p);
+            free(e);
+            limparPilha(s);
+            limparLista(l);
+
             system("cls");
             printf("\tCongratulations!\n");
             printf("\nYou've beaten the dungeon!");
@@ -18,6 +23,11 @@ void gameOver(int** mapa, int tam, int end){
             break;
         
         case 0: 
+            free(p);
+            free(e);
+            limparPilha(s);
+            limparLista(l);
+            
             system("cls");
             printf("\tGAME OVER\n");
             printf("\nAfter arduos hours battling enemies and braving the dungeon,");
@@ -27,7 +37,7 @@ void gameOver(int** mapa, int tam, int end){
             Sleep(5000);
             break;
     }
-    
+
     int opc;
     do{
         system("cls");
