@@ -56,7 +56,7 @@ int** criarMapa(Player* p, int tam){
     (*mapa)[2][9] = 2;
     (*mapa)[3][9] = 2;
 
-    (*mapa)[9][6] = 2;
+    (*mapa)[9][6]  = 2;
     (*mapa)[10][7] = 2;
     (*mapa)[9] [7] = 2;
     (*mapa)[8] [7] = 2;
@@ -67,12 +67,6 @@ int** criarMapa(Player* p, int tam){
     (*mapa)[10][8] = 2;
     (*mapa)[10][8] = 2;
     (*mapa)[10][9] = 2;
-
-    (*mapa)[2][1] = 6;
-    (*mapa)[3][1] = 6;
-    (*mapa)[4][1] = 5;
-    (*mapa)[4][2] = 6;
-    (*mapa)[4][3] = 7;
 
     return *mapa;
 }
@@ -127,8 +121,6 @@ void printMapa(int** mapa, int tam){
             else if(mapa[i][j] == 0) {printf("   ");}
         }printf("\n");
     }printf("\n");
-    Sleep(1000);
-    system("cls");
 }
 
 void limparMapa(int** mapa, int tam){
@@ -138,6 +130,8 @@ void limparMapa(int** mapa, int tam){
 }
 
 void ativarTrap(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
+    system("cls");
+
     float hp = getPlayerHP(p);
     printf("\n\nHP: %.2f", hp);
 
@@ -147,5 +141,5 @@ void ativarTrap(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
     if(getPlayerHP(p) <= 0) gameOver(mapa, tam, 0, p, e, s, l);
     else                    printf("\nHP: %.2f\n\n", getPlayerHP(p));
 
-    Sleep(1500);
+    system("pause");
 }
