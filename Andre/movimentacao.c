@@ -24,7 +24,7 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             break;
 
         case 4: // Saída da dungeon, fim do jogo
-            limparMapa(mapa, tam);
+            gameOver(mapa, tam, 1);
             break;
 
         case 5: // Pisou em uma armadilha
@@ -39,7 +39,7 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             break;
         
         case 6: // Passou por cima de um item
-            menuItem(l, p, e);
+            menuItem(l, p, e, mapa, tam);
 
             mapa[ i ][j] = 1;
             mapa[i+1][j] = 0;
@@ -50,7 +50,7 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             break;
 
         case 7: // Encontrou um inimigo
-            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e);
+            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e, mapa, tam);
 
             mapa[ i ][j] = 1;
             mapa[i+1][j] = 0;
@@ -87,7 +87,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             break;
 
         case 4: // Saída da dungeon, fim do jogo
-            limparMapa(mapa, tam);
+            gameOver(mapa, tam, 1);
             break;
 
         case 5: // Pisou em uma armadilha
@@ -102,7 +102,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             break;
         
         case 6: // Passou por cima de um item
-            menuItem(l, p, e);
+            menuItem(l, p, e, mapa, tam);
 
             mapa[ i ][j] = 1;
             mapa[i-1][j] = 0;
@@ -113,7 +113,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             break;
 
         case 7: // Encontrou um inimigo
-            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e);
+            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e, mapa, tam);
 
             mapa[ i ][j] = 1;
             mapa[i-1][j] = 0;
@@ -150,7 +150,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
             break;
 
         case 4: // Saída da dungeon, fim do jogo
-            limparMapa(mapa, tam);
+            gameOver(mapa, tam, 1);
             break;
 
         case 5: // Pisou em uma armadilha
@@ -165,7 +165,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
             break;
         
         case 6: // Passou por cima de um item
-            menuItem(l, p, e);
+            menuItem(l, p, e, mapa, tam);
 
             mapa[i][ j ] = 1;
             mapa[i][j+1] = 0;
@@ -176,7 +176,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
             break;
 
         case 7: // Encontrou um inimigo
-            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e);
+            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e, mapa, tam);
       
             mapa[i][ j ] = 1;
             mapa[i][j+1] = 0;
@@ -213,7 +213,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             break;
 
         case 4: // Saída da dungeon, fim do jogo
-            limparMapa(mapa, tam);
+            gameOver(mapa, tam, 1);
             break;
 
         case 5: // Pisou em uma armadilha
@@ -228,7 +228,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             break;
         
         case 6: // Passou por cima de um item
-            menuItem(l, p, e);
+            menuItem(l, p, e, mapa, tam);
 
             mapa[i][ j ] = 1;
             mapa[i][j-1] = 0;
@@ -239,7 +239,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             break;
 
         case 7: // Encontrou um inimigo
-            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e);
+            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e, mapa, tam);
 
             mapa[i][ j ] = 1;
             mapa[i][j-1] = 0;

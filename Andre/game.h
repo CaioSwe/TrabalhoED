@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 void startGame(Player*, int**, int);
-void gameOver (int**, int         );
+void gameOver (int**, int, int    );
 void moveMenu (                   );
 
 #endif

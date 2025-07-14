@@ -5,9 +5,9 @@ void startGame(Player* p, int** mapa, int tam){
     populaMapa(mapa, tam);
 }
 
-void gameOver(int** mapa, int tam){
+void gameOver(int** mapa, int tam, int end){
     system("cls");
-    printf("\tGAMO OVER\n");
+    printf("\tGAME OVER\n");
     printf("\nAfter arduos hours battling enemies and braving the dungeon,");
     printf("\nYou unfortunately succumb to you wounds");
 
