@@ -14,10 +14,10 @@
 typedef struct lista Lista;
 typedef struct pilha Pilha;
 
-bool moverCima         (int**, int, Pilha*, Lista*, Player*);
-bool moverBaixo        (int**, int, Pilha*, Lista*, Player*);
-bool moverDireita      (int**, int, Pilha*, Lista*, Player*);
-bool moverEsquerda     (int**, int, Pilha*, Lista*, Player*);
-void desfazerMovimento (int**, int, Pilha*, Lista*, Player*);
+bool moverCima         (int**, int, Pilha*, Lista*, Player*, Enemy*);
+bool moverBaixo        (int**, int, Pilha*, Lista*, Player*, Enemy*);
+bool moverDireita      (int**, int, Pilha*, Lista*, Player*, Enemy*);
+bool moverEsquerda     (int**, int, Pilha*, Lista*, Player*, Enemy*);
+void desfazerMovimento (int**, int, Pilha*, Lista*, Player*, Enemy*);
 
 #endif

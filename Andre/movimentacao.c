@@ -1,6 +1,6 @@
 #include "movimentacao.h"
 
-bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
+bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     int* pos = getPlayerPos(p);
 
     int i = pos[0] - 1;
@@ -39,7 +39,7 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
             break;
         
         case 6: // Passou por cima de um item
-            menuItem(l, p);
+            menuItem(l, p, e);
 
             mapa[ i ][j] = 1;
             mapa[i+1][j] = 0;
@@ -50,7 +50,7 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
             break;
 
         case 7: // Encontrou um inimigo
-            // if(getPlayerRepelent(p) <= 0) enterCombat();
+            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e);
 
             mapa[ i ][j] = 1;
             mapa[i+1][j] = 0;
@@ -63,7 +63,7 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
     return true;
 }
 
-bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
+bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     int* pos = getPlayerPos(p);
 
     int i = pos[0] + 1;
@@ -102,7 +102,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
             break;
         
         case 6: // Passou por cima de um item
-            menuItem(l, p);
+            menuItem(l, p, e);
 
             mapa[ i ][j] = 1;
             mapa[i-1][j] = 0;
@@ -113,7 +113,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
             break;
 
         case 7: // Encontrou um inimigo
-            // if(getPlayerRepelent(p) <= 0) enterCombat();
+            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e);
 
             mapa[ i ][j] = 1;
             mapa[i-1][j] = 0;
@@ -126,7 +126,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
     return true;
 }
 
-bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
+bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     int* pos = getPlayerPos(p);
 
     int i = pos[0];
@@ -165,7 +165,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
             break;
         
         case 6: // Passou por cima de um item
-            menuItem(l, p);
+            menuItem(l, p, e);
 
             mapa[i][ j ] = 1;
             mapa[i][j+1] = 0;
@@ -176,8 +176,8 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
             break;
 
         case 7: // Encontrou um inimigo
-            // if(getPlayerRepelent(p) <= 0) enterCombat();
-
+            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e);
+      
             mapa[i][ j ] = 1;
             mapa[i][j+1] = 0;
             setPlayerPos(p, i, j);
@@ -189,7 +189,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
     return true;
 }
 
-bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
+bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     int* pos = getPlayerPos(p);
 
     int i = pos[0];
@@ -228,7 +228,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
             break;
         
         case 6: // Passou por cima de um item
-            menuItem(l, p);
+            menuItem(l, p, e);
 
             mapa[i][ j ] = 1;
             mapa[i][j-1] = 0;
@@ -239,7 +239,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
             break;
 
         case 7: // Encontrou um inimigo
-            // if(getPlayerRepelent(p) <= 0) enterCombat();
+            if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e);
 
             mapa[i][ j ] = 1;
             mapa[i][j-1] = 0;
@@ -252,7 +252,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
     return true;
 }
 
-void desfazerMovimento(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
+void desfazerMovimento(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     int qntdMov = 0;
     int move = 0;
     do{
@@ -269,10 +269,10 @@ void desfazerMovimento(int** mapa, int tam, Pilha* s, Lista* l, Player* p){
                 printf("Stack movement: %d", move);
                 Sleep(1500);
                 switch(move){
-                    case 8: printf("\nMoving down") ; Sleep(1500); moverBaixo   (mapa, tam, s, l, p); pop(s); break;
-                    case 2: printf("\nMoving up")   ; Sleep(1500); moverCima    (mapa, tam, s, l, p); pop(s); break;
-                    case 4: printf("\nMoving right"); Sleep(1500); moverDireita (mapa, tam, s, l, p); pop(s); break;
-                    case 6: printf("\nMoving left") ; Sleep(1500); moverEsquerda(mapa, tam, s, l, p); pop(s); break;                
+                    case 8: printf("\nMoving down") ; Sleep(1500); moverBaixo   (mapa, tam, s, l, p, e); pop(s); break;
+                    case 2: printf("\nMoving up")   ; Sleep(1500); moverCima    (mapa, tam, s, l, p, e); pop(s); break;
+                    case 4: printf("\nMoving right"); Sleep(1500); moverDireita (mapa, tam, s, l, p, e); pop(s); break;
+                    case 6: printf("\nMoving left") ; Sleep(1500); moverEsquerda(mapa, tam, s, l, p, e); pop(s); break;                
                 }
                 qntdMov--;
             }
