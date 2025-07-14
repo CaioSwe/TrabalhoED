@@ -106,3 +106,14 @@ void imprimirLista(Lista* lista){
 int getValor(Celula* cel){
     return cel->valor;
 }
+
+void limparLista(Lista* l){
+    Celula*   del = l->prim;
+    Celula* atual = NULL;
+    
+    while(del != NULL){
+        atual = del;
+        del   = del->prox;
+        free(atual);
+    }free(del);
+}
