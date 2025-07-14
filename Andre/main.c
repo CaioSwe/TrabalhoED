@@ -16,28 +16,29 @@ int main(){
     Pilha*  s = criarPilha();
     Lista*  l = criaLista();
     Player* p = criarPlayer();
+    Enemy*  e;
     int** mapa = criarMapa(p, TAM);
     
     populaMapa(mapa, TAM);
     printMapa (mapa, TAM);
 
     
-    moverCima    (mapa, TAM, s, l, p);
-    moverEsquerda(mapa, TAM, s, l, p); 
-    moverBaixo   (mapa, TAM, s, l, p); 
-    moverBaixo   (mapa, TAM, s, l, p); 
-    moverBaixo   (mapa, TAM, s, l, p); 
-    moverBaixo   (mapa, TAM, s, l, p);
+    moverCima    (mapa, TAM, s, l, p, e);
+    moverEsquerda(mapa, TAM, s, l, p, e); 
+    moverBaixo   (mapa, TAM, s, l, p, e); 
+    moverBaixo   (mapa, TAM, s, l, p, e); 
+    moverBaixo   (mapa, TAM, s, l, p, e); 
+    moverBaixo   (mapa, TAM, s, l, p, e);
 
     abrirInventario(l, p);
     
-    moverDireita (mapa, TAM, s, l, p); 
-    moverDireita (mapa, TAM, s, l, p); 
-    moverDireita (mapa, TAM, s, l, p); 
+    moverDireita (mapa, TAM, s, l, p, e); 
+    moverDireita (mapa, TAM, s, l, p, e); 
+    moverDireita (mapa, TAM, s, l, p, e); 
     
     abrirInventario(l, p);
 
-    desfazerMovimento(mapa, TAM, s, l, p);
+    desfazerMovimento(mapa, TAM, s, l, p, e);
       
     return 0;
 }
