@@ -10,7 +10,8 @@ void startGame(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
     system("cls");
 
     printf("\tOne day, you decide to go adventuring, despite you mother's worries");
-    printf("'\nIt's dangerous to go alone! Take this' She tells you, handing you an old but trusty sword\n\n");
+    printf("'\nIt's dangerous to go alone! Take this' She tells you, handing you an old but trusty sword");
+    printf("\nAs well an old and dirty bag\n\n");
     system("pause");
     system("cls");
 
@@ -41,7 +42,7 @@ void startGame(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
     system("pause");
     system("cls");
 
-    moveMenu(mapa, tam, s, l, p, e);
+    gameMenu(mapa, tam, s, l, p, e);
 }
 
 void restartGame(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
@@ -52,7 +53,7 @@ void restartGame(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
     l    = criaLista();
     p    = criarPlayer();
 
-    moveMenu(mapa, tam, s, l, p, e);
+    gameMenu(mapa, tam, s, l, p, e);
 }
 
 void gameOver(int** mapa, int tam, int end, Player* p, Enemy* e, Pilha* s, Lista* l){
@@ -99,21 +100,38 @@ void gameOver(int** mapa, int tam, int end, Player* p, Enemy* e, Pilha* s, Lista
     }while(opc == 10);
 }
 
-void moveMenu(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
-    system("cls");
-    printMapa(mapa, tam);
+void gameMenu(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){    
+    int choice = 0;;
+    while(choice){
+        system("cls");
+        printMapa(mapa, tam);
+        
+        printf("\n\nWhat would you like to do?");
+        scanf("%d", &choice);
+        printf("\n1 - MOVE");
+        printf("\t2 - OPEN BAG");
+        printf("\t3 - GO BACK HOME");
+        
+        switch(choice){
+            case 1: moveMenu(mapa, tam, s, l, p, e);    break;
+            case 2: abrirInventario(l, p);              break;
+            case 3: gameOver(mapa, tam, 2, p, e, s, l); break;
+        }
+    }
+}
 
+void moveMenu(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     int move = 0;;
     while(move){
         system("cls");
+        printMapa(mapa, tam);
         
-        printf("\n\nWhat would you like to do?");
+        printf("\n\nWhere would you like to go?");
         printf("\n\t1 - Go Upwards");
         printf("\n2 - Go Leftwards");
         printf("\t\t3 - Go Rightwards");
         printf("\n\t4 - Go Downwards");
         printf("\n\n5 - Take a step backwards");
-        scanf("%d", &move);
         
         switch(move){
             case 1: moverCima        (mapa, tam, s, l, p, e); break;

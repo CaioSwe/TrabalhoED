@@ -13,6 +13,7 @@
 void startGame  (int**, int, Player*, Enemy*, Pilha*, Lista*     );
 void restartGame(int**, int, Player*, Enemy*, Pilha*, Lista*     );
 void gameOver   (int**, int, int, Player*, Enemy*, Pilha*, Lista*);
+void gameMenu   (int**, int, Pilha*, Lista*, Player*, Enemy*     );
 void moveMenu   (int**, int, Pilha*, Lista*, Player*, Enemy*     );
 
 #endif
