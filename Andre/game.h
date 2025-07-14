@@ -5,12 +5,14 @@
 #include "pilha.h"
 #include "lista.h"
 #include "player.h"
+#include "movimentacao.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-void startGame(Player*, int**, int);
-void gameOver (int**, int, int, Player*, Enemy*, Pilha*, Lista*);
-void moveMenu (                   );
+void startGame  (int**, int, Player*, Enemy*, Pilha*, Lista*     );
+void restartGame(int**, int, Player*, Enemy*, Pilha*, Lista*     );
+void gameOver   (int**, int, int, Player*, Enemy*, Pilha*, Lista*);
+void moveMenu   (int**, int, Pilha*, Lista*, Player*, Enemy*     );
 
 #endif
