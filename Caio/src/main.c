@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "TileSet.h"
 #include "Game.h"
+#include "SpriteSheet.h"
 
 #include "Lista.h"
 #include "Arvore.h"
@@ -309,7 +310,7 @@ bool healedAnimation(Color* healthBarColor, float deltaTime){
     return false;
 }
 
-void healthBarP(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vector2 initialPos, float health, float maxHealth, float deltaTime){
+bool healthBarP(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vector2 initialPos, float health, float maxHealth, float deltaTime){
     static float relativeHealth = 10; // MUDAR
     static float elapsed = 0;
     static bool hurt = false;
@@ -317,6 +318,8 @@ void healthBarP(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vect
     static bool healed = false;
     static Color healthBarColor = WHITE;
     static Color healthBarBorderColor = WHITE;
+
+    bool state = (health < relativeHealth);
 
     if(health < relativeHealth){
         relativeHealth = health;
@@ -366,6 +369,8 @@ void healthBarP(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vect
 
     Image_DrawPro(healthBarFiller);
     Image_DrawPro(healthBarSprite);
+
+    return state;
 }
 
 bool healthBar(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vector2 initialPos, float health, float maxHealth, float deltaTime){
@@ -587,12 +592,15 @@ GAMESTATE fightScreen(Resources resources){
     float elapsed = 0;
     float elapsedN = 0;
 
-    Player_SetSpriteSheet(player, "sprites/PlayerAnim/noBKG_KnightIdle_strip.png");
+    Player_setName(player, "Player");
+    Player_SetSpriteSheet(player, "sprites/PlayerAnim/PlayerSpriteSheet2.png");
     Player_setCharacter(player, 0.0f);
+
+    Player_setControl(player, false);
 
     Player_setDisplay(player, (Vector2){0.0f, 0.0f});
     Player_setDeltaX(player, 64.0f);
-    Player_setDeltaY(player, 0.0f);
+    Player_setDeltaY(player, 64.0f);
     Player_setAnimationFrames(player, (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 15, 0, 11});
 
     Player_SetSourceRec(player, (Rectangle){0.0f, 0.0f, 64.0f, 64.0f});
@@ -600,11 +608,14 @@ GAMESTATE fightScreen(Resources resources){
     Rectangle playerDestRec = (Rectangle){-240.0f, (float)(GetScreenHeight()/2 - 240/2), 240.0f, 240.0f};
 
     Player_SetDestRec(player, playerDestRec);
-    Player_MoveTo(player, (Vector2){130.0f - playerDestRec.width/2, 300.0f - playerDestRec.height/2}, 1.2f);
+    Player_MoveTo(player, (Vector2){0.0f - playerDestRec.width, 350.0f - playerDestRec.height}, 0.0f);
 
+    Player_setName(enemy, "Enemy");
     Player_SetSpriteSheet(enemy, "sprites/skeletonAnim/SkeletonEnemy.png");
     Player_setCharacter(enemy, 0.0f);
-    
+
+    Player_setControl(enemy, false);
+
     Player_setDisplay(enemy, (Vector2){0.0f, 0.0f});
     Player_setDeltaX(enemy, 64.0f);
     Player_setDeltaY(enemy, 64.0f);
@@ -615,7 +626,7 @@ GAMESTATE fightScreen(Resources resources){
     Rectangle enemyDestRec = (Rectangle){0, 0, 240, 240};
 
     Player_SetDestRec(enemy, enemyDestRec);
-    Player_MoveTo(enemy, (Vector2){GetScreenWidth(), playerDestRec.y + playerDestRec.height - enemyDestRec.height}, 0.0f);
+    Player_MoveTo(enemy, (Vector2){GetScreenWidth(), 350.0f - enemyDestRec.height}, 0.0f);
 
     ChangePositionFunction(Player_getAnimationPosition(player), linearFunction);
 
@@ -795,11 +806,32 @@ GAMESTATE fightScreen(Resources resources){
     ImageObject* healthBarFillerP = Image_Init("sprites/healthBarBar.png");
 
     Turn enemyAnimState = {false, false, false, false};
+    Turn playerAnimState = {false, false, false, false};
+    bool loopPlayer = false;
     bool loopEnemy = false;
 
     Player_setLocked(player, true);
 
     bool enemyTookDamage = false;
+    bool playerTookDamage = false;
+
+    bool doZoom = false;
+    bool enemyHasAttacked = false;
+
+    bool enemyTookAction = false;
+    bool playerTookAction = false;
+
+    SpriteSheet* confetti = SpriteSheet_Init("sprites/Confetti.png", (FramesAnimation){false, 0.0f, 0.0f, 1, 0, 63, 0, 24});
+
+    SpriteSheet_SetSourceRec(confetti, (Rectangle){0, 0, 150.0f, 120.0f});
+    SpriteSheet_SetDisplay(confetti, (Vector2){0.0f, 0.0f});
+
+    float confettiWidth = (GetScreenHeight()*150.0f)/120.0f;
+
+    SpriteSheet_SetDestRec(confetti, (Rectangle){GetScreenWidth()/2 - confettiWidth/2, 0 - GetScreenHeight()*1/8, confettiWidth, GetScreenHeight()});
+    SpriteSheet_SetDelta(confetti, (Vector2){150.0f, 0.0f});
+
+    Turn confettiAnimState = {false, false, false, false};
 
     while(!WindowShouldClose()){
         float deltaTime = GetFrameTime();
@@ -810,63 +842,84 @@ GAMESTATE fightScreen(Resources resources){
         playerDestRec = Player_getDestRec(player);
         enemyDestRec = Player_getDestRec(enemy);
 
+        Decision playerDecision = Player_getAction(player);
         Decision enemyDecision = Player_getAction(enemy);
         playerStats = Player_getStats(player);
         enemyStats = Player_getStats(enemy);
-
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-            printf("\nx = %f, y = %f", mousePos.x, mousePos.y);
-        }
 
         if(Wait(0.3f)){
             randSpeed1 = (randSpeed1 <= minSpeed) ? minSpeed : randSpeed1 - 1;
             randSpeed2 = (randSpeed2 <= minSpeed) ? minSpeed : randSpeed2 - 1;
         }
 
-        Player_setAnimationFramesAnimating(player, true);
-
         Player_UpdatePosition(player, deltaTime);
-        Player_UpdateSprite(player, false, true);
+        Player_setAnimationFramesAnimating(player, true);
+        playerAnimState = Player_UpdateSprite(player, false, loopPlayer);
 
         Player_UpdatePosition(enemy, deltaTime);
         Player_setAnimationFramesAnimating(enemy, true);
         enemyAnimState = Player_UpdateSprite(enemy, false, loopEnemy);
 
-        if(enemyAnimState.animationEnd){
-            printf("\n Animation ended.");
+        confettiAnimState = SpriteSheet_UpdateSprite(confetti, false, false);
 
-            if(enemyDecision != DEAD){
-                Player_setAction(enemy, IDLE);
+        if(Player_getAction(enemy) == DEAD && enemyAnimState.animationEnd){
+            SpriteSheet_setAnimationFramesAnimating(confetti, true);
+        }
+
+        if(enemyTookDamage){
+            Player_setAction(enemy, HURT);
+        }
+        else if(enemyAnimState.animationEnd){
+            if(enemyTookAction && enemyAnimState.animationEnd){
+                switchTurns = true;
+                enemyTookAction = false;
             }
 
             if(Player_getAnimationPositionAnimating(enemy)){
                 Player_setAction(enemy, WALK);
+            } else{
+                Player_setAction(enemy, IDLE);
             }
-            
             if(enemyStats.health <= 0){
                 Player_setAction(enemy, DEAD);
             }
-
             if(!whoseTurn.animationBool && whoseTurn.animationEnd && enemyDecision != DEAD){
                 percorrerArvore(enemyChoice);
+                enemyTookAction = true;
+            }
+        }
+
+        if(playerTookDamage){
+            Player_setAction(player, HURT);
+        }
+        else if(playerAnimState.animationEnd){
+            if(playerTookAction && playerAnimState.animationEnd){
                 switchTurns = true;
-                printf(" -> Percorreu arvore");
+                playerTookAction = false;
             }
 
-            if(enemyTookDamage){
-                Player_setAction(enemy, HURT);
+            if(Player_getAnimationPositionAnimating(player)){
+                Player_setAction(player, WALK);
+            } else{
+                Player_setAction(player, IDLE);
+            }
+            if(playerStats.health <= 0){
+                Player_setAction(player, DEAD);
             }
         }
 
         switch(enemyDecision){
             case ATTACK:
                 Player_ChangeSprite(enemy, 12, 0);
-                Player_TakeDamage(player, 5.0f);    
-                Player_setAction(enemy, IDLE);
+                if(!enemyHasAttacked){
+                    Player_TakeDamage(player, 1.0f);
+                    enemyHasAttacked = true;
+                }
                 loopEnemy = false;
                 break;
             case HURT:
                 Player_ChangeSprite(enemy, 4, 4);
+                loopEnemy = false;
                 break;
             case DEAD:
                 Player_ChangeSprite(enemy, 13, 1);
@@ -874,6 +927,7 @@ GAMESTATE fightScreen(Resources resources){
                 break;
             case WALK:
                 Player_ChangeSprite(enemy, 12, 2);
+                loopEnemy = true;
                 break;
             case IDLE:
                 Player_ChangeSprite(enemy, 4, 3);
@@ -881,7 +935,28 @@ GAMESTATE fightScreen(Resources resources){
                 break;
         }
 
-        printf("\n%d // %d // %d // %d", Player_getAction(enemy), whoseTurn.animationEnd, enemyTookDamage, Player_getAnimationPositionAnimating(enemy));
+        switch(playerDecision){
+            case ATTACK:
+                Player_ChangeSprite(player, 15, 0);
+                loopPlayer = false;
+                break;
+            case HURT:
+                Player_ChangeSprite(player, 7, 4);
+                loopPlayer = false;
+                break;
+            case DEAD:
+                Player_ChangeSprite(player, 15, 1);
+                loopPlayer = false;
+                break;
+            case WALK:
+                Player_ChangeSprite(player, 8, 2);
+                loopPlayer = true;
+                break;
+            case IDLE:
+                Player_ChangeSprite(player, 15, 3);
+                loopPlayer = true;
+                break;
+        }
 
         bc->destination.x = (bc->destination.x - randSpeed1 <= -bc->destination.width/2.0f) ? 0 : bc->destination.x - randSpeed1;
         bb->destination.x = (bb->destination.x - randSpeed2 <= -bb->destination.width/2.0f) ? 0 : bb->destination.x - randSpeed2;
@@ -892,8 +967,9 @@ GAMESTATE fightScreen(Resources resources){
         if(Button_IsPressed(atk, mousePos) && whoseTurn.animationBool){
             Player_TakeDamage(enemy, playerStats.attack);
             Player_ChangeSprite(enemy, 4, 4);
+            Player_setAction(player, ATTACK);
 
-            switchTurns = true;
+            playerTookAction = true;
         }
 
         if(Button_IsPressed(item, mousePos)){
@@ -902,6 +978,10 @@ GAMESTATE fightScreen(Resources resources){
 
         if(IsKeyPressed(KEY_ESCAPE)){
             inventoryShowing = false;
+        }
+
+        if(playerDecision == DEAD || enemyDecision == DEAD){
+            switchTurns = false;
         }
 
         BeginDrawing();
@@ -926,7 +1006,8 @@ GAMESTATE fightScreen(Resources resources){
                 bb->destination.y = Slerp(startPointB, finalPointB, t);
 
                 if(pg > 1.0f){
-                    Player_MoveTo(enemy, (Vector2){(GetScreenWidth() - 130.0f) - enemyDestRec.width/2, 180.0f}, 2.5f);
+                    Player_MoveTo(enemy, (Vector2){(GetScreenWidth() - 130.0f) - enemyDestRec.width/2, playerDestRec.y + playerDestRec.height - enemyDestRec.height}, 2.5f);
+                    Player_MoveTo(player, (Vector2){130.0f - playerDestRec.width/2, 350.0f - playerDestRec.height}, 2.5f);
 
                     introduction = false;
                     elapsedN = 0;
@@ -936,11 +1017,11 @@ GAMESTATE fightScreen(Resources resources){
             Player_Draw(player);
             Player_Draw(enemy);
 
-            healthBarSprite->destination = (Rectangle){enemyDestRec.x + enemyDestRec.width/2 - enemyDestRec.width*3/8, enemyDestRec.y - 20, enemyDestRec.width*3/4, 20};
+            healthBarSprite->destination = (Rectangle){enemyDestRec.x + enemyDestRec.width/2 - enemyDestRec.width*2/8, enemyDestRec.y + enemyDestRec.height*1/3, enemyDestRec.width*2/4, 20};
             enemyTookDamage = healthBar(healthBarSprite, healthBarFiller, (Vector2){healthBarSprite->destination.x, healthBarSprite->destination.y}, enemyStats.health, enemyStats.maxHealth, deltaTime);
 
-            healthBarSpriteP->destination = (Rectangle){playerDestRec.x + playerDestRec.width/2 - playerDestRec.width*3/8, playerDestRec.y - 20, playerDestRec.width*3/4, 20};
-            healthBarP(healthBarSpriteP, healthBarFillerP, (Vector2){healthBarSpriteP->destination.x, healthBarSpriteP->destination.y}, playerStats.health, playerStats.maxHealth, deltaTime);
+            healthBarSpriteP->destination = (Rectangle){playerDestRec.x + playerDestRec.width/2 - playerDestRec.width*2/8, playerDestRec.y + playerDestRec.height*1/3, playerDestRec.width*2/4, 20};
+            playerTookDamage = healthBarP(healthBarSpriteP, healthBarFillerP, (Vector2){healthBarSpriteP->destination.x, healthBarSpriteP->destination.y}, playerStats.health, playerStats.maxHealth, deltaTime);
 
             EndMode2D();
 
@@ -1012,12 +1093,12 @@ GAMESTATE fightScreen(Resources resources){
 
                 if(whoseTurn.animationEnd){
                     switchTurns = false;
-                    printf("\nSwitched to ");
-                    (whoseTurn.animationBool) ? printf("players turn.") : printf("enemys turn.");
+                    (whoseTurn.animationBool) ? printf("\n--------- Switched to %s's turn ---------", Player_getName(player)) :printf("\n--------- Switched to %s's turn ---------", Player_getName(enemy));;
+                    enemyHasAttacked = false;
                 }
             }
 
-            if(cameraZoomIn){            
+            if(cameraZoomIn && doZoom){            
                 bool w = cameraAnimation(&camera, (Vector2){GetScreenWidth()/2, GetScreenHeight()/2}, (Vector2){enemyDestRec.x + enemyDestRec.width/2, enemyDestRec.y + enemyDestRec.height/2}, deltaTime);
                 if(w){
                     cameraZoomIn = false;
@@ -1033,6 +1114,8 @@ GAMESTATE fightScreen(Resources resources){
                 
                 if(inventoryAnimation.animationEnd) inventoryShowing = false;
             }
+
+            SpriteSheet_Draw(confetti);
 
             Image_DrawPro(inventoryBackground);
 

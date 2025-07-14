@@ -19,6 +19,8 @@ typedef struct Inventario{
 } Inventario;
 
 typedef struct Player{
+    char name[MAX_STRSIZE];
+
     Texture2D spriteSheet;
 
     Animation* anim;
@@ -33,6 +35,7 @@ typedef struct Player{
 
     float stepDistance;
     bool characterChoice;
+    bool isControlled;
 
     MoveSet keys;
     Moving moving;
@@ -46,6 +49,8 @@ typedef struct Player{
 
 Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteSheet){
     Player* player = (Player*)malloc(sizeof(Player));
+
+    strncpy(player->name, "Default", MAX_STRSIZE);
 
     player->anim = (Animation*)malloc(sizeof(Animation));
     player->anim->position = (PositionAnimation*)malloc(sizeof(PositionAnimation));
@@ -65,11 +70,13 @@ Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteS
     player->stepDistance = 1.0f;
     player->characterChoice = false;
 
-    player->stats = (Stats){10.0f, 10.0f, 2.0f, 0.05f, 0.1f, false, false, 0}; // Vida máxima, Vida, Ataque, Defesa, Evasão (Base), Ouro
+    player->stats = (Stats){10.0f, 10.0f, 6.0f, 0.05f, 0.1f, false, false, 0}; // Vida máxima, Vida, Ataque, Defesa, Evasão (Base), Ouro
 
     player->inventario = (Inventario){criaLista(), criaLista()};
 
     player->action = IDLE;
+
+    player->isControlled = true;
 
     return player;
 }
@@ -125,7 +132,7 @@ Turn Player_UpdateSprite(Player* player, bool reverse, bool loop){
     
     player->anim->frames.framesCounter++;
 
-    if (player->anim->frames.framesCounter >= (60/player->anim->frames.framesSpeed) && player->anim->frames.animating){
+    if ((player->anim->frames.framesCounter >= (60/player->anim->frames.framesSpeed)) && player->anim->frames.animating){
         player->anim->frames.framesCounter = 0;
         player->anim->frames.currentFrame += player->anim->frames.animationDirection;
 
@@ -156,7 +163,8 @@ Turn Player_UpdateSprite(Player* player, bool reverse, bool loop){
         player->display.x = (float)player->anim->frames.currentFrame*player->deltaX + player->anim->frames.padding;
     }
 
-    if(!player->anim->frames.animating){
+
+    if(!player->anim->frames.animating && player->isControlled){
         player->anim->frames.framesCounter = 0;
         player->anim->frames.currentFrame = 1;
         player->display.x = (float)player->anim->frames.currentFrame*160.0f + 10.0f;
@@ -165,7 +173,7 @@ Turn Player_UpdateSprite(Player* player, bool reverse, bool loop){
 
     int character = (player->characterChoice) ? 2020.0f : 0.0f;
 
-    if(!player->anim->position->animating && !player->locked){
+    if(!player->anim->position->animating && !player->locked && player->isControlled){
         if(IsKeyDown(player->keys.up) || player->moving.up) player->display.y = 450.0f;
         if(IsKeyDown(player->keys.down) || player->moving.down) player->display.y = 120.0f;
         if(IsKeyDown(player->keys.left) || player->moving.left) player->display.y = 780.0f;
@@ -184,11 +192,12 @@ Turn Player_UpdateSprite(Player* player, bool reverse, bool loop){
 }
 
 void Player_ChangeSprite(Player* player, int amountOfFrames, int pos){
-    if(player->display.y == pos * player->deltaY) return;
-    
-    player->display.y = pos * player->deltaY;
+    if((int)player->display.y == (int)(pos * player->deltaY)) return;
+
     player->anim->frames.amountOfFrames = amountOfFrames;
+    player->display.y = pos * player->deltaY;
     player->anim->frames.currentFrame = 0;
+    player->display.x = (float)player->anim->frames.currentFrame*player->deltaX + player->anim->frames.padding;
     player->anim->frames.framesCounter = 0;
 }
 
@@ -237,14 +246,10 @@ void Player_Draw(Player* player){
 /////////////////////////////////////////////////////////////////////////
 
 bool isLife50(Player* player){
-    (player->stats.health >= 50) ? printf("\n%.0f >= 50 ? true", player->stats.health) : printf("\n%.0f >= 50 ? false", player->stats.health);
-
     return (player->stats.health >= 50);
 }
 
 bool isLife30(Player* player){
-    (player->stats.health >= 30) ? printf("\n%.0f >= 30 ? true", player->stats.health) : printf("\n%.0f >= 30 ? false", player->stats.health);
-
     return (player->stats.health >= 30);
 }
 
@@ -253,8 +258,6 @@ bool isLife30(Player* player){
 void Player_TakeDamage(Player* player, float damage){
     player->stats.evasionRate = (player->stats.defending) ? player->stats.evasionRate + 0.05f : player->stats.evasionRate + (damage / player->stats.health);
     player->stats.health = (player->stats.defending) ? player->stats.health - ((1 - player->stats.defense) * damage) : player->stats.health - damage;
-
-    printf("\nPlayer took %.1f damage.", damage);
 }
 
 void Player_UpdateAtk(Player* player, float newAtk){
@@ -270,7 +273,6 @@ void Player_getHealing(Player* player){
 }
 
 void Player_Print(Player* player){
-    printf("\nPlayer healed 10hp");
     player->stats.health += 1.0f;
 }
 
@@ -320,6 +322,10 @@ bool Player_getAnimationPositionAnimating(Player* player){
     return player->anim->position->animating;
 }
 
+const char* Player_getName(Player* player){
+    return player->name;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 void Player_setAction(Player* player, Decision decision){
@@ -352,4 +358,12 @@ void Player_setAnimationFramesAnimating(Player* player, bool state){
 
 void Player_setLocked(Player* player, bool locked){
     player->locked = locked;
+}
+
+void Player_setName(Player* player, const char* name){
+    strncpy(player->name, name, MAX_STRSIZE);
+}
+
+void Player_setControl(Player* player, bool state){
+    player->isControlled = state;
 }

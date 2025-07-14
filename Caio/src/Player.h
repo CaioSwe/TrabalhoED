@@ -127,6 +127,8 @@ Lista* Player_getInventarioWeapons(Player* player);
 
 bool Player_getAnimationPositionAnimating(Player* player);
 
+const char* Player_getName(Player* player);
+
 /////////////////////////////////////////////////////////////////////////////
 
 void Player_setAction(Player* player, Decision decision);
@@ -144,5 +146,9 @@ void Player_setCharacter(Player* player, float point);
 void Player_setAnimationFramesAnimating(Player* player, bool state);
 
 void Player_setLocked(Player* player, bool locked);
+
+void Player_setName(Player* player, const char* name);
+
+void Player_setControl(Player* player, bool state);
 
 #endif
