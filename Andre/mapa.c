@@ -137,14 +137,14 @@ void limparMapa(int** mapa, int tam){
     }free(mapa);
 }
 
-void ativarTrap(int** mapa, int tam, Player* p){
+void ativarTrap(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
     float hp = getPlayerHP(p);
     printf("\n\nHP: %.2f", hp);
 
     printf("\nOh no!\nYou've stepped on a trap!");
     setPlayerHP(p, hp - 15);
 
-    if(getPlayerHP(p) <= 0) gameOver(mapa, tam);
+    if(getPlayerHP(p) <= 0) gameOver(mapa, tam, 0, p, e, s, l);
     else                    printf("\nHP: %.2f\n\n", getPlayerHP(p));
 
     Sleep(1500);

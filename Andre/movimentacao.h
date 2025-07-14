@@ -1,15 +1,16 @@
 #ifndef _Movimentacao_h_
 #define _Movimentacao_h_
 
-#include "inventario.h"
 #include "mapa.h"
 #include "pilha.h"
 #include "lista.h"
+#include "player.h"
+#include "inventario.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
 #include <stdbool.h>
-#include "player.h"
 
 typedef struct lista Lista;
 typedef struct pilha Pilha;
