@@ -14,6 +14,6 @@ int     inserirFim    (Lista*,      int);
 int     removerMeio   (Lista*,      int);
 void    imprimirLista (Lista*          );
 int     getValor      (Celula*         );
-void    limparLista   (Lista* l        );
+void    limparLista   (Lista*          );
 
 #endif
