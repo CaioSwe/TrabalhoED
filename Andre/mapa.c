@@ -153,4 +153,6 @@ void ativarTrap(int** mapa, int tam, Player* p){
 
     if(getPlayerHP(p) <= 0) gameOver(mapa, tam);
     else                    printf("\nHP: %.2f\n\n", getPlayerHP(p));
+
+    Sleep(1500);
 }
