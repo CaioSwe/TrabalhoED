@@ -14,13 +14,13 @@
 typedef struct lista Lista;
 typedef struct player Player;
 
-void menuItem        (Lista*, Player*, Enemy*     );
-int  menuInventario  (                            );
-void coletarItem     (int, Lista*, Player*, Enemy*);
-int  itemChoice      (                            );
-void abrirInventario (Lista*, Player*             );
-void usarItem        (Lista*, Player*             );
-void descartarItem   (Lista*                      );
-void inspecionarItem (Lista*                      );
+void menuItem        (Lista*, Player*, Enemy*, int**, int     );
+int  menuInventario  (                                        );
+void coletarItem     (int, Lista*, Player*, Enemy*, int**, int);
+int  itemChoice      (                                        );
+void abrirInventario (Lista*, Player*                         );
+void usarItem        (Lista*, Player*                         );
+void descartarItem   (Lista*                                  );
+void inspecionarItem (Lista*                                  );
 
 #endif
