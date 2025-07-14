@@ -77,3 +77,14 @@ void imprimirPilha(Pilha* p){
         }
     }    
 }
+
+void limparPilha(Pilha* s){
+    Celula*   del = s->topo;
+    Celula* atual = NULL;
+    
+    while(del != NULL){
+        atual = del;
+        del   = del->prox;
+        free(atual);
+    }free(del);
+}

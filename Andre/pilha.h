@@ -12,5 +12,6 @@ int    push                (Pilha*, int);
 int    pop                 (Pilha*     );
 int    tamanhoPilha        (Pilha*     );
 void   imprimirPilha       (Pilha*     );
+void   limparPilha         (Pilha*     );
 
 #endif
