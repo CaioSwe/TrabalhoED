@@ -72,9 +72,8 @@ int** criarMapa(Player* p, int tam){
     (*mapa)[3][1] = 6;
     (*mapa)[4][1] = 5;
     (*mapa)[4][2] = 6;
-    (*mapa)[4][3] = 6;
+    (*mapa)[4][3] = 7;
 
-    printf("\nMap generated!\n");
     return *mapa;
 }
 
@@ -146,12 +145,12 @@ void limparMapa(int** mapa, int tam){
 }
 
 void ativarTrap(int** mapa, int tam, Player* p){
-    int hp = getPlayerHP(p);
-    printf("\n\nHP: %d", hp);
+    float hp = getPlayerHP(p);
+    printf("\n\nHP: %.2f", hp);
 
     printf("\nOh no!\nYou've stepped on a trap!");
     setPlayerHP(p, hp - 15);
-    if(getPlayerHP(p) <= 0) gameOver(mapa, tam);
 
-    printf("\nHP: %d\n\n", getPlayerHP(p));
+    if(getPlayerHP(p) <= 0) gameOver(mapa, tam);
+    else                    printf("\nHP: %.2f\n\n", getPlayerHP(p));
 }
