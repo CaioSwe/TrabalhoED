@@ -10,7 +10,7 @@ int itemChoice(){
     return input;
 }
 
-void coletarItem(int opc, Lista* l, Player* p){
+void coletarItem(int opc, Lista* l, Player* p, Enemy* e){
     int input;
     do{
         switch(opc){
@@ -33,12 +33,16 @@ void coletarItem(int opc, Lista* l, Player* p){
             int gold = rand() % 100 + 1;
             printf(" with %d coins of gold!", gold);
             input = itemChoice();
-            if(input == 1) {
+            if(input == 1){
                 setPlayerGold(p, getPlayerGold(p)+gold);
+                printf("\nYou've collected the coins");
                 int mimic = rand() % 10;
-                if(mimic <= 3) {printf("\n\nAAAAAAAAAA VIROU UM MIMICO\n\n");}
+                if(mimic <= 3){
+                    system("cls");
+                    printf("\nBut the chest was actually a mimic!"); Sleep(1500);
+                    encounterEnemy(l, p, e);
+                }
             }
-            printf("\nYou've collected the coins");
             Sleep(1500);
             system("cls");
             opc = 0;
@@ -52,7 +56,7 @@ void coletarItem(int opc, Lista* l, Player* p){
     }while(opc != 0);
 }
 
-void menuItem(Lista* l, Player* p){
+void menuItem(Lista* l, Player* p, Enemy* e){
     srand(time(NULL));
     int item = rand() % 3 + 1;
 
@@ -63,17 +67,17 @@ void menuItem(Lista* l, Player* p){
     switch(item){ 
         case 1:
             printf("\nIt is a Health Potion!");
-            coletarItem(1, l, p);
+            coletarItem(1, l, p, e);
             item = 0;
             break;
         case 2: 
             printf("\nIt is a Monster's Repelent!");
-            coletarItem(2, l, p);
+            coletarItem(2, l, p, e);
             item = 0;
             break;
         case 3: 
             printf("\nIt is a Treasure chest");
-            coletarItem(3, l, p);
+            coletarItem(3, l, p, e);
             item = 0;
             break;
         default: 
@@ -146,21 +150,21 @@ void usarItem(Lista* l, Player* p){
 
             // Health Potion
             case 1:
-                printf("\nHP: %d", getPlayerHP(p));
+                printf("\nHP: %.2f", getPlayerHP(p));
 
                 int hp = getPlayerHP(p) + 40;
                 if(hp <= 100) setPlayerHP(p, hp);
                 else          setPlayerHP(p, 100);
                 printf("\nHealth Potion used!");
 
-                printf("\nHP: %d", getPlayerHP(p));
+                printf("\nHP: %.2f", getPlayerHP(p));
 
                 Sleep(1500);
                 break;
 
             // Monster's Repelent
             case 2:
-                // NÃO FIZ AINDA //
+                setPlayerRepelent(p, 10);
                 printf("\nMonster's Repelent used!");
                 Sleep(1500);
                 break;
