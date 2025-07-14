@@ -40,6 +40,7 @@ void coletarItem(int opc, Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, i
                 if(mimic <= 3){
                     system("cls");
                     printf("\nBut the chest was actually a mimic!"); Sleep(1500);
+                    setEnemyMimic(e, true);
                     encounterEnemy(l, p, e, s, mapa, tam);
                 }
             }
