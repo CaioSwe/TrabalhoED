@@ -2,6 +2,7 @@
 #define _Inventario_h_
 
 #include "lista.h"
+#include "pilha.h"
 #include "player.h"
 #include "combate.h"
 
@@ -14,13 +15,13 @@
 typedef struct lista Lista;
 typedef struct player Player;
 
-void menuItem        (Lista*, Player*, Enemy*, int**, int     );
-int  menuInventario  (                                        );
-void coletarItem     (int, Lista*, Player*, Enemy*, int**, int);
-int  itemChoice      (                                        );
-void abrirInventario (Lista*, Player*                         );
-void usarItem        (Lista*, Player*                         );
-void descartarItem   (Lista*                                  );
-void inspecionarItem (Lista*                                  );
+void menuItem        (Lista*, Player*, Enemy*, Pilha*, int**, int     );
+int  menuInventario  (                                                );
+void coletarItem     (int, Lista*, Player*, Enemy*, Pilha*, int**, int);
+int  itemChoice      (                                                );
+void abrirInventario (Lista*, Player*                                 );
+void usarItem        (Lista*, Player*                                 );
+void descartarItem   (Lista*                                          );
+void inspecionarItem (Lista*                                          );
 
 #endif

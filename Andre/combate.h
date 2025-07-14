@@ -11,12 +11,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-void encounterEnemy (Lista*, Player*, Enemy*, int**, int );
-void attackEnemy    (Player*, Enemy*                     );
-void defendFromEnemy(Player*, Enemy*, int**, int         );
-bool tryEscape      (                                    );
-void enemyTurn      (Player*, Enemy*, int**, int         );
-bool isEnemyDead    (Player*, Enemy*                     );
-bool isPlayerDead   (Player*, Enemy*, int**, int         );
+void encounterEnemy (Lista*, Player*, Enemy*, Pilha*, int**, int);
+void attackEnemy    (Player*, Enemy*                            );
+void defendFromEnemy(Player*, Enemy*, Pilha*, Lista*, int**, int);
+bool tryEscape      (                                           );
+void enemyTurn      (Player*, Enemy*, Pilha*, Lista*, int**, int);
+bool isEnemyDead    (Player*, Enemy*                            );
+bool isPlayerDead   (Player*, Enemy*, Pilha*, Lista*, int**, int);
 
 #endif

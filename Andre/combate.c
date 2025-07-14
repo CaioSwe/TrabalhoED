@@ -1,6 +1,6 @@
 #include "combate.h"
 
-void encounterEnemy(Lista* l, Player* p, Enemy* e, int** mapa, int tam){
+void encounterEnemy(Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam){
     system("cls");
     srand(time(NULL));
     e = criarEnemy();
@@ -37,22 +37,22 @@ void encounterEnemy(Lista* l, Player* p, Enemy* e, int** mapa, int tam){
         switch(opc){
             case 1:
                 attackEnemy(p, e);
-                if(getEnemyHP(e) > 0) enemyTurn(p, e, mapa, tam);
+                if(getEnemyHP(e) > 0) enemyTurn(p, e, s, l, mapa, tam);
                 break;
     
             case 2:
-                defendFromEnemy(p, e, mapa, tam);
-                if(getEnemyHP(e) > 0) enemyTurn(p, e, mapa, tam);
+                defendFromEnemy(p, e, s, l, mapa, tam);
+                if(getEnemyHP(e) > 0) enemyTurn(p, e, s, l, mapa, tam);
                 break;
     
             case 3:
                 usarItem(l, p);
-                enemyTurn(p, e, mapa, tam);
+                enemyTurn(p, e, s, l, mapa, tam);
                 break;
     
             case 4:
                 escape = tryEscape(); Sleep(2000);
-                if(escape == 0) enemyTurn(p, e, mapa, tam);
+                if(escape == 0) enemyTurn(p, e, s, l, mapa, tam);
                 break;
         }
     }while(getPlayerHP(p) > 0 && getEnemyHP(e) > 0 && escape == 0);
@@ -81,7 +81,7 @@ void attackEnemy(Player* p, Enemy* e){
     }
 }
 
-void defendFromEnemy(Player* p, Enemy* e, int** mapa, int tam){
+void defendFromEnemy(Player* p, Enemy* e, Pilha* s, Lista* l, int** mapa, int tam){
     system("cls");
 
     float attack = getEnemyAttack(e) - getEnemyAttack(e)*getPlayerDefense(p);
@@ -93,7 +93,7 @@ void defendFromEnemy(Player* p, Enemy* e, int** mapa, int tam){
     printf("\n-%.2f", attack);
     setPlayerHP(p, getPlayerHP(p) - attack);
 
-    int playerDead = isPlayerDead(p, e, mapa, tam);
+    int playerDead = isPlayerDead(p, e, s, l, mapa, tam);
 
     printf("\n\nRecovering from it's attack, you manage to find a small opening and nick it");
     float dmg = (getPlayerAttack(p) - getPlayerAttack(p)*getEnemyDefense(e))/2;
@@ -127,7 +127,7 @@ bool tryEscape(){
     }
 }
 
-void enemyTurn(Player* p, Enemy* e, int** mapa, int tam){
+void enemyTurn(Player* p, Enemy* e, Pilha* s, Lista* l, int** mapa, int tam){
     system("cls");
 
     int playerDead;
@@ -148,7 +148,7 @@ void enemyTurn(Player* p, Enemy* e, int** mapa, int tam){
         printf(" attacked you");
         printf("\n-%.2f", attack);
 
-        playerDead = isPlayerDead(p, e, mapa, tam);
+        playerDead = isPlayerDead(p, e, s, l, mapa, tam);
 
     }else if(getPlayerHP(p) < getPlayerHP(p)/2){
         int chance = rand() % 1;
@@ -157,7 +157,7 @@ void enemyTurn(Player* p, Enemy* e, int** mapa, int tam){
             printf(" attacked you");
             printf("\n-%.2f", attack);
 
-            playerDead = isPlayerDead(p, e, mapa, tam);
+            playerDead = isPlayerDead(p, e, s, l, mapa, tam);
 
         }else{
             setEnemyHP(e, getEnemyHP(e) - getPlayerAttack(p)-getPlayerAttack(p)*getEnemyDefense(e));
@@ -169,7 +169,7 @@ void enemyTurn(Player* p, Enemy* e, int** mapa, int tam){
         printf(" attacked you");
         printf("\n-%.2f", attack);
 
-        playerDead = isPlayerDead(p, e, mapa, tam);
+        playerDead = isPlayerDead(p, e, s, l, mapa, tam);
     }
 
     printf("\n\nENEMY:\t%.2f", getEnemyHP(e));
@@ -189,13 +189,13 @@ bool isEnemyDead(Player* p, Enemy* e){
     }else return 0;
 }
 
-bool isPlayerDead(Player* p, Enemy* e, int** mapa, int tam){
+bool isPlayerDead(Player* p, Enemy* e, Pilha* s, Lista* l, int** mapa, int tam){
     if(getPlayerHP(p) <= 0){
         free(p);
         printf("\nSadly, it wasn't enough and it's attack goes through your shield, killing you");
         printf("\n\nENEMY:\t%.2f", getEnemyHP(e));
         printf("\nPLAYER:\tPERISHED");
         Sleep(5000);
-        gameOver(mapa, tam, 0);
+        gameOver(mapa, tam, 0, p, e, s, l);
     }else return 0;
 }

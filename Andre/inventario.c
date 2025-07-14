@@ -10,7 +10,7 @@ int itemChoice(){
     return input;
 }
 
-void coletarItem(int opc, Lista* l, Player* p, Enemy* e, int** mapa, int tam){
+void coletarItem(int opc, Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam){
     int input;
     do{
         switch(opc){
@@ -40,7 +40,7 @@ void coletarItem(int opc, Lista* l, Player* p, Enemy* e, int** mapa, int tam){
                 if(mimic <= 3){
                     system("cls");
                     printf("\nBut the chest was actually a mimic!"); Sleep(1500);
-                    encounterEnemy(l, p, e, mapa, tam);
+                    encounterEnemy(l, p, e, s, mapa, tam);
                 }
             }
             Sleep(1500);
@@ -56,7 +56,7 @@ void coletarItem(int opc, Lista* l, Player* p, Enemy* e, int** mapa, int tam){
     }while(opc != 0);
 }
 
-void menuItem(Lista* l, Player* p, Enemy* e, int** mapa, int tam){
+void menuItem(Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam){
     srand(time(NULL));
     int item = rand() % 3 + 1;
 
@@ -67,17 +67,17 @@ void menuItem(Lista* l, Player* p, Enemy* e, int** mapa, int tam){
     switch(item){ 
         case 1:
             printf("\nIt is a Health Potion!");
-            coletarItem(1, l, p, e, mapa, tam);
+            coletarItem(1, l, p, e, s, mapa, tam);
             item = 0;
             break;
         case 2: 
             printf("\nIt is a Monster's Repelent!");
-            coletarItem(2, l, p, e, mapa, tam);
+            coletarItem(2, l, p, e, s, mapa, tam);
             item = 0;
             break;
         case 3: 
             printf("\nIt is a Treasure chest");
-            coletarItem(3, l, p, e, mapa, tam);
+            coletarItem(3, l, p, e, s, mapa, tam);
             item = 0;
             break;
         default: 
