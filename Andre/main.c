@@ -13,32 +13,14 @@
 #define TAM 12
 
 int main(){
-    Pilha*  s = criarPilha();
-    Lista*  l = criaLista();
-    Player* p = criarPlayer();
+
+    Pilha*  s;
+    Lista*  l;
+    Player* p;
     Enemy*  e;
-    int** mapa = criarMapa(p, TAM);
-    
-    populaMapa(mapa, TAM);
-    printMapa (mapa, TAM);
+    int** mapa;
 
-    
-    moverCima    (mapa, TAM, s, l, p, e);
-    moverEsquerda(mapa, TAM, s, l, p, e); 
-    moverBaixo   (mapa, TAM, s, l, p, e); 
-    moverBaixo   (mapa, TAM, s, l, p, e); 
-    moverBaixo   (mapa, TAM, s, l, p, e); 
-    moverBaixo   (mapa, TAM, s, l, p, e);
+    startGame(mapa, TAM, p, e, s, l);
 
-    abrirInventario(l, p);
-    
-    moverDireita (mapa, TAM, s, l, p, e); 
-    moverDireita (mapa, TAM, s, l, p, e); 
-    moverDireita (mapa, TAM, s, l, p, e); 
-    
-    abrirInventario(l, p);
-
-    desfazerMovimento(mapa, TAM, s, l, p, e);
-      
     return 0;
 }
