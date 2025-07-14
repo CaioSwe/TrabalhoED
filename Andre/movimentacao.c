@@ -9,7 +9,7 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     switch(move){
         case 3: // Caminho bloqueado por parede
             printf("\nThe path upwards is blocked");
-            printMapa(mapa, tam);
+            Sleep(1500);
 
             return false;
             break;
@@ -20,7 +20,6 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             setPlayerPos(p, i, j);
             push(s, 8);
            
-            printMapa(mapa, tam);
             break;
 
         case 4: // Saída da dungeon, fim do jogo
@@ -35,7 +34,6 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             setPlayerPos(p, i, j);
             push(s, 8);
            
-            printMapa(mapa, tam);
             break;
         
         case 6: // Passou por cima de um item
@@ -46,7 +44,6 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             setPlayerPos(p, i, j);
             push(s, 8);
             
-            printMapa(mapa, tam);
             break;
 
         case 7: // Encontrou um inimigo
@@ -57,7 +54,6 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             setPlayerPos(p, i, j);
             push(s, 8);
            
-            printMapa(mapa, tam);
             break;
     }
     return true;
@@ -72,7 +68,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     switch(move){
         case 3: // Caminho bloqueado por parede
             printf("\nThe path downwards is blocked");
-            printMapa(mapa, tam);
+            Sleep(1500);
 
             return false;
             break;
@@ -82,8 +78,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             mapa[i-1][j] = 0;
             setPlayerPos(p, i, j);
             push(s, 2);
-           
-            printMapa(mapa, tam);
+                       
             break;
 
         case 4: // Saída da dungeon, fim do jogo
@@ -97,8 +92,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             mapa[i-1][j] = 0;
             setPlayerPos(p, i, j);
             push(s, 2);
-           
-            printMapa(mapa, tam);
+                       
             break;
         
         case 6: // Passou por cima de um item
@@ -108,8 +102,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             mapa[i-1][j] = 0;
             setPlayerPos(p, i, j);
             push(s, 2);
-            
-            printMapa(mapa, tam);
+                        
             break;
 
         case 7: // Encontrou um inimigo
@@ -119,8 +112,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             mapa[i-1][j] = 0;
             setPlayerPos(p, i, j);
             push(s, 2);
-           
-            printMapa(mapa, tam);
+                       
             break;
     }
     return true;
@@ -135,8 +127,8 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
     switch(move){
         case 3: // Caminho bloqueado por parede
             printf("\nThe path leftwards is blocked");
-            printMapa(mapa, tam);
-
+            Sleep(1500);
+            
             return false;
             break;
 
@@ -145,8 +137,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
             mapa[i][j+1] = 0;
             setPlayerPos(p, i, j);
             push(s, 4);
-           
-            printMapa(mapa, tam);
+                       
             break;
 
         case 4: // Saída da dungeon, fim do jogo
@@ -160,8 +151,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
             mapa[i][j+1] = 0;
             setPlayerPos(p, i, j);
             push(s, 4);
-           
-            printMapa(mapa, tam);
+                       
             break;
         
         case 6: // Passou por cima de um item
@@ -171,8 +161,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
             mapa[i][j+1] = 0;
             setPlayerPos(p, i, j);
             push(s, 4);
-            
-            printMapa(mapa, tam);
+                        
             break;
 
         case 7: // Encontrou um inimigo
@@ -182,8 +171,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
             mapa[i][j+1] = 0;
             setPlayerPos(p, i, j);
             push(s, 4);
-           
-            printMapa(mapa, tam);
+                       
             break;
     }
     return true;
@@ -198,8 +186,8 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     switch(move){
         case 3: // Caminho bloqueado por parede
             printf("\nThe path rightwards is blocked");
-            printMapa(mapa, tam);
-
+            Sleep(1500);
+            
             return false;
             break;
 
@@ -208,8 +196,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             mapa[i][j-1] = 0;
             setPlayerPos(p, i, j);
             push(s, 6);
-           
-            printMapa(mapa, tam);
+                       
             break;
 
         case 4: // Saída da dungeon, fim do jogo
@@ -224,7 +211,6 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             setPlayerPos(p, i, j);
             push(s, 6);
            
-            printMapa(mapa, tam);
             break;
         
         case 6: // Passou por cima de um item
@@ -234,8 +220,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             mapa[i][j-1] = 0;
             setPlayerPos(p, i, j);
             push(s, 6);
-            
-            printMapa(mapa, tam);
+                        
             break;
 
         case 7: // Encontrou um inimigo
@@ -245,37 +230,21 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             mapa[i][j-1] = 0;
             setPlayerPos(p, i, j);
             push(s, 6);
-           
-            printMapa(mapa, tam);
+                       
             break;
     }
     return true;
 }
 
 void desfazerMovimento(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
-    int qntdMov = 0;
+    system("cls");
+
     int move = 0;
-    do{
-        system("cls");
-        imprimirPilha(s);
-        printf("\nHow many moves would you like to backtrack?\n");
-        scanf("%d", &qntdMov);
-        if(qntdMov > tamanhoPilha(s)){
-            printf("\n\nYou've not walked that many steps yet, adventurer!");
-            qntdMov = 0;
-        }else{
-            while(qntdMov != 0){
-                move = pop(s);
-                printf("Stack movement: %d", move);
-                Sleep(1500);
-                switch(move){
-                    case 8: printf("\nMoving down") ; Sleep(1500); moverBaixo   (mapa, tam, s, l, p, e); pop(s); break;
-                    case 2: printf("\nMoving up")   ; Sleep(1500); moverCima    (mapa, tam, s, l, p, e); pop(s); break;
-                    case 4: printf("\nMoving right"); Sleep(1500); moverDireita (mapa, tam, s, l, p, e); pop(s); break;
-                    case 6: printf("\nMoving left") ; Sleep(1500); moverEsquerda(mapa, tam, s, l, p, e); pop(s); break;                
-                }
-                qntdMov--;
-            }
-        }
-    }while(qntdMov > tamanhoPilha(s));
+    move = pop(s);
+    switch(move){
+        case 8: moverBaixo   (mapa, tam, s, l, p, e); pop(s); break;
+        case 2: moverCima    (mapa, tam, s, l, p, e); pop(s); break;
+        case 4: moverDireita (mapa, tam, s, l, p, e); pop(s); break;
+        case 6: moverEsquerda(mapa, tam, s, l, p, e); pop(s); break;                
+    }
 }
