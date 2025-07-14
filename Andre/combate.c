@@ -2,22 +2,19 @@
 
 void encounterEnemy(Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam){
     system("cls");
-    srand(time(NULL));
-    e = criarEnemy();
 
-    int enemiesOpt = rand() % 3;
-    printf("\tYou've encountere an enemy!");
-    switch(enemiesOpt){
-        case 0:
-        printf("\nIt is a X\n");
-        break;
-        case 1:
-        printf("\nIt is a Y\n");
-        break;
-        case 2:
-        printf("\nIt is a Z\n");
-        break;
-    }Sleep(3000);
+    srand(time(NULL));
+
+    if(getEnemyMimic(e) == true) printf("\nIt is a Mimic!\n");
+    else{
+        e = criarEnemy();
+        int enemiesOpt = rand() % 2;
+        printf("\tYou've encountere an enemy!");
+        switch(enemiesOpt){
+            case 0: printf("\nIt is a X!\n"); break;
+            case 1: printf("\nIt is a Y!\n"); break;
+        }Sleep(3000);
+    }
     
     int opc = 0;
     int escape = 0;
