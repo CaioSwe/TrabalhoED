@@ -17,7 +17,7 @@ void encounterEnemy(Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam
         case 2:
         printf("\nIt is a Z\n");
         break;
-    }Sleep(2500);
+    }Sleep(3000);
     
     int opc = 0;
     int escape = 0;
@@ -51,7 +51,7 @@ void encounterEnemy(Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam
                 break;
     
             case 4:
-                escape = tryEscape(); Sleep(2000);
+                escape = tryEscape(); Sleep(3000);
                 if(escape == 0) enemyTurn(p, e, s, l, mapa, tam);
                 break;
         }
@@ -76,8 +76,9 @@ void attackEnemy(Player* p, Enemy* e){
         printf("\n-%.2f", attack);
     
         printf("\n\nENEMY:\t%.2f", getEnemyHP(e));
-        printf("\nPLAYER:\t%.2f", getPlayerHP(p));
-        Sleep(5000);
+        printf("\nPLAYER:\t%.2f\n\n", getPlayerHP(p));
+
+        system("pause");
     }
 }
 
@@ -107,8 +108,9 @@ void defendFromEnemy(Player* p, Enemy* e, Pilha* s, Lista* l, int** mapa, int ta
         printf("\n-%.2f", attack);
     
         printf("\n\nENEMY:\t%.2f", getEnemyHP(e));
-        printf("\nPLAYER:\t%.2f", getPlayerHP(p));
-        Sleep(5000);
+        printf("\nPLAYER:\t%.2f\n\n", getPlayerHP(p));
+
+        system("pause");
     }
 }
 
@@ -173,9 +175,9 @@ void enemyTurn(Player* p, Enemy* e, Pilha* s, Lista* l, int** mapa, int tam){
     }
 
     printf("\n\nENEMY:\t%.2f", getEnemyHP(e));
-    printf("\nPLAYER:\t%.2f", getPlayerHP(p));
+    printf("\nPLAYER:\t%.2f\n\n", getPlayerHP(p));
 
-    Sleep(5000);
+    system("pause");
 }
 
 bool isEnemyDead(Player* p, Enemy* e){
@@ -183,8 +185,9 @@ bool isEnemyDead(Player* p, Enemy* e){
         free(e);
         printf("\nIt proved enough and it falls dead on the dungeon floor!");
         printf("\n\nENEMY:\t PERISHED");
-        printf("\nPLAYER:\t%.2f", getPlayerHP(p));
-        Sleep(5000);
+        printf("\nPLAYER:\t%.2f\n\n", getPlayerHP(p));
+        
+        system("pause");
         return 1;
     }else return 0;
 }
@@ -194,8 +197,9 @@ bool isPlayerDead(Player* p, Enemy* e, Pilha* s, Lista* l, int** mapa, int tam){
         free(p);
         printf("\nSadly, it wasn't enough and it's attack goes through your shield, killing you");
         printf("\n\nENEMY:\t%.2f", getEnemyHP(e));
-        printf("\nPLAYER:\tPERISHED");
-        Sleep(5000);
+        printf("\nPLAYER:\tPERISHED\n\n");
+
+        system("pause");
         gameOver(mapa, tam, 0, p, e, s, l);
     }else return 0;
 }
