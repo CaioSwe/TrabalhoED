@@ -6,17 +6,28 @@ void startGame(Player* p, int** mapa, int tam){
 }
 
 void gameOver(int** mapa, int tam, int end){
-    system("cls");
-    printf("\tGAME OVER\n");
-    printf("\nAfter arduos hours battling enemies and braving the dungeon,");
-    printf("\nYou unfortunately succumb to you wounds");
-
-    for(int i = 0; i < tam; i++){
-            free(mapa[i]);
-    }free(mapa);
-    printf("\nAnd the light slowly fades from your eyes");
-    Sleep(5000);
-
+    switch(end){
+        case 1:
+            system("cls");
+            printf("\tCongratulations!\n");
+            printf("\nYou've beaten the dungeon!");
+            limparMapa(mapa, tam);
+            printf("\n\n*Crumbling noises");
+            printf("\n\nAs you leave the dungeon, you hear it crumbling behind you");
+            Sleep(5000);
+            break;
+        
+        case 0: 
+            system("cls");
+            printf("\tGAME OVER\n");
+            printf("\nAfter arduos hours battling enemies and braving the dungeon,");
+            printf("\nYou unfortunately succumb to you wounds");
+            limparMapa(mapa, tam);
+            printf("\nAnd the light slowly fades from your eyes");
+            Sleep(5000);
+            break;
+    }
+    
     int opc;
     do{
         system("cls");

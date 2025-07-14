@@ -196,6 +196,6 @@ bool isPlayerDead(Player* p, Enemy* e, int** mapa, int tam){
         printf("\n\nENEMY:\t%.2f", getEnemyHP(e));
         printf("\nPLAYER:\tPERISHED");
         Sleep(5000);
-        gameOver(mapa, tam);
+        gameOver(mapa, tam, 0);
     }else return 0;
 }

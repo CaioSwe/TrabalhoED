@@ -132,16 +132,9 @@ void printMapa(int** mapa, int tam){
 }
 
 void limparMapa(int** mapa, int tam){
-    system("cls");
-    printf("\nCongratulations!");
-    printf("\nYou've beaten the dungeon!");
-
     for(int i = 0; i < tam; i++){
             free(mapa[i]);
     }free(mapa);
-    printf("\n\n*Crumbling noises");
-    
-    printf("\n\nAs you leave the dungeon, you hear it crumbling behind you");
 }
 
 void ativarTrap(int** mapa, int tam, Player* p){
