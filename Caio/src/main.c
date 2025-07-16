@@ -310,7 +310,12 @@ bool healedAnimation(Color* healthBarColor, float deltaTime){
     return false;
 }
 
-bool healthBarP(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vector2 initialPos, float health, float maxHealth, float deltaTime){
+typedef struct healedOrHurt{
+    bool healed;
+    bool hurt;
+} healedOrHurt;
+
+healedOrHurt healthBarP(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vector2 initialPos, float health, float maxHealth, float deltaTime){
     static float relativeHealth = 10; // MUDAR
     static float elapsed = 0;
     static bool hurt = false;
@@ -319,7 +324,8 @@ bool healthBarP(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vect
     static Color healthBarColor = WHITE;
     static Color healthBarBorderColor = WHITE;
 
-    bool state = (health < relativeHealth);
+    bool stateHurt = (health < relativeHealth);
+    bool stateHeal = (health > relativeHealth);
 
     if(health < relativeHealth){
         relativeHealth = health;
@@ -370,10 +376,10 @@ bool healthBarP(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vect
     Image_DrawPro(healthBarFiller);
     Image_DrawPro(healthBarSprite);
 
-    return state;
+    return (healedOrHurt){stateHeal, stateHurt};
 }
 
-bool healthBar(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vector2 initialPos, float health, float maxHealth, float deltaTime){
+healedOrHurt healthBar(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vector2 initialPos, float health, float maxHealth, float deltaTime){
     static float relativeHealth = 10; // MUDAR
     static float elapsed = 0;
     static bool hurt = false;
@@ -381,7 +387,8 @@ bool healthBar(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vecto
     static Color healthBarColor = WHITE;
     static Color healthBarBorderColor = WHITE;
 
-    bool state = (health < relativeHealth);
+    bool stateHurt = (health < relativeHealth);
+    bool stateHeal = (health > relativeHealth);
 
     if(health < relativeHealth){
         relativeHealth = health;
@@ -425,7 +432,101 @@ bool healthBar(ImageObject* healthBarSprite, ImageObject* healthBarFiller, Vecto
     Image_DrawPro(healthBarFiller);
     Image_DrawPro(healthBarSprite);
 
-    return state;
+    return (healedOrHurt){stateHeal, stateHurt};
+}
+
+void LogHealthP(float health, TextObject* text, Rectangle position, float deltaTime){
+    static float relativeHealth = 10; // MUDAR
+    static float elapsed = 0;
+    static bool hurt = false;
+    static bool healed = false;
+    static Color damageColor = RED;
+    static float showHealth = 0;
+
+    if(health < relativeHealth){
+        showHealth = relativeHealth - health;
+        relativeHealth = health;
+        hurt = true;
+    }
+    if(health > relativeHealth){
+        showHealth = relativeHealth - health;
+        relativeHealth = health;
+        healed = true;
+    }
+
+    if(!hurt && !healed) return;
+
+    if(hurt) Text_Set(text, TextFormat("-%.1f", showHealth));
+    if(healed) Text_Set(text, TextFormat("+%.1f", showHealth));
+
+    damageColor = (hurt) ? RED : (healed) ? GREEN : GRAY;
+
+    elapsed += deltaTime;
+    
+    float pg = elapsed / 2.0f;
+    float t = pg;
+
+    text->y = Slerp(position.y, position.y - 100, t);
+    int alpha = Slerp(255, 0, t);
+    text->color = (Color){damageColor.r, damageColor.g, damageColor.b, alpha};
+
+    if(pg > 1.0f){
+        elapsed = 0;
+        hurt = false;
+        healed = false;
+    }
+
+    text->x = position.x;
+    text->fontsize = position.height;
+
+    Text_DrawS(text);
+}
+
+void LogHealthE(float health, TextObject* text, Rectangle position, float deltaTime){
+    static float relativeHealth = 10; // MUDAR
+    static float elapsed = 0;
+    static bool hurt = false;
+    static bool healed = false;
+    static Color damageColor = RED;
+    static float showHealth = 0;
+
+    if(health < relativeHealth){
+        showHealth = relativeHealth - health;
+        relativeHealth = health;
+        hurt = true;
+    }
+    if(health > relativeHealth){
+        showHealth = relativeHealth - health;
+        relativeHealth = health;
+        healed = true;
+    }
+
+    if(!hurt && !healed) return;
+
+    if(hurt) Text_Set(text, TextFormat("-%.1f", showHealth));
+    if(healed) Text_Set(text, TextFormat("+%.1f", showHealth));
+
+    damageColor = (hurt) ? RED : (healed) ? GREEN : GRAY;
+
+    elapsed += deltaTime;
+    
+    float pg = elapsed / 2.0f;
+    float t = pg;
+
+    text->y = Slerp(position.y, position.y - 100, t);
+    int alpha = Slerp(255, 0, t);
+    text->color = (Color){damageColor.r, damageColor.g, damageColor.b, alpha};
+
+    if(pg > 1.0f){
+        elapsed = 0;
+        hurt = false;
+        healed = false;
+    }
+
+    text->x = position.x;
+    text->fontsize = position.height;
+
+    Text_DrawS(text);
 }
 
 bool cameraAnimation(Camera2D* camera, Vector2 startPoint, Vector2 zoomPoint, float deltaTime){
@@ -812,8 +913,8 @@ GAMESTATE fightScreen(Resources resources){
 
     Player_setLocked(player, true);
 
-    bool enemyTookDamage = false;
-    bool playerTookDamage = false;
+    healedOrHurt enemyTookDamage = {false, false};
+    healedOrHurt playerTookDamage = {false, false};
 
     bool doZoom = false;
     bool enemyHasAttacked = false;
@@ -832,6 +933,9 @@ GAMESTATE fightScreen(Resources resources){
     SpriteSheet_SetDelta(confetti, (Vector2){150.0f, 0.0f});
 
     Turn confettiAnimState = {false, false, false, false};
+
+    TextObject* textP = Text_Init("");
+    TextObject* textE = Text_Init("");
 
     while(!WindowShouldClose()){
         float deltaTime = GetFrameTime();
@@ -866,7 +970,7 @@ GAMESTATE fightScreen(Resources resources){
             SpriteSheet_setAnimationFramesAnimating(confetti, true);
         }
 
-        if(enemyTookDamage){
+        if(enemyTookDamage.hurt){
             Player_setAction(enemy, HURT);
         }
         else if(enemyAnimState.animationEnd){
@@ -884,12 +988,14 @@ GAMESTATE fightScreen(Resources resources){
                 Player_setAction(enemy, DEAD);
             }
             if(!whoseTurn.animationBool && whoseTurn.animationEnd && enemyDecision != DEAD){
-                percorrerArvore(enemyChoice);
+                Player_setAction(enemy, HEAL);
+                
+                //percorrerArvore(enemyChoice);
                 enemyTookAction = true;
             }
         }
 
-        if(playerTookDamage){
+        if(playerTookDamage.hurt && !playerStats.defending){
             Player_setAction(player, HURT);
         }
         else if(playerAnimState.animationEnd){
@@ -906,13 +1012,17 @@ GAMESTATE fightScreen(Resources resources){
             if(playerStats.health <= 0){
                 Player_setAction(player, DEAD);
             }
+
+            if(playerStats.defending){
+                Player_setAction(player, DEFEND);
+            }
         }
 
         switch(enemyDecision){
             case ATTACK:
                 Player_ChangeSprite(enemy, 12, 0);
                 if(!enemyHasAttacked){
-                    Player_TakeDamage(player, 1.0f);
+                    Player_TakeDamage(player, enemyStats.attack);
                     enemyHasAttacked = true;
                 }
                 loopEnemy = false;
@@ -932,6 +1042,12 @@ GAMESTATE fightScreen(Resources resources){
             case IDLE:
                 Player_ChangeSprite(enemy, 4, 3);
                 loopEnemy = true;
+                break;
+            case HEAL:
+                if(!enemyHasAttacked){
+                    Player_getHealing(enemy, 2.0f);
+                    enemyHasAttacked = true;
+                }
                 break;
         }
 
@@ -956,6 +1072,10 @@ GAMESTATE fightScreen(Resources resources){
                 Player_ChangeSprite(player, 15, 3);
                 loopPlayer = true;
                 break;
+            case DEFEND:
+                Player_ChangeSprite(player, 7, 4);
+                loopPlayer = true;
+                break;
         }
 
         bc->destination.x = (bc->destination.x - randSpeed1 <= -bc->destination.width/2.0f) ? 0 : bc->destination.x - randSpeed1;
@@ -969,6 +1089,11 @@ GAMESTATE fightScreen(Resources resources){
             Player_ChangeSprite(enemy, 4, 4);
             Player_setAction(player, ATTACK);
 
+            playerTookAction = true;
+        }
+
+        if(Button_IsPressed(def, mousePos) && whoseTurn.animationBool){
+            Player_setDefense(player, true);
             playerTookAction = true;
         }
 
@@ -1095,6 +1220,10 @@ GAMESTATE fightScreen(Resources resources){
                     switchTurns = false;
                     (whoseTurn.animationBool) ? printf("\n--------- Switched to %s's turn ---------", Player_getName(player)) :printf("\n--------- Switched to %s's turn ---------", Player_getName(enemy));;
                     enemyHasAttacked = false;
+
+                    if(whoseTurn.animationBool){
+                        Player_setDefense(player, false);
+                    }
                 }
             }
 
@@ -1114,6 +1243,12 @@ GAMESTATE fightScreen(Resources resources){
                 
                 if(inventoryAnimation.animationEnd) inventoryShowing = false;
             }
+
+            Rectangle posHP = {healthBarSpriteP->destination.x + healthBarSpriteP->destination.width*1.1f, healthBarSpriteP->destination.y - 3, 0, healthBarSpriteP->destination.height};
+            Rectangle posHE = {healthBarSprite->destination.x + healthBarSprite->destination.width*1.1f, healthBarSprite->destination.y - 3, 0, healthBarSprite->destination.height};
+
+            LogHealthP(playerStats.health, textP, posHP, deltaTime);
+            LogHealthE(enemyStats.health, textE, posHE, deltaTime);
 
             SpriteSheet_Draw(confetti);
 

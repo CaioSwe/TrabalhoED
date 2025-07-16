@@ -99,7 +99,7 @@ void Player_UpdateAtk(Player* player, float newAtk);
 
 void Player_UpdateDef(Player* player, float newDef);
 
-void Player_getHealing(Player* player);
+void Player_getHealing(Player* player, float heal);
 
 void Player_Print(Player* player);
 
@@ -150,5 +150,7 @@ void Player_setLocked(Player* player, bool locked);
 void Player_setName(Player* player, const char* name);
 
 void Player_setControl(Player* player, bool state);
+
+void Player_setDefense(Player* player, bool state);
 
 #endif

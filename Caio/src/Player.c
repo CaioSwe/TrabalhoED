@@ -70,7 +70,7 @@ Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteS
     player->stepDistance = 1.0f;
     player->characterChoice = false;
 
-    player->stats = (Stats){10.0f, 10.0f, 6.0f, 0.05f, 0.1f, false, false, 0}; // Vida máxima, Vida, Ataque, Defesa, Evasão (Base), Ouro
+    player->stats = (Stats){10.0f, 10.0f, 6.0f, 0.5f, 0.1f, false, false, 0}; // Vida máxima, Vida, Ataque, Defesa, Evasão (Base), Ouro
 
     player->inventario = (Inventario){criaLista(), criaLista()};
 
@@ -257,7 +257,9 @@ bool isLife30(Player* player){
 
 void Player_TakeDamage(Player* player, float damage){
     player->stats.evasionRate = (player->stats.defending) ? player->stats.evasionRate + 0.05f : player->stats.evasionRate + (damage / player->stats.health);
-    player->stats.health = (player->stats.defending) ? player->stats.health - ((1 - player->stats.defense) * damage) : player->stats.health - damage;
+    float finalDamage = (player->stats.defending) ? ((1 - player->stats.defense) * damage) : damage;
+
+    player->stats.health -= finalDamage;
 }
 
 void Player_UpdateAtk(Player* player, float newAtk){
@@ -268,8 +270,8 @@ void Player_UpdateDef(Player* player, float newDef){
     player->stats.defense = newDef;
 }
 
-void Player_getHealing(Player* player){
-    player->stats.health += 10;
+void Player_getHealing(Player* player, float heal){
+    player->stats.health += heal;
 }
 
 void Player_Print(Player* player){
@@ -366,4 +368,8 @@ void Player_setName(Player* player, const char* name){
 
 void Player_setControl(Player* player, bool state){
     player->isControlled = state;
+}
+
+void Player_setDefense(Player* player, bool state){
+    player->stats.defending = state;
 }
