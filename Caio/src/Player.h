@@ -38,6 +38,8 @@ typedef struct Stats{
     bool attacking;
     bool defending;
 
+    int repelent;
+
     int gold;
 } Stats;
 
@@ -156,6 +158,8 @@ void Player_setName(Player* player, const char* name);
 void Player_setControl(Player* player, bool state);
 
 void Player_setDefense(Player* player, bool state);
+
+void Player_setRepelent(Player* player, int amount);
 
 void Player_setAnimationFramesBaseSpeed(Player* player, int baseSpeed);
 

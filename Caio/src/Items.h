@@ -3,6 +3,8 @@
 
 #include "Utils.h"
 #include "Delimiters.h"
+#include "Player.h"
+#include "ImageObject.h"
 
 // typedef struct Weapon{
 //     int code;
@@ -33,10 +35,12 @@ typedef struct Item {
     int id;
     bool isMimic;
 
-    float (*function)(float);
+    ImageObject* sprite;
 } Item;
 
-void usarItem(Item* item);
+Item* Item_Init(int id, ImageObject* spriteSheet);
+
+Outcome usarItem(Item* item, Player* target);
 
 const char* getItemDescription(Item* item);
 

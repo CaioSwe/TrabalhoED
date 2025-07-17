@@ -70,7 +70,7 @@ Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteS
     player->stepDistance = 1.0f;
     player->characterChoice = false;
 
-    player->stats = (Stats){10.0f, 10.0f, 6.0f, 0.5f, 0.1f, false, false, 0}; // Vida máxima, Vida, Ataque, Defesa, Evasão (Base), Ouro
+    player->stats = (Stats){10.0f, 10.0f, 6.0f, 0.5f, 0.1f, false, false, 0, 0}; // Vida máxima, Vida, Ataque, Defesa, Evasão (Base), Repelente, Ouro
 
     player->inventario = (Inventario){criaLista(), criaLista()};
 
@@ -448,6 +448,10 @@ void Player_setControl(Player* player, bool state){
 
 void Player_setDefense(Player* player, bool state){
     player->stats.defending = state;
+}
+
+void Player_setRepelent(Player* player, int amount){
+    player->stats.repelent = amount;
 }
 
 void Player_setAnimationFramesBaseSpeed(Player* player, int baseSpeed){

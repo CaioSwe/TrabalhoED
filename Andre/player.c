@@ -2,10 +2,12 @@
 
 typedef struct stats{
     int   repelent;
+    
     float maxHealth;
     float health;
     float attack;
     float defense;
+
     float dodge;
     float evasionRate;
     bool  defending;
