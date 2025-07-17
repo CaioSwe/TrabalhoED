@@ -59,7 +59,7 @@ Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteS
     
     player->anim->position->function = linearFunction;
 
-    player->anim->frames = (FramesAnimation){true, 10.0f, 0.0f, 1, 0, 3, 0, 6};
+    player->anim->frames = (FramesAnimation){true, 10.0f, 0.0f, 1, 0, 3, 0, 6, 6};
 
     player->display = (Vector2){0, 120.0f};
     player->deltaX = 160.0f;
@@ -129,7 +129,7 @@ void Player_ChangeCharacter(Player* player){
 
 Turn Player_UpdateSprite(Player* player, bool reverse, bool loop){
     Turn animState = {false, false, false, false};
-    
+
     player->anim->frames.framesCounter++;
 
     if ((player->anim->frames.framesCounter >= (60/player->anim->frames.framesSpeed)) && player->anim->frames.animating){
@@ -144,6 +144,76 @@ Turn Player_UpdateSprite(Player* player, bool reverse, bool loop){
             if (player->anim->frames.currentFrame < 0){
                 player->anim->frames.animationDirection = 1;
                 player->anim->frames.currentFrame = 1;
+                animState.animationEnd = true;
+            }
+        }
+        else{
+            if(player->anim->frames.currentFrame > player->anim->frames.amountOfFrames - 1){
+                animState.animationEnd = true;
+                player->anim->frames.currentFrame = player->anim->frames.amountOfFrames - 1;
+
+                if(loop){
+                    player->anim->frames.currentFrame = 0;
+                }
+            }
+        }
+
+        if (player->anim->frames.currentFrame != 0) player->anim->frames.padding += player->anim->frames.framesPadding * player->anim->frames.animationDirection;
+        else player->anim->frames.padding = 0.0f;
+
+        player->display.x = (float)player->anim->frames.currentFrame*player->deltaX + player->anim->frames.padding;
+    }
+
+
+    if(!player->anim->frames.animating && player->isControlled){
+        player->anim->frames.framesCounter = 0;
+        player->anim->frames.currentFrame = 1;
+        player->display.x = (float)player->anim->frames.currentFrame*160.0f + 10.0f;
+        player->anim->frames.animationDirection = -1;
+    }
+
+    int character = (player->characterChoice) ? 2020.0f : 0.0f;
+
+    if(!player->anim->position->animating && !player->locked && player->isControlled){
+        if(IsKeyDown(player->keys.up) || player->moving.up) player->display.y = 450.0f;
+        if(IsKeyDown(player->keys.down) || player->moving.down) player->display.y = 120.0f;
+        if(IsKeyDown(player->keys.left) || player->moving.left) player->display.y = 780.0f;
+        if(IsKeyDown(player->keys.right) || player->moving.right) player->display.y = 1110.0f;
+    }
+
+    bool allKeys = (IsKeyDown(player->keys.up) || IsKeyDown(player->keys.down) || IsKeyDown(player->keys.left) || IsKeyDown(player->keys.right));
+
+    player->anim->frames.animating = (allKeys || player->anim->position->animating) ? true : false;
+
+    player->source.x = player->display.x;
+    player->source.y = player->display.y + character;
+
+    animState.animating = player->anim->frames.animating;
+    return animState;
+}
+
+Turn Player_UpdateSpriteExt(Player* player, bool reverse, bool loop, int reverseFrames, bool leaveAnim){
+    Turn animState = {false, false, false, false};
+
+    player->anim->frames.framesCounter++;
+
+    if ((player->anim->frames.framesCounter >= (60/player->anim->frames.framesSpeed)) && player->anim->frames.animating){
+        player->anim->frames.framesCounter = 0;
+        player->anim->frames.currentFrame += player->anim->frames.animationDirection;
+
+        if(reverse){
+            if (player->anim->frames.currentFrame > player->anim->frames.amountOfFrames - 1){
+                player->anim->frames.animationDirection = -1;
+                player->anim->frames.currentFrame = player->anim->frames.amountOfFrames - 2;
+            }
+            if (player->anim->frames.currentFrame < player->anim->frames.amountOfFrames - reverseFrames - 1 && !leaveAnim){
+                player->anim->frames.animationDirection = 1;
+                player->anim->frames.currentFrame = player->anim->frames.amountOfFrames - reverseFrames;
+            }
+            if (player->anim->frames.currentFrame <= 0){
+                player->anim->frames.animationDirection = 1;
+                player->anim->frames.currentFrame = 0;
+                animState.animationEnd = true;
             }
         }
         else{
@@ -260,6 +330,8 @@ void Player_TakeDamage(Player* player, float damage){
     float finalDamage = (player->stats.defending) ? ((1 - player->stats.defense) * damage) : damage;
 
     player->stats.health -= finalDamage;
+
+    if(player->stats.health < 0) player->stats.health = 0;
 }
 
 void Player_UpdateAtk(Player* player, float newAtk){
@@ -328,6 +400,10 @@ const char* Player_getName(Player* player){
     return player->name;
 }
 
+int Player_getAnimationFramesBaseSpeed(Player* player){
+    return player->anim->frames.baseSpeed;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 void Player_setAction(Player* player, Decision decision){
@@ -372,4 +448,12 @@ void Player_setControl(Player* player, bool state){
 
 void Player_setDefense(Player* player, bool state){
     player->stats.defending = state;
+}
+
+void Player_setAnimationFramesBaseSpeed(Player* player, int baseSpeed){
+    player->anim->frames.baseSpeed = baseSpeed;
+}
+
+void Player_setAnimationFramesSpeed(Player* player, int frameSpeed){
+    player->anim->frames.framesSpeed = frameSpeed;
 }

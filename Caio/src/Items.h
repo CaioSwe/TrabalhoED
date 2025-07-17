@@ -4,34 +4,40 @@
 #include "Utils.h"
 #include "Delimiters.h"
 
-typedef struct Weapon{
-    int code;
-    float damage;
-    float durability;
-} Weapon;
+// typedef struct Weapon{
+//     int code;
+//     float damage;
+//     float durability;
+// } Weapon;
 
-typedef struct Shield{
-    int code;
-    float shield;
-    float durability;
-} Shield;
+// typedef struct Shield{
+//     int code;
+//     float shield;
+//     float durability;
+// } Shield;
 
 
 /*
 Codes:
-
+    1 = Poção de vida
+    2 = Repelente de Monstro
+    3 = Baú (pode ser mimico)
 */
 
+typedef struct Outcome {
+    bool fight;
+    bool usedItem;
+} Outcome;
+
 typedef struct Item {
-    int id = 0;
-    int amount = 0;
-    int code;
+    int id;
+    bool isMimic;
 
     float (*function)(float);
-
-    Vector2 current;
-    Vector2 start;
-    Vector2 end;
 } Item;
+
+void usarItem(Item* item);
+
+const char* getItemDescription(Item* item);
 
 #endif

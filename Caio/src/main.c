@@ -97,6 +97,10 @@ void Button_DrawIconVoid(const void* item){
     Image_DrawPro(btn->icon);
 }
 
+void ImprimirInventario(const void* item){
+    for(int t = 0; t < 9; t++) DrawRectangleRec((Rectangle){slotRec.x + inventoryBackground->destination.x + slotDeltaX*t, slotRec.y + inventoryBackground->destination.y, slotRec.width, slotRec.height}, BLACK);
+}
+
 bool isLife50Void(const void* item){
     return isLife50((Player*)item);
 }
@@ -702,7 +706,7 @@ GAMESTATE fightScreen(Resources resources){
     Player_setDisplay(player, (Vector2){0.0f, 0.0f});
     Player_setDeltaX(player, 64.0f);
     Player_setDeltaY(player, 64.0f);
-    Player_setAnimationFrames(player, (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 15, 0, 11});
+    Player_setAnimationFrames(player, (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 15, 0, 11, 11});
 
     Player_SetSourceRec(player, (Rectangle){0.0f, 0.0f, 64.0f, 64.0f});
 
@@ -720,7 +724,7 @@ GAMESTATE fightScreen(Resources resources){
     Player_setDisplay(enemy, (Vector2){0.0f, 0.0f});
     Player_setDeltaX(enemy, 64.0f);
     Player_setDeltaY(enemy, 64.0f);
-    Player_setAnimationFrames(enemy, (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 4, 0, 7});
+    Player_setAnimationFrames(enemy, (FramesAnimation){true, 0.0f, 0.0f, 1, 0, 4, 0, 7, 7});
 
     Player_SetSourceRec(enemy, (Rectangle){0.0f, 0.0f, -64.0f, 64.0f});
     
@@ -890,8 +894,11 @@ GAMESTATE fightScreen(Resources resources){
 
     ImageObject* inventoryBackground = Image_Init("sprites/inventoryBackground.png");
 
-    float newHeight = GetScreenHeight()*0.8f;
-    float newWidth = (inventoryBackground->image.width * newHeight)/inventoryBackground->image.height;
+    // float newHeight = GetScreenHeight()*0.8f;
+    // float newWidth = (inventoryBackground->image.width * newHeight)/inventoryBackground->image.height;
+
+    float newWidth = GetScreenWidth()*0.92f;
+    float newHeight = (newWidth*inventoryBackground->source.height)/inventoryBackground->source.width;
 
     Rectangle backgorundDest = {GetScreenWidth()/2 - newWidth/2, GetScreenHeight(), newWidth, newHeight};
 
@@ -899,6 +906,13 @@ GAMESTATE fightScreen(Resources resources){
 
     bool inventoryShowing = false;
     Turn inventoryAnimation = {false, false, false, false};
+    
+    float ratioWidth = (float)newWidth/inventoryBackground->source.width;
+    float ratioHeight = (float)newHeight/inventoryBackground->source.height;
+
+    float slotDeltaX = 72.0f * ratioWidth;
+
+    Rectangle slotRec = {31.0f * ratioWidth, 363.0f * ratioHeight, 64.0f * ratioWidth, 64.0f * ratioHeight};
 
     ImageObject* healthBarSprite = Image_Init("sprites/healthBar.png");
     ImageObject* healthBarFiller = Image_Init("sprites/healthBarBar.png");
@@ -910,6 +924,10 @@ GAMESTATE fightScreen(Resources resources){
     Turn playerAnimState = {false, false, false, false};
     bool loopPlayer = false;
     bool loopEnemy = false;
+    bool loopAnimPlayer = false;
+    bool finishLoopPlayer = false;
+
+    int framesToLoopPlayer = 0;
 
     Player_setLocked(player, true);
 
@@ -922,7 +940,7 @@ GAMESTATE fightScreen(Resources resources){
     bool enemyTookAction = false;
     bool playerTookAction = false;
 
-    SpriteSheet* confetti = SpriteSheet_Init("sprites/Confetti.png", (FramesAnimation){false, 0.0f, 0.0f, 1, 0, 63, 0, 24});
+    SpriteSheet* confetti = SpriteSheet_Init("sprites/Confetti.png", (FramesAnimation){false, 0.0f, 0.0f, 1, 0, 63, 0, 24, 24});
 
     SpriteSheet_SetSourceRec(confetti, (Rectangle){0, 0, 150.0f, 120.0f});
     SpriteSheet_SetDisplay(confetti, (Vector2){0.0f, 0.0f});
@@ -936,6 +954,8 @@ GAMESTATE fightScreen(Resources resources){
 
     TextObject* textP = Text_Init("");
     TextObject* textE = Text_Init("");
+
+    float worldSpeed = 1.0f;
 
     while(!WindowShouldClose()){
         float deltaTime = GetFrameTime();
@@ -951,6 +971,9 @@ GAMESTATE fightScreen(Resources resources){
         playerStats = Player_getStats(player);
         enemyStats = Player_getStats(enemy);
 
+        Player_setAnimationFramesSpeed(player, (float)Player_getAnimationFramesBaseSpeed(player)*worldSpeed);
+        Player_setAnimationFramesSpeed(enemy, (float)Player_getAnimationFramesBaseSpeed(enemy)*worldSpeed);
+
         if(Wait(0.3f)){
             randSpeed1 = (randSpeed1 <= minSpeed) ? minSpeed : randSpeed1 - 1;
             randSpeed2 = (randSpeed2 <= minSpeed) ? minSpeed : randSpeed2 - 1;
@@ -958,7 +981,7 @@ GAMESTATE fightScreen(Resources resources){
 
         Player_UpdatePosition(player, deltaTime);
         Player_setAnimationFramesAnimating(player, true);
-        playerAnimState = Player_UpdateSprite(player, false, loopPlayer);
+        playerAnimState = Player_UpdateSpriteExt(player, loopAnimPlayer, loopPlayer, framesToLoopPlayer, finishLoopPlayer);
 
         Player_UpdatePosition(enemy, deltaTime);
         Player_setAnimationFramesAnimating(enemy, true);
@@ -988,9 +1011,9 @@ GAMESTATE fightScreen(Resources resources){
                 Player_setAction(enemy, DEAD);
             }
             if(!whoseTurn.animationBool && whoseTurn.animationEnd && enemyDecision != DEAD){
-                Player_setAction(enemy, HEAL);
+                //Player_setAction(enemy, HEAL);
                 
-                //percorrerArvore(enemyChoice);
+                percorrerArvore(enemyChoice);
                 enemyTookAction = true;
             }
         }
@@ -1053,42 +1076,50 @@ GAMESTATE fightScreen(Resources resources){
         switch(playerDecision){
             case ATTACK:
                 Player_ChangeSprite(player, 15, 0);
+                if(!playerTookAction){
+                    Player_TakeDamage(enemy, 1.0f);
+                    Player_ChangeSprite(enemy, 4, 4);
+                    playerTookAction = true;
+                }
                 loopPlayer = false;
+                loopAnimPlayer = false;
                 break;
             case HURT:
                 Player_ChangeSprite(player, 7, 4);
                 loopPlayer = false;
+                loopAnimPlayer = false;
                 break;
             case DEAD:
                 Player_ChangeSprite(player, 15, 1);
                 loopPlayer = false;
+                loopAnimPlayer = false;
                 break;
             case WALK:
                 Player_ChangeSprite(player, 8, 2);
                 loopPlayer = true;
+                loopAnimPlayer = false;
                 break;
             case IDLE:
                 Player_ChangeSprite(player, 15, 3);
                 loopPlayer = true;
+                loopAnimPlayer = false;
                 break;
             case DEFEND:
                 Player_ChangeSprite(player, 7, 4);
                 loopPlayer = true;
+                loopAnimPlayer = true;
+                framesToLoopPlayer = 1;
                 break;
         }
 
-        bc->destination.x = (bc->destination.x - randSpeed1 <= -bc->destination.width/2.0f) ? 0 : bc->destination.x - randSpeed1;
-        bb->destination.x = (bb->destination.x - randSpeed2 <= -bb->destination.width/2.0f) ? 0 : bb->destination.x - randSpeed2;
-        nv->destination.x = (nv->destination.x - randSpeed3 <= -nv->destination.width/2.0f) ? 0 : nv->destination.x - randSpeed3;
+        bc->destination.x = (bc->destination.x - randSpeed1*worldSpeed <= -bc->destination.width/2.0f) ? 0 : bc->destination.x - randSpeed1*worldSpeed;
+        bb->destination.x = (bb->destination.x - randSpeed2*worldSpeed <= -bb->destination.width/2.0f) ? 0 : bb->destination.x - randSpeed2*worldSpeed;
+        nv->destination.x = (nv->destination.x - randSpeed3*worldSpeed <= -nv->destination.width/2.0f) ? 0 : nv->destination.x - randSpeed3*worldSpeed;
         nn->destination.x = nv->destination.x;
         bp->destination.x = bc->destination.x;
 
         if(Button_IsPressed(atk, mousePos) && whoseTurn.animationBool){
-            Player_TakeDamage(enemy, playerStats.attack);
-            Player_ChangeSprite(enemy, 4, 4);
             Player_setAction(player, ATTACK);
-
-            playerTookAction = true;
         }
 
         if(Button_IsPressed(def, mousePos) && whoseTurn.animationBool){
@@ -1215,14 +1246,20 @@ GAMESTATE fightScreen(Resources resources){
             if(switchTurns){
                 whoseTurn = changeTurn(deltaTime);
 
+                if(whoseTurn.animating) worldSpeed = 0.5f;
+                else worldSpeed = 1.0f;
+
                 if(whoseTurn.animationEnd){
                     switchTurns = false;
                     (whoseTurn.animationBool) ? printf("\n--------- Switched to %s's turn ---------", Player_getName(player)) :printf("\n--------- Switched to %s's turn ---------", Player_getName(enemy));;
                     enemyHasAttacked = false;
+                    playerTookAction = false;
 
                     if(whoseTurn.animationBool){
                         Player_setDefense(player, false);
+                        finishLoopPlayer = true;
                     }
+                    else finishLoopPlayer = false;
                 }
             }
 
@@ -1252,6 +1289,10 @@ GAMESTATE fightScreen(Resources resources){
             SpriteSheet_Draw(confetti);
 
             Image_DrawPro(inventoryBackground);
+
+            // PARAMETRIZAÇÃO DO INVENTARIO
+            percorrerLista(Player_getListaInventario(player), imprimirInventario);
+            //
 
             Image_Draw(cursor);
         EndDrawing();

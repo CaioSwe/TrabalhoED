@@ -14,11 +14,12 @@
 
 int main(){
 
-    Pilha*  s;
-    Lista*  l;
-    Player* p;
-    Enemy*  e;
-    int** mapa;
+    Pilha*  s = criarPilha();
+    Lista*  l = criaLista();
+    Player* p = criarPlayer();
+    Enemy*  e = criarEnemy();
+    int** mapa = NULL;
+    criarMapa(&mapa, p, TAM);
 
     startGame(mapa, TAM, p, e, s, l);
 

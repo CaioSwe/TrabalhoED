@@ -41,6 +41,7 @@ typedef struct FramesAnimation{
     int framesCounter;
 
     int framesSpeed;
+    int baseSpeed;
 } FramesAnimation;
 
 typedef struct Turn{

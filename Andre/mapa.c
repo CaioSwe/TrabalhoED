@@ -1,15 +1,15 @@
 #include "mapa.h"
 
-int** criarMapa(Player* p, int tam){
+void criarMapa(int*** mapa, Player* p, int tam){
     srand(time(NULL));
 
     setPlayerPos(p, 1, 1);
-    int*** mapa = (int***)malloc(tam*sizeof(int**));
+    *mapa = (int**)malloc(tam*sizeof(int*));
     int input;
 
     int i_chance = rand() % (tam-2)+1;
     
-    *mapa = (int**)malloc(tam*sizeof(int*));
+    //*mapa = (int**)malloc(tam*sizeof(int*));
     if(mapa == NULL){ printf("\nERROR: Insuficient Memory!"); exit(1); }
 
     for(int i = 0; i < tam; i++){
@@ -67,8 +67,6 @@ int** criarMapa(Player* p, int tam){
     (*mapa)[10][8] = 2;
     (*mapa)[10][8] = 2;
     (*mapa)[10][9] = 2;
-
-    return *mapa;
 }
 
 void populaMapa(int** mapa, int tam){

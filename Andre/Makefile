@@ -2,7 +2,7 @@ PROJ_NAME = ted
 
 ALUNO = waldemarsn
 LIBS =-lm
-OBJETOS = main.o inventario.o lista.o mapa.o movimentacao.o pilha.o player.o
+OBJETOS = main.o inventario.o lista.o mapa.o movimentacao.o pilha.o player.o game.o combate.o
 
 # Compilador
 CC = gcc

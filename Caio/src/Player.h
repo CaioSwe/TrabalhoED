@@ -67,6 +67,8 @@ void Player_ChangeCharacter(Player* player);
 
 Turn Player_UpdateSprite(Player* player, bool reverse, bool loop);
 
+Turn Player_UpdateSpriteExt(Player* player, bool reverse, bool loop, int reverseFrames, bool leaveAnim);
+
 void Player_ChangeSprite(Player* player, int amountOfFrames, int pos);
 
 void Player_StepTo(Player* player, Vector2 direction, bool updateSprite);
@@ -129,6 +131,8 @@ bool Player_getAnimationPositionAnimating(Player* player);
 
 const char* Player_getName(Player* player);
 
+int Player_getAnimationFramesBaseSpeed(Player* player);
+
 /////////////////////////////////////////////////////////////////////////////
 
 void Player_setAction(Player* player, Decision decision);
@@ -152,5 +156,9 @@ void Player_setName(Player* player, const char* name);
 void Player_setControl(Player* player, bool state);
 
 void Player_setDefense(Player* player, bool state);
+
+void Player_setAnimationFramesBaseSpeed(Player* player, int baseSpeed);
+
+void Player_setAnimationFramesSpeed(Player* player, int frameSpeed);
 
 #endif

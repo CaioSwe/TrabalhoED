@@ -15,7 +15,7 @@ void startGame(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
     system("pause");
     system("cls");
 
-    mapa = criarMapa(p, tam);
+    //mapa = criarMapa(p, tam);
     printf("Soon enough, you're entering the infamous Dungeon of Danger, right beside your house");
     printf("\n'How convinient!' You think to yourself\n\n");
     system("pause");
@@ -23,21 +23,21 @@ void startGame(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
 
     populaMapa(mapa, tam);
     printf("As you enter the dungeon, you can hear all the monsters inside!");
-    e = criarEnemy();
+    //e = criarEnemy();
     printf("\nAs well as all the crawly-crawlers making noise all over!\n\n");
     system("pause");
     system("cls");
 
-    s = criarPilha();
+    //s = criarPilha();
     printf("You take a step!");
     Sleep(1500);
 
-    l = criaLista();
+    //l = criaLista();
     printf("\nAnd then another!\n\n");
     system("pause");
     system("cls");
     
-    p = criarPlayer();
+    //p = criarPlayer();
     printf("You feel yourself filled with determination!\n\n");
     system("pause");
     system("cls");
@@ -46,7 +46,7 @@ void startGame(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
 }
 
 void restartGame(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
-    mapa = criarMapa(p, tam);
+    criarMapa(&mapa, p, tam);
     populaMapa(mapa, tam);
     e    = criarEnemy();
     s    = criarPilha();

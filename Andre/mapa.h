@@ -13,7 +13,7 @@
 
 typedef struct player Player;
 
-int**  criarMapa (Player*, int                                    );
+void  criarMapa (int***, Player*, int                                    );
 void   populaMapa(int**, int                                      );
 void   printMapa (int**, int                                      );
 void   limparMapa(int**, int                                      );

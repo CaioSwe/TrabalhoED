@@ -7,6 +7,6 @@
 #define MAX_STRSIZE 100
 #define MAX_FRAMES 100
 
-#define TAM 10
+#define TAM 20
 
 #endif

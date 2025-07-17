@@ -83,7 +83,7 @@ int*  getPlayerPos(Player* p              ) {
     return pos; 
 }
 void  setPlayerPos(Player* p, int x, int y) {
-    p->x = x; 
+    p->x = x;
     p->y = y;
 }
 
