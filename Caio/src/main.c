@@ -1003,7 +1003,6 @@ GAMESTATE fightScreen(Resources resources){
                 switchTurns = true;
                 playerTookAction = false;
             }
-
             if(Player_getAnimationPositionAnimating(player)){
                 Player_setAction(player, WALK);
             } else{
@@ -1131,8 +1130,8 @@ GAMESTATE fightScreen(Resources resources){
                 bb->destination.y = Slerp(startPointB, finalPointB, t);
 
                 if(pg > 1.0f){
-                    Player_MoveTo(enemy, (Vector2){(GetScreenWidth() - 130.0f) - enemyDestRec.width/2, playerDestRec.y + playerDestRec.height - enemyDestRec.height}, 2.5f);
-                    Player_MoveTo(player, (Vector2){130.0f - playerDestRec.width/2, 350.0f - playerDestRec.height}, 2.5f);
+                    Player_MoveTo(enemy, (Vector2){(GetScreenWidth() - 130.0f) - enemyDestRec.width/2, playerDestRec.y + playerDestRec.height - enemyDestRec.height}, 1.0f);
+                    Player_MoveTo(player, (Vector2){130.0f - playerDestRec.width/2, 350.0f - playerDestRec.height}, 1.0f);
 
                     introduction = false;
                     elapsedN = 0;
