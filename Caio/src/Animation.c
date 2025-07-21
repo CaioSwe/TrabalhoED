@@ -77,3 +77,43 @@ Rectangle UpdateItemSize(ScaleAnimation* item, Rectangle recItem, float deltaTim
 void ChangePositionFunction(PositionAnimation* item, float (*function)(float)){
     item->function = function;
 }
+
+void Animation_PositionCopy(PositionAnimation* posFrom, PositionAnimation* posTo){
+    posTo->elapsed = posFrom->elapsed;
+    posTo->animating = posFrom->animating;
+    posTo->duration = posFrom->duration;
+
+    posTo->function = posFrom->function;
+
+    posTo->current = posFrom->current;
+    posTo->start = posFrom->start;
+    posTo->end = posFrom->end;
+}
+
+void Animation_ScaleCopy(ScaleAnimation* scaleFrom, ScaleAnimation* scaleTo){
+    scaleTo->elapsed = scaleFrom->elapsed;
+    scaleTo->animating = scaleFrom->animating;
+    scaleTo->duration = scaleFrom->duration;
+
+    scaleTo->maximized = scaleFrom->maximized;
+    scaleTo->minimized = scaleFrom->minimized;
+
+    scaleTo->current = scaleFrom->current;
+    scaleTo->start = scaleFrom->start;
+    scaleTo->end = scaleFrom->end;
+}
+
+void Animation_FramesCopy(FramesAnimation* framesFrom, FramesAnimation* framesTo){
+    framesTo->animating = framesFrom->animating;
+
+    framesTo->framesPadding = framesFrom->framesPadding;
+    framesTo->padding = framesFrom->padding;
+
+    framesTo->animationDirection = framesFrom->animationDirection;
+    framesTo->currentFrame = framesFrom->currentFrame;
+    framesTo->amountOfFrames = framesFrom->amountOfFrames;
+    framesTo->framesCounter = framesFrom->framesCounter;
+
+    framesTo->framesSpeed = framesFrom->framesSpeed;
+    framesTo->baseSpeed = framesFrom->baseSpeed;
+}

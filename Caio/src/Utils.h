@@ -9,17 +9,19 @@
 #include <direct.h>
 #include <time.h>
 
+#ifdef _WIN32
+__declspec(dllimport) void __stdcall Sleep(unsigned long ms);
+#endif
+
 #include "Delimiters.h"
 
 #define vector2Equals(a, b) (fabsf((a).x - (b).x) < (0.00001f) && fabsf((a).y - (b).y) < (0.00001f))
 
+#define Vector2EqualZERO(vector) ((vector).x == 0 && (vector).y == 0)
+
 bool Wait(double intervalo);
 
 bool Wait2(double intervalo);
-
-bool WaitOnce(double intervalo);
-
-void resetWaitOnce();
 
 int getSign(float value);
 

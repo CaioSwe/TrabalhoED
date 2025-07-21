@@ -23,25 +23,6 @@ bool Wait2(double intervalo){
     return false;
 }
 
-double lastUpdateOnce = 0;
-bool hasRun = false;
-
-bool WaitOnce(double intervalo){
-    static double lastUpdate = 0;
-    double agora = GetTime();
-
-    if(!hasRun && agora - lastUpdateOnce >= intervalo){
-        lastUpdate = agora;
-        hasRun = true;
-        return hasRun;
-    }
-    return hasRun;
-}
-
-void resetWaitOnce(){
-    hasRun = false;
-}
-
 int getSign(float value){
     if(value > 0){
         return 1;

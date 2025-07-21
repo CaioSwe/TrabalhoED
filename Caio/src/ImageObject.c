@@ -16,6 +16,9 @@ ImageObject* Image_Init(const char* filename){
     img->origin = (Vector2){0,0};
 
     img->source = (Rectangle){0, 0, img->image.width, img->image.height};
+    img->save = 0;
+
+    img->elapsed = 0.0f;
 
     return img;
 }
@@ -74,6 +77,8 @@ void Image_Fit(ImageObject* img){
 }
 
 void Image_Draw(ImageObject* img){
+    if(img == NULL) return;
+
     Rectangle originRec = (Rectangle){0,0, (float)img->image.width,(float)img->image.height};
     Rectangle destRec = (Rectangle){img->x, img->y, (float)img->image.width, (float)img->image.height};
     Vector2 origin = img->origin;
@@ -89,5 +94,7 @@ void Image_Draw(ImageObject* img){
 }
 
 void Image_DrawPro(ImageObject* img){
+    if(img == NULL) return;
+
     DrawTexturePro(img->image, img->source, img->destination, (Vector2){0,0}, 0.0f, img->color);
 }

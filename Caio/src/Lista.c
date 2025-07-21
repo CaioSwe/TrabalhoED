@@ -100,15 +100,8 @@ void* remover(Lista* lista, bool(*f)(const void*, const void*), const void* item
     Celula* aux = NULL;
 
     if(f(cel->item, item)){
-        aux = cel;
         lista->tamanho -= 1;
         lista->inicio = cel->prox;
-        
-        if(freeIt){
-            free(cel);
-            return NULL;
-        }
-
         return cel->item;
     }
 
@@ -117,12 +110,6 @@ void* remover(Lista* lista, bool(*f)(const void*, const void*), const void* item
             lista->tamanho -= 1;
             aux = cel->prox;
             cel->prox = cel->prox->prox;
-
-            if(freeIt){
-                free(aux);
-                return NULL;
-            }
-
             return aux->item;
         }
         cel = cel->prox;
@@ -162,13 +149,30 @@ void imprimirListaRel(Lista* lista, void* target, void(*imprimir)(const void*, c
     }
 }
 
+void imprimirListaRelRel(Lista* lista, void* target, void* p, void(*imprimir)(const void*, const void*, const void*)){
+    Celula* atual = lista->inicio;
+
+    while(atual != NULL){
+        void* c = (void*)atual->item;
+        imprimir(c, target, p);
+        atual = atual->prox;
+    }
+}
+
 void percorrerLista(Lista* lista, void (*f)(const void*)) {
-    if (!lista) return;
-    
     Celula* cel = lista->inicio;
     
     while(cel != NULL){
         f(cel->item);
+        cel = cel->prox;
+    }
+}
+
+void percorrerListaRel(Lista* lista, void(*f)(const void*, const void*), void* target){
+    Celula* cel = lista->inicio;
+    
+    while(cel != NULL){
+        f(cel->item, target);
         cel = cel->prox;
     }
 }

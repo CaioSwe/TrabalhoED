@@ -31,7 +31,11 @@ void imprimirLista(Lista*, void(*imprimir)(const void*));
 
 void imprimirListaRel(Lista*, void*, void(*imprimir)(const void*, const void*));
 
+void imprimirListaRelRel(Lista*, void*, void*, void(*imprimir)(const void*, const void*, const void*));
+
 void percorrerLista(Lista*, void(*f)(const void*));
+
+void percorrerListaRel(Lista*, void(*f)(const void*, const void*), void*);
 
 bool isInLista(Lista*, bool(*f)(const void*, const void*), const void*);
 

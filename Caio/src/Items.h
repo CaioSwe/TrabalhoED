@@ -6,19 +6,6 @@
 #include "Player.h"
 #include "ImageObject.h"
 
-// typedef struct Weapon{
-//     int code;
-//     float damage;
-//     float durability;
-// } Weapon;
-
-// typedef struct Shield{
-//     int code;
-//     float shield;
-//     float durability;
-// } Shield;
-
-
 /*
 Codes:
     1 = Poção de vida
@@ -26,22 +13,38 @@ Codes:
     3 = Baú (pode ser mimico)
 */
 
-typedef struct Outcome {
-    bool fight;
-    bool usedItem;
-} Outcome;
-
 typedef struct Item {
+    char name[MAX_STRSIZE];
+    char description[MAX_STRSIZE];
     int id;
     bool isMimic;
+    bool used;
+
+    int indice;
 
     ImageObject* sprite;
 } Item;
 
 Item* Item_Init(int id, ImageObject* spriteSheet);
 
-Outcome usarItem(Item* item, Player* target);
+void Item_ReInit(Item* item, int id, ImageObject* sprite);
+
+Item* Item_Copy(Item* item);
+
+void usarItem2(Item* item, Player* target);
+
+const char* getItemName(Item* item);
 
 const char* getItemDescription(Item* item);
+
+int Item_getId(Item* item);
+
+void setItemDescription(Item* item, const char* text);
+
+void setItemName(Item* item, const char* text);
+
+void setItemSprite(Item* item, ImageObject* sprite);
+
+void ItemDestroy(Item* item);
 
 #endif

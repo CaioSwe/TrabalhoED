@@ -9,8 +9,6 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     switch(move){
         case 3: // Caminho bloqueado por parede
             printf("\nThe path upwards is blocked");
-            Sleep(1500);
-
             return false;
             break;
 
@@ -68,8 +66,6 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     switch(move){
         case 3: // Caminho bloqueado por parede
             printf("\nThe path downwards is blocked");
-            Sleep(1500);
-
             return false;
             break;
 
@@ -127,8 +123,6 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
     switch(move){
         case 3: // Caminho bloqueado por parede
             printf("\nThe path leftwards is blocked");
-            Sleep(1500);
-            
             return false;
             break;
 
@@ -186,8 +180,6 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     switch(move){
         case 3: // Caminho bloqueado por parede
             printf("\nThe path rightwards is blocked");
-            Sleep(1500);
-            
             return false;
             break;
 

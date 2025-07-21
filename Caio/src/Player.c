@@ -15,7 +15,6 @@ typedef struct Animation{
 
 typedef struct Inventario{
     Lista* utils;
-    Lista* weapons;
 } Inventario;
 
 typedef struct Player{
@@ -43,6 +42,7 @@ typedef struct Player{
 
     Stats stats;
     Inventario inventario;
+    Pilha* pilha;
 
     Decision action;
 } Player;
@@ -55,7 +55,8 @@ Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteS
     player->anim = (Animation*)malloc(sizeof(Animation));
     player->anim->position = (PositionAnimation*)malloc(sizeof(PositionAnimation));
     player->anim->scale = (ScaleAnimation*)malloc(sizeof(ScaleAnimation));
-    player->spriteSheet = LoadTexture(spriteSheet);
+
+    if(spriteSheet != NULL) player->spriteSheet = LoadTexture(spriteSheet);
     
     player->anim->position->function = linearFunction;
 
@@ -72,13 +73,50 @@ Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteS
 
     player->stats = (Stats){10.0f, 10.0f, 6.0f, 0.5f, 0.1f, false, false, 0, 0}; // Vida máxima, Vida, Ataque, Defesa, Evasão (Base), Repelente, Ouro
 
-    player->inventario = (Inventario){criaLista(), criaLista()};
+    player->inventario = (Inventario){criaLista()};
 
     player->action = IDLE;
 
     player->isControlled = true;
 
+    player->pilha = criarPilha();
+
     return player;
+}
+
+void Player_Copy(Player* playerFrom, Player* playerTo){
+    strncpy(playerTo->name, playerFrom->name, MAX_STRSIZE);
+    
+    playerFrom->anim->frames = playerTo->anim->frames;
+
+    Animation_PositionCopy(playerFrom->anim->position, playerTo->anim->position);
+    Animation_ScaleCopy(playerFrom->anim->scale, playerTo->anim->scale);
+
+    playerTo->spriteSheet = playerFrom->spriteSheet;
+
+    playerTo->display = playerFrom->display;
+    playerTo->deltaX = playerFrom->deltaX;
+
+    playerTo->source = playerFrom->source;
+    playerTo->destination = playerFrom->destination;
+
+    playerTo->stepDistance = playerFrom->stepDistance;
+    playerTo->characterChoice = playerFrom->characterChoice;
+
+    playerTo->stats = playerFrom->stats;
+
+    playerTo->inventario.utils = playerFrom->inventario.utils;
+
+    playerTo->action = playerFrom->action;
+
+    playerTo->isControlled = false;
+}
+
+Player* Player_CopyF(Player* playerFrom){
+    Player* playerTo = Player_Init(playerFrom->source, playerFrom->destination, NULL);
+    Player_Copy(playerFrom, playerTo);
+
+    return playerTo;
 }
 
 Vector2 Player_GetCoords(Player* player){
@@ -93,6 +131,11 @@ void Player_Update(Player* player, float deltaTime){
     Player_UpdatePosition(player, deltaTime);
     Player_UpdateSprite(player, true, true);
 
+    player->coordinates.x = player->destination.x / player->stepDistance;
+    player->coordinates.y = player->destination.y / player->stepDistance;
+}
+
+void Player_UpdateCoords(Player* player){
     player->coordinates.x = player->destination.x / player->stepDistance;
     player->coordinates.y = player->destination.y / player->stepDistance;
 }
@@ -272,19 +315,19 @@ void Player_ChangeSprite(Player* player, int amountOfFrames, int pos){
 }
 
 void Player_StepTo(Player* player, Vector2 direction, bool updateSprite){
-    if(abs((int)direction.x) != abs((int)direction.y)){
-        Vector2 finalPoint = (Vector2){player->destination.x + player->stepDistance * direction.x, player->destination.y + player->stepDistance * direction.y};
-        Vector2 startPoint = (Vector2){player->destination.x, player->destination.y};
+    if(abs((int)direction.x) == abs((int)direction.y)) return;
+    
+    Vector2 finalPoint = (Vector2){player->destination.x + player->stepDistance * direction.x, player->destination.y + player->stepDistance * direction.y};
+    Vector2 startPoint = (Vector2){player->destination.x, player->destination.y};
 
-        player->moving.up = (direction.y == -1) ? true : false;
-        player->moving.down = (direction.y == 1) ? true : false;
-        player->moving.left = (direction.x == -1) ? true : false;
-        player->moving.right = (direction.x == 1) ? true : false;
+    player->moving.up = (direction.y == -1) ? true : false;
+    player->moving.down = (direction.y == 1) ? true : false;
+    player->moving.left = (direction.x == -1) ? true : false;
+    player->moving.right = (direction.x == 1) ? true : false;
 
-        if(updateSprite) Player_UpdateSprite(player, true, true);
+    if(updateSprite) Player_UpdateSprite(player, true, true);
 
-        MoveItemTo(player->anim->position, startPoint, finalPoint, 0.3f);
-    }
+    MoveItemTo(player->anim->position, startPoint, finalPoint, 0.3f);
 }
 
 void Player_MoveTo(Player* player, Vector2 newPos, float interval){
@@ -388,10 +431,6 @@ Lista* Player_getInventarioUtils(Player* player){
     return player->inventario.utils;
 }
 
-Lista* Player_getInventarioWeapons(Player* player){
-    return player->inventario.weapons;
-}
-
 bool Player_getAnimationPositionAnimating(Player* player){
     return player->anim->position->animating;
 }
@@ -402,6 +441,22 @@ const char* Player_getName(Player* player){
 
 int Player_getAnimationFramesBaseSpeed(Player* player){
     return player->anim->frames.baseSpeed;
+}
+
+Lista* Player_getInventario(Player* player){
+    return player->inventario.utils;
+}
+
+Pilha* Player_getPilha(Player* player){
+    return player->pilha;
+}
+
+MoveSet Player_getMoveSet(Player* player){
+    return player->keys;
+}
+
+bool Player_getLocked(Player* player){
+    return player->locked;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -460,4 +515,16 @@ void Player_setAnimationFramesBaseSpeed(Player* player, int baseSpeed){
 
 void Player_setAnimationFramesSpeed(Player* player, int frameSpeed){
     player->anim->frames.framesSpeed = frameSpeed;
+}
+
+void Player_setStats(Player* player, Stats stats){
+    player->stats = stats;
+}
+
+void Player_addGold(Player* player, int amount){
+    player->stats.gold += amount;
+}
+
+void Player_subRepelent(Player* player, int amount){
+    player->stats.repelent = (player->stats.repelent >= amount) ? player->stats.repelent - amount : 0;
 }

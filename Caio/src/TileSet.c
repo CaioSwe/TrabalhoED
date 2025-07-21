@@ -3,13 +3,6 @@
 void CreateGround(int** mapa, int i, int j, int squaresize, Lista* chao, ImageObject* tileSet){
     ImageObject* c = Image_Init(NULL);
     Image_Copy(tileSet, c, true);
-    
-    if(mapa[i][j] == 2){
-        c->color = (Color){15, 80, 15, 255};
-    }
-    else{
-        c->color = (Color){30, 90, 30, 255};
-    }
 
     c->x = squaresize*j;
     c->y = squaresize*i;
@@ -49,78 +42,68 @@ void HandleTile(int** mapa, int i, int j, int squaresize, Lista* paredes, ImageO
     br->destination.x = j * squaresize + squaresize/2;
     br->destination.y = i * squaresize + squaresize/2;
 
-    float deltaX = 90;
-    float deltaY = 90;
+    float deltaX = 16;
+    float deltaY = 16;
 
     if (left){
-        tl->source.x = deltaX * 2;
-        bl->source.x = 0;
+        tl->source.x = deltaX * 4;
+        bl->source.x = deltaX * 1;
 
         if (up){
-            tl->source.y = deltaY;
-            tl->source.x = 0;
+            tl->source.x = deltaX * 8;
 
             if (topleft){
-                tl->source.x = deltaX * 3;
+                tl->source.x = deltaX * 0;
             }
         }
         if (down){
-            bl->source.x = deltaX * 3;
+            bl->source.x = deltaX * 6;
 
             if (bottomleft){
-                bl->source.y = deltaY;
+                bl->source.x = deltaX * 0;
             }
         }
     }
     else{
-        tl->source.x = deltaX;
-        bl->source.x = deltaX;
+        tl->source.x = deltaX * 3;
+        bl->source.x = deltaX * 3;
 
         if (!up){
-            tl->source.y = deltaY;
+            tl->source.x = deltaX * 10;
         }
         if (!down){
-            bl->source.x = deltaX * 2;
-            bl->source.y = deltaY;
+            bl->source.x = deltaX * 12;
         }
     }
     if (right){
-        tr->source.x = deltaX * 2;
+        tr->source.x = deltaX * 4;
+        br->source.x = deltaX * 1;
 
         if (up){
-            tr->source.x = 0;
-            tr->source.y = deltaY;
+            tr->source.x = deltaX * 7;
 
             if (topright){
-                tr->source.x = deltaX * 3;
+                tr->source.x = deltaX * 0;
             }
         }
         if (down){
-            br->source.x = deltaX * 3;
+            br->source.x = deltaX * 5;
 
             if (bottomright){
-                br->source.y = deltaY;
+                br->source.x = deltaX * 0;
             }
         }
-
-        Image_FlipPro(tr);
-        Image_FlipPro(br);
     }
     else{
-        tr->source.x = deltaX * 1;
-        br->source.x = deltaX * 1;
+        tr->source.x = deltaX * 2;
+        br->source.x = deltaX * 2;
 
         if (!up){
-            tr->source.x = deltaX;
-            tr->source.y = deltaY;
+            tr->source.x = deltaX * 9;
         }
         if (!down){
-            br->source.x = deltaX * 2;
-            br->source.y = deltaY;
+            br->source.x = deltaX * 11;
         }
-
-        Image_FlipPro(tr);
-        Image_FlipPro(br);
     }
 
     inserirFim(paredes, tl);

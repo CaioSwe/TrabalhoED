@@ -55,6 +55,8 @@ void Button_Deactivate(Button* btn);
 
 void Button_Activate(Button* btn);
 
+void Button_SwitchActive(Button* btn);
+
 void Button_Scale(Button* btn, float scale);
 
 void Button_FitSizeToText(Button* btn, int fontsize, Vector2 padding);

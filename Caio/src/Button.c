@@ -21,7 +21,7 @@ Button* Button_Init(const char* txt){
 
     strncpy(btn->text, txt, MAX_STRSIZE);
 
-    btn->colors = (Pattern){WHITE, BLACK, WHITE, BLACK, BLACK};
+    btn->colors = (Pattern){WHITE, BLACK, WHITE, BLACK, (Color){0, 0, 0, 150}};
     btn->activeColor = (ActivePattern){WHITE, BLACK, BLACK};
 
     return btn;
@@ -66,6 +66,10 @@ void Button_Activate(Button* btn){
     btn->active = true;
 }
 
+void Button_SwitchActive(Button* btn){
+    btn->active = !btn->active;
+}
+
 void Button_Scale(Button* btn, float scale){
     btn->width *= scale;
     btn->height *= scale;
@@ -107,7 +111,9 @@ bool Button_Hovering(Button* btn, Vector2 cursorPos){
 }
 
 bool Button_IsPressed(Button* btn, Vector2 cursorPos){
-    hoveringButton = Button_Hovering(btn, cursorPos);
+    if(btn->active) hoveringButton = Button_Hovering(btn, cursorPos);
+    else hoveringButton = false;
+    
     return hoveringButton && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
 }
 

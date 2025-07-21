@@ -6,6 +6,7 @@
 #include "Delimiters.h"
 #include "Lista.h"
 #include "Animation.h"
+#include "Pilha.h"
 
 typedef enum Decision{
     IDLE,
@@ -49,6 +50,10 @@ typedef struct Player Player;
 
 Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteSheet);
 
+void Player_Copy(Player* playerFrom, Player* playerTo);
+
+Player* Player_CopyF(Player* playerFrom);
+
 void Player_UpdateAtk(Player* player, float newAtk);
 
 void Player_UpdateDef(Player* player, float newDef);
@@ -58,6 +63,8 @@ Vector2 Player_GetCoords(Player* player);
 void Player_SetStepSize(Player* player, float stepSize);
 
 void Player_Update(Player* player, float deltaTime);
+
+void Player_UpdateCoords(Player* player);
 
 void Player_SetMoveSet(Player* player, MoveSet moveSet);
 
@@ -127,13 +134,19 @@ Stats Player_getStats(Player* player);
 
 Lista* Player_getInventarioUtils(Player* player);
 
-Lista* Player_getInventarioWeapons(Player* player);
-
 bool Player_getAnimationPositionAnimating(Player* player);
 
 const char* Player_getName(Player* player);
 
 int Player_getAnimationFramesBaseSpeed(Player* player);
+
+Lista* Player_getInventario(Player* player);
+
+Pilha* Player_getPilha(Player* player);
+
+MoveSet Player_getMoveSet(Player* player);
+
+bool Player_getLocked(Player* player);
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -164,5 +177,11 @@ void Player_setRepelent(Player* player, int amount);
 void Player_setAnimationFramesBaseSpeed(Player* player, int baseSpeed);
 
 void Player_setAnimationFramesSpeed(Player* player, int frameSpeed);
+
+void Player_setStats(Player* player, Stats stats);
+
+void Player_addGold(Player* player, int amount);
+
+void Player_subRepelent(Player* player, int amount);
 
 #endif

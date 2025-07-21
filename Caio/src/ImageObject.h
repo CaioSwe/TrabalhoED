@@ -16,6 +16,10 @@ typedef struct ImageObject {
 
     Rectangle source;
     Rectangle destination;
+
+    float save;
+
+    float elapsed;
 } ImageObject;
 
 ImageObject* Image_Init(const char* filename);

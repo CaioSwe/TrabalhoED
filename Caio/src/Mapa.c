@@ -12,23 +12,27 @@
 // 7 -> Inimigos
 
 void criarMapa(int*** mapa, int tam){
-    printf("\n\nTam = %d\n\n", tam);
+    srand(time(NULL));
+
     *mapa = (int**)malloc(tam*sizeof(int*));
+
+    int i_chance = rand() % (tam-2)+1;
+    
+    //*mapa = (int**)malloc(tam*sizeof(int*));
     if(mapa == NULL){ printf("\nERROR: Insuficient Memory!"); exit(1); }
 
     for(int i = 0; i < tam; i++){
         (*mapa)[i] = (int*)malloc(tam*sizeof(int));
         if((*mapa) == NULL){ printf("\nERROR: Insuficient Memory!"); exit(1); }
 
-        
         for(int j = 0; j < tam; j++){
-            if     (i == 1 && j == 1)                       {(*mapa)[i][j] = 1;}  // Representa o jogador
-            else if(i == tam - 2 && j == tam - 1)                     {(*mapa)[i][j] = 4;}  // A saída da dungeon
-            else if(i == 0 || i == tam-1 || j == 0 || j == tam-1) {(*mapa)[i][j] = 2; } // As bordas da dungeon 
-            else                                            {(*mapa)[i][j] = 0; } // Espaçoes em branco
-        }        
+            if     (i == 1 && j == 1){(*mapa)[i][j] = 1; } // Representa o jogador
+            else if(i == i_chance && j == tam-1)                   {(*mapa)[i][j] = 4; } // A saída da dungeon
+            else if(i == 0 || i == tam-1 || j == 0 || j == tam-1)  {(*mapa)[i][j] = 2; } // As bordas da dungeon 
+            else                                                   {(*mapa)[i][j] = 0; } // Espaçoes em branco
+        }
     }
-
+    
     // Preenche a dungeon com paredes
     (*mapa)[1][3] = 2;
     (*mapa)[2][3] = 2;
@@ -72,10 +76,6 @@ void criarMapa(int*** mapa, int tam){
     (*mapa)[10][8] = 2;
     (*mapa)[10][8] = 2;
     (*mapa)[10][9] = 2;
-
-    // (*mapa)[12][15] = 2;
-
-    printf("\nMap generated!\n");
 }
 
 void populaMapa(int** mapa, int tam){
@@ -108,26 +108,23 @@ void populaMapa(int** mapa, int tam){
 void printMapa(int** mapa, int tam){
     printf("\n");
 
-    // Imprime o mapa com os valores inteiros
-    // for(int i = 0; i < tam; i++){
-    //     for(int j = 0; j < tam; j++){
-    //         printf("[%d]", mapa[i][j]);
-    //     }printf("\n");
-    // }printf("\n\n");
-
-    // Imprime o mapa com os props gráficos
     for(int i = 0; i < tam; i++){
         for(int j = 0; j < tam; j++){
-            if     (mapa[i][j] == 7) {printf(" ! ");} // Representa inimigos
-            if     (mapa[i][j] == 6) {printf(" * ");} // Representa itens
-            if     (mapa[i][j] == 5) {printf(" X ");} // Representa armadilhas
-            if     (mapa[i][j] == 4) {printf(" O ");}
-            else if(mapa[i][j] == 3) {printf(" # ");}
-            else if(mapa[i][j] == 2) {printf(" # ");}
-            else if(mapa[i][j] == 1) {printf(" @ ");}
-            else if(mapa[i][j] == 0) {printf("   ");}
-        }printf("\n");
-    }printf("\n");
+            switch (mapa[i][j]){
+                case 0: printf("   "); break;
+                case 1: printf(" @ "); break;
+                case 2: printf(" # "); break;
+                case 3: printf(" # "); break;
+                case 4: printf(" O "); break;
+                case 5: printf(" X "); break;
+                case 6: printf(" * "); break;
+                case 7: printf(" ! "); break;
+                default: printf("   "); break;
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
 
 void limparMapa(int** mapa, int tam){

@@ -62,4 +62,10 @@ Rectangle UpdateItemSize(ScaleAnimation* item, Rectangle recItem, float deltaTim
 
 void ChangePositionFunction(PositionAnimation* item, float (*function)(float));
 
+void Animation_PositionCopy(PositionAnimation* posFrom, PositionAnimation* posTo);
+
+void Animation_ScaleCopy(ScaleAnimation* scaleFrom, ScaleAnimation* scaleTo);
+
+void Animation_FramesCopy(FramesAnimation* framesFrom, FramesAnimation* framesTo);
+
 #endif
