@@ -2175,6 +2175,8 @@ int main(){
 
     GAMESTATE gamestate = MAINSCREEN;
 
+    initAllLists();
+
     while(!WindowShouldClose()){
         switch (gamestate){
             case MAINSCREEN:
@@ -2196,6 +2198,8 @@ int main(){
                 break;
         }
     }
+
+    freeAllLists();
 
     return 0;
 }
