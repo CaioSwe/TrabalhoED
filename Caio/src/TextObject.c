@@ -1,5 +1,7 @@
 #include "TextObject.h"
 
+static Lista* allTextObjects = NULL;
+
 TextObject* Text_Init(const char* text){
     TextObject* txt = (TextObject*)malloc(sizeof(TextObject));
     
@@ -9,6 +11,8 @@ TextObject* Text_Init(const char* text){
     txt->x = txt->y = 0;
     txt->collision = false;
     txt->rectangle = (Rectangle){txt->x, txt->y, MeasureText(txt->text, txt->fontsize), txt->fontsize};
+
+    if(allTextObjects != NULL) inserirFim(allTextObjects, txt);
 
     return txt;
 }
@@ -36,4 +40,12 @@ void Text_DrawS(TextObject* txt){
 void Text_DrawX(TextObject* txt, float rectX, float rectY){
     txt->rectangle = (Rectangle){rectX, rectY, txt->rectangle.width, txt->rectangle.height};
     DrawText(txt->text, txt->x, txt->y, txt->fontsize, txt->color);
+}
+
+void Text_InitLIst(){
+    if(allTextObjects == NULL) allTextObjects = criaLista();
+}
+
+void Text_Free(){
+    limparLista(allTextObjects, true);
 }
