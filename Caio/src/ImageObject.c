@@ -1,5 +1,7 @@
 #include "ImageObject.h"
 
+static Lista* allImageObjects = NULL;
+
 ImageObject* Image_Init(const char* filename){
     ImageObject* img = (ImageObject*)malloc(sizeof(ImageObject));
 
@@ -19,6 +21,8 @@ ImageObject* Image_Init(const char* filename){
     img->save = 0;
 
     img->elapsed = 0.0f;
+
+    if(allImageObjects != NULL) inserirFim(allImageObjects, img);
 
     return img;
 }
@@ -98,3 +102,16 @@ void Image_DrawPro(ImageObject* img){
 
     DrawTexturePro(img->image, img->source, img->destination, (Vector2){0,0}, 0.0f, img->color);
 }
+
+void Image_InitList(){
+    if(allImageObjects == NULL) allImageObjects = criaLista();
+}
+
+void Image_Free(){
+    percorrerLista(allImageObjects, freeTexture_ImageObject);
+    limparLista(allImageObjects, true);
+}
+
+void freeTexture_ImageObject(const void* item){
+    UnloadTexture(((const ImageObject*)item)->image);
+} 
