@@ -145,5 +145,10 @@ void SpriteSheet_InitList(){
 }
 
 void SpriteSheet_Free(){
+    percorrerLista(allSpriteSheets, freeTexture_SpriteSheet);
     limparLista(allSpriteSheets, true);
 }
+
+void freeTexture_SpriteSheet(const void* item){
+    UnloadTexture(((const SpriteSheet*)item)->image);
+} 

@@ -190,4 +190,6 @@ void Player_InitList();
 
 void Player_Free();
 
+// void freeTexture_Player(const void* item);
+
 #endif

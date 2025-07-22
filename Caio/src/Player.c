@@ -538,5 +538,10 @@ void Player_InitList(){
 }
 
 void Player_Free(){
+    percorrerLista(allPlayers, freeTexture_Player);
     limparLista(allPlayers, true);
 }
+
+void freeTexture_Player(const void* item){
+    UnloadTexture(((const Player*)item)->image);
+} 

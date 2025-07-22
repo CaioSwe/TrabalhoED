@@ -46,4 +46,6 @@ void SpriteSheet_InitList();
 
 void SpriteSheet_Free();
 
+// void freeTexture_SpriteSheet(const void* item);
+
 #endif
