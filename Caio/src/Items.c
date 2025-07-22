@@ -1,5 +1,7 @@
 #include "Items.h"
 
+static Lista* allItems = NULL;
+
 Item* Item_Init(int id, ImageObject* spriteSheet){
     Item* item = (Item*)malloc(sizeof(Item));
 
@@ -28,6 +30,8 @@ Item* Item_Init(int id, ImageObject* spriteSheet){
     }
 
     item->sprite = spriteSheet;
+
+    if(allItems != NULL) inserirFim(allItems, item);
 
     return item;
 }
@@ -117,4 +121,12 @@ void setItemSprite(Item* item, ImageObject* sprite){
 void ItemDestroy(Item* item){
     free(item->sprite);
     free(item);
+}
+
+void Item_InitList(){
+    if(allItems == NULL) allItems = criaLista();
+}
+
+void Item_Free(){
+    limparLista(allItems, true);
 }
