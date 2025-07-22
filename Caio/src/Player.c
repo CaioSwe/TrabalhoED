@@ -543,5 +543,5 @@ void Player_Free(){
 }
 
 void freeTexture_Player(const void* item){
-    UnloadTexture(((const Player*)item)->image);
+    UnloadTexture(((const Player*)item)->spriteSheet);
 } 

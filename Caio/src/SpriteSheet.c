@@ -150,5 +150,5 @@ void SpriteSheet_Free(){
 }
 
 void freeTexture_SpriteSheet(const void* item){
-    UnloadTexture(((const SpriteSheet*)item)->image);
+    UnloadTexture(((const SpriteSheet*)item)->spriteSheet);
 } 
