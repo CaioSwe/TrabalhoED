@@ -70,11 +70,28 @@ void moveRandom(Player* instance, double interval){
 #pragma region "VoidPointers"
 
 void initAllLists(){
+    Animation_InitList();
     Button_InitList();
+    Gif_InitList();
+    Image_InitList();
+    Input_InitList();
+    Item_InitList();
+    Player_InitList();
+    SpriteSheet_InitList();
+    Text_InitList();
 }
 
 void freeAllLists(){
+    Animation_Free();
     Button_Free();
+    Gif_Free();
+    Image_Free();
+    Input_Free();
+    Item_Free();
+    Player_Free();
+    SpriteSheet_Free();
+    Text_Free();
+
 }
 
 void imprimirPlayer(const void* p){
