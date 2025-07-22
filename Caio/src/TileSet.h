@@ -8,7 +8,7 @@
 
 void CreateGround(int** mapa, int i, int j, int squaresize, Lista* chao, ImageObject* tileSet);
 
-void HandleTile(int** mapa, int i, int j, int squaresize, Lista* paredes, ImageObject* tileSet);
+void HandleTile(int** mapa, int i, int j, int squaresize, Lista* paredes, ImageObject* tileSet, int target);
 
 void UpdateTile(int** mapa, int posX, int posY, int squaresize, Lista* paredes, ImageObject* tileSet);
 

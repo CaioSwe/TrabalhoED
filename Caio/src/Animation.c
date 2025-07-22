@@ -1,5 +1,13 @@
 #include "Animation.h"
 
+static Lista* allAnimations = NULL;
+
+PositionAnimation* PositionAnimation_Init();
+
+ScaleAnimation* ScaleAnimation_Init();
+
+FramesAnimation* FramesAnimation_Init();
+
 void MoveItemTo(PositionAnimation* item, Vector2 startPoint, Vector2 finalPoint, float duration){
     item->start = startPoint;
     item->end = finalPoint;
@@ -116,4 +124,12 @@ void Animation_FramesCopy(FramesAnimation* framesFrom, FramesAnimation* framesTo
 
     framesTo->framesSpeed = framesFrom->framesSpeed;
     framesTo->baseSpeed = framesFrom->baseSpeed;
+}
+
+void Animation_InitList(){
+    if(allAnimations == NULL) allAnimations = criaLista();
+}
+
+void Animation_Free() {
+    limparLista(allAnimations, true);
 }

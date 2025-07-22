@@ -41,6 +41,6 @@ bool isInLista(Lista*, bool(*f)(const void*, const void*), const void*);
 
 void* getItemLista(Lista*, int);
 
-void limparLista(Lista*);
+void limparLista(Lista*, bool);
 
 #endif

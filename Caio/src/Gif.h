@@ -3,9 +3,10 @@
 
 #include "Utils.h"
 #include "Delimiters.h"
+#include "Lista.h"
 
 typedef struct  Gif {
-    Texture2D image[MAX_FRAMES];
+    Lista* image;
     Color color;
     float x, y;
     float scale, rotation;
@@ -21,5 +22,9 @@ void Gif_Scale(Gif* gif, float scaling);
 void Gif_Update(Gif* gif);
 
 void Gif_Draw(Gif* gif);
+
+void Gif_InitList();
+
+void Gif_Free();
 
 #endif

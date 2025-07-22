@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include "Delimiters.h"
 #include "ImageObject.h"
+#include "Lista.h"
 
 typedef struct Pattern{
     Color baseColor;
@@ -72,5 +73,9 @@ bool Button_IsPressed(Button* btn, Vector2 cursorPos);
 void Button_Draw(Button* btn);
 
 void Button_DrawIcon(Button* btn);
+
+void Button_InitList();
+
+void Button_Free();
 
 #endif

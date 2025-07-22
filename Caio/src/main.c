@@ -40,6 +40,7 @@ typedef struct Resources{
     Vector2* playerCoordsSave;
     int** mapa;
     ImageObject* cursor;
+    ImageObject* grainOverlay;
 } Resources;
 
 typedef struct healedOrHurt{
@@ -54,9 +55,11 @@ float cameraInitZoom = TAM / 8;
 
 Lista* itens;
 Lista* inimigos;
+Lista* traps;
 
 bool deletedMisteryBox = false;
 bool collidedWithEnemy = false;
+bool collidedWithTrap = false;
 
 void moveRandom(Player* instance, double interval){
     if(Wait(interval)){
@@ -66,17 +69,17 @@ void moveRandom(Player* instance, double interval){
 
 #pragma region "VoidPointers"
 
+void initAllLists(){
+    Button_InitList();
+}
+
+void freeAllLists(){
+    Button_Free();
+}
+
 void imprimirPlayer(const void* p){
     const Player* player = (const Player*)p;
     Player_Draw((Player*)player);
-}
-
-void updatePlayer(const void* p, const void* item){
-    const Player* player = (const Player*)p;
-    const float* deltaTime = (const float*)item;
-
-    Player_Update((Player*)player, *deltaTime/listaTamanho(inimigos));
-    //moveRandom((Player*)player, 1.5f);
 }
 
 void imprimirImageObject(const void* item) {
@@ -110,39 +113,44 @@ bool compararPlayer(const void* item, const void* comparar){
 }
 
 void imprimirImageObjectProBH(const void* item, const void* target) {
-    const ImageObject* image = (const ImageObject*)item;
-    const Player* player = (const Player*)target;
+    const ImageObject* image = item;
+    const Player* player = target;
+
+    if(image->save == 0){
+        Image_DrawPro((ImageObject*)image);
+        return;
+    }
 
     Rectangle playerDestRec = Player_getDestRec((Player*)player);
+    Rectangle imgRec = image->destination;
 
-    bool isInsidePlayerX = (image->destination.x < (playerDestRec.x + playerDestRec.width) && image->destination.x > playerDestRec.x);
-    bool isInsidePlayerY = (image->destination.y < (playerDestRec.y + playerDestRec.height) && image->destination.y > (playerDestRec.y));
+    bool intersects = CheckCollisionRecs(imgRec, playerDestRec);
+    bool isBehind = (imgRec.y + imgRec.height) <= (playerDestRec.y + playerDestRec.height);
 
-    bool isInsidePlayer = isInsidePlayerX && isInsidePlayerY;
-
-    if(isInsidePlayer && (image->destination.y + image->destination.height) < (playerDestRec.y + playerDestRec.height)){
+    if (intersects && isBehind) {
         Image_DrawPro((ImageObject*)image);
-    }
-    else if(!isInsidePlayer){
+    } else if (!intersects) {
         imprimirImageObjectPro(image);
     }
 }
 
 void imprimirImageObjectProFW(const void* item, const void* target) {
-    const ImageObject* image = (const ImageObject*)item;
-    const Player* player = (const Player*)target;
+    const ImageObject* image = item;
+    const Player* player = target;
+
+    if(image->save == 0) return;
 
     Rectangle playerDestRec = Player_getDestRec((Player*)player);
+    Rectangle imgRec = image->destination;
 
-    bool isInsidePlayerX = (image->destination.x < (playerDestRec.x + playerDestRec.width) && image->destination.x > playerDestRec.x);
-    bool isInsidePlayerY = (image->destination.y < (playerDestRec.y + playerDestRec.height) && image->destination.y > (playerDestRec.y));
+    bool intersects = CheckCollisionRecs(imgRec, playerDestRec);
+    bool isFront = (image->save == 1) ? (imgRec.y + imgRec.height) >= (playerDestRec.y + playerDestRec.height) : (imgRec.y + imgRec.height) > (playerDestRec.y + playerDestRec.height);
 
-    bool isInsidePlayer = isInsidePlayerX && isInsidePlayerY;
-
-    if(isInsidePlayer && (image->destination.y + image->destination.height) >= (playerDestRec.y + playerDestRec.height)){
+    if (intersects && isFront) {
         Image_DrawPro((ImageObject*)image);
     }
 }
+
 
 void imprimirItensInventario(const void* item, const void* target, const void* p){
     static int t = 0;
@@ -202,23 +210,27 @@ void isCollidingWithPlayer(const void* item, const void* target){
 }
 
 void isCollidingWithPlayerEnemy(const void* item, const void* target){
-    const Player* enemy = (const Player*)item;
+    const ImageObject* image = (const ImageObject*)item;
     const Player* player = (const Player*)target;
 
     Rectangle playerDestRec = Player_getDestRec((Player*)player);
-    Rectangle enemyDestRec = Player_getDestRec((Player*)enemy);
 
-    if(CheckCollisionRecs(playerDestRec, enemyDestRec) && Player_getStats((Player*)player).repelent <= 0){  
-        printf("\nRep = %d", Player_getStats((Player*)player).repelent);     
-        remover(inimigos, compararPlayer, item, true);
+    if(CheckCollisionRecs(playerDestRec, image->destination) && Player_getStats((Player*)player).repelent <= 0){       
+        remover(inimigos, compararItem, item, true);
         collidedWithEnemy = true;
     }
 }
 
-void imprimirId(const void* item){
-    const Item* obj = (const Item*)item;
+void isCollidingWithPlayerTrap(const void* item, const void* target){
+    const ImageObject* image = (const ImageObject*)item;
+    const Player* player = (const Player*)target;
 
-    printf("\n%s", getItemDescription((Item*)obj));
+    Rectangle playerDestRec = Player_getDestRec((Player*)player);
+
+    if(CheckCollisionRecs(playerDestRec, image->destination)){       
+        remover(traps, compararItem, item, true);
+        collidedWithTrap = true;
+    }
 }
 
 void formatButtons(const void* item){
@@ -346,25 +358,18 @@ bool cutsceneListener(bool activate, float duration, float deltaTime, CutsceneFu
 }
 
 void generateGrass(Lista* lista, ImageObject* spriteSheet, Vector2 coords, float squareSize){
-    int quantGrama = rand() % 17;
+    for(int i = 0; i < 2; i++){
+        ImageObject* grama = Image_Init(NULL);
 
-    for(int k = 0; k < quantGrama; k++){
-        ImageObject* gramaRand = Image_Init(NULL);
+        Image_Copy(spriteSheet, grama, true);
 
-        Image_Copy(spriteSheet, gramaRand, true);
-        int crand = rand() % 1;
-        gramaRand->color = (Color){spriteSheet->color.r + crand, spriteSheet->color.g + rand()%50, spriteSheet->color.b + crand, spriteSheet->color.a};
+        grama->source.x = i * spriteSheet->source.width;
+        grama->destination.x = squareSize*coords.y;
+        grama->destination.y = squareSize*coords.x + (squareSize - grama->destination.height);
 
-        Rectangle sourceG = {150.0f * (rand() % 3), 0.0f, 150.0f, 150.0f};
-        Rectangle destG = {0, 0, squareSize/2, squareSize/2};
+        grama->save = i;
 
-        destG.x = (rand() % (int)squareSize * 0.6f) + squareSize*coords.y + squareSize*0.2f;
-        destG.y = ((rand() % (int)squareSize * 0.7f) + squareSize*coords.x + destG.height*0.2f);
-
-        gramaRand->source = sourceG;
-        gramaRand->destination = destG;
-
-        inserirFim(lista, gramaRand);
+        inserirFim(lista, grama);
     }
 }
 
@@ -822,23 +827,31 @@ GAMESTATE fightScreen(Resources resources){
     Player* player = Player_CopyF(resources.player);
     Player* enemy = Player_CopyF(resources.enemy);
 
+    // bc (1) cima
+    // bb (1) baixo
+    // bp (2) baixo
+    // nv (3) cima
+    // nn (3) baixo
+
     ImageObject* bc = Image_Init("sprites/parallax.png");
     bc->source = (Rectangle){0, 0, 2560.0f, 640.0f};
 
     float bc_height = ((float)GetScreenWidth()*bc->source.height)/bc->source.width;
 
-    bc->destination = (Rectangle){0, 0-bc_height, GetScreenWidth()*2, bc_height};
-    bc->color = (Color){255, 255, 255, 180};
-
-    float startPointC = bc->destination.y;
-    float startPointB = GetScreenHeight();
+    float startPointC = 0-bc_height/2;
+    float startPointB = GetScreenHeight()-bc_height;
     
     float finalPointC = 0-bc_height/2;
     float finalPointB = GetScreenHeight()-bc_height;
 
     ImageObject* bb = Image_Init(NULL);
 
+    bc->color = (Color){255, 255, 255, 180};
+
     Image_Copy(bc, bb, true);
+
+    bc->destination = (Rectangle){0, startPointC, GetScreenWidth()*2, bc_height};
+    bb->destination = (Rectangle){0, startPointB, GetScreenWidth()*2, bc_height};
 
     Image_FlipHPro(bc);
 
@@ -867,6 +880,12 @@ GAMESTATE fightScreen(Resources resources){
     Image_Copy(nv, nn, true);
 
     nn->destination.y = finalPointC-nv_height/4;
+
+    bc->color.a = 0;
+    bp->color.a = 0;
+    bb->color.a = 0;
+    nv->color.a = 0;
+    nn->color.a = 0;
 
     bool introduction = true;
     float elapsed = 0;
@@ -1125,11 +1144,27 @@ GAMESTATE fightScreen(Resources resources){
     Player_MoveTo(enemy, (Vector2){(GetScreenWidth() - 130.0f) - enemyDestRec.width/2, playerDestRec.y + playerDestRec.height - enemyDestRec.height + (background->destination.height - GetScreenHeight())}, 0.0f);
     Player_MoveTo(player, (Vector2){130.0f - playerDestRec.width/2, 350.0f - playerDestRec.height + (background->destination.height - GetScreenHeight())}, 0.0f);
 
+    Color overlay = {255, 0, 0, 0};
+
+    Button* toggleHealthBar = Button_Init("Toggle Health Bar");
+
+    Button_FitSizeToText(toggleHealthBar, showStats->fontsize, (Vector2){3, 3});
+
+    Button_Pos(toggleHealthBar, (Vector2){showStats->x - toggleHealthBar->width * 5/4, showStats->y});
+
+    toggleHealthBar->colors = showStats->colors;
+
+    bool showHealthBar = true;
+
+    float totalElapsed = 0;
+
     while(!WindowShouldClose()){
         float deltaTime = GetFrameTime();
         Vector2 mousePos = GetMousePosition();
         resources.cursor->x = mousePos.x;
         resources.cursor->y = mousePos.y;
+
+        totalElapsed += deltaTime;
 
         playerDestRec = Player_getDestRec(player);
         enemyDestRec = Player_getDestRec(enemy);
@@ -1166,7 +1201,7 @@ GAMESTATE fightScreen(Resources resources){
         }
         else if(enemyAnimState.animationEnd){
             if(enemyTookAction && enemyAnimState.animationEnd){
-                printf("\nEnemy switched turns..");
+                if(LOG) printf("\nEnemy switched turns..");
                 switchTurns = true;
                 enemyTookAction = false;
             }
@@ -1190,7 +1225,7 @@ GAMESTATE fightScreen(Resources resources){
         }
         else if(playerAnimState.animationEnd){
             if(playerTookAction && playerAnimState.animationEnd && whoseTurn.animationBool){
-                printf("\nPlayer Switched Turns...");
+                if(LOG) printf("\nPlayer Switched Turns...");
                 switchTurns = true;
             }
             if(Player_getAnimationPositionAnimating(player)){
@@ -1326,12 +1361,16 @@ GAMESTATE fightScreen(Resources resources){
             return FREE;
         }
 
+        if(Button_IsPressed(toggleHealthBar, mousePos)){
+            showHealthBar = !showHealthBar;
+        }
+
         percorrerListaRel(Player_getInventarioUtils(player), deleteUsedItems, player);
 
         BeginDrawing();
         BeginMode2D(camera);
             ClearBackground(BLACK);
-            if(!introduction && introduction2){
+            if(introduction2 && totalElapsed/1.0f > 1.0f){
                 elapsedN += deltaTime;
                 
                 float pg = elapsedN / 2.0f;
@@ -1350,15 +1389,16 @@ GAMESTATE fightScreen(Resources resources){
 
             healthBarSprite->destination = (Rectangle){enemyDestRec.x + enemyDestRec.width/2 - SpriteNewW/2, enemyDestRec.y + enemyDestRec.height*1/3, SpriteNewW, SpriteNewH};
             enemyTookDamage = healthBar(healthBarSprite, healthBarFiller, (Vector2){healthBarSprite->destination.x, healthBarSprite->destination.y}, enemyStats.health, enemyStats.maxHealth, deltaTime);
-            
-            Image_DrawPro(healthBarFiller);
-            Image_DrawPro(healthBarSprite);
 
             healthBarSpriteP->destination = (Rectangle){playerDestRec.x + playerDestRec.width/2 - SpriteNewW/2, playerDestRec.y + playerDestRec.height*1/3, SpriteNewW, SpriteNewH};
             playerTookDamage = healthBarP(healthBarSpriteP, healthBarFillerP, (Vector2){healthBarSpriteP->destination.x, healthBarSpriteP->destination.y}, playerStats.health, playerStats.maxHealth, deltaTime);
 
-            Image_DrawPro(healthBarFillerP);
-            Image_DrawPro(healthBarSpriteP);
+            if(showHealthBar){
+                Image_DrawPro(healthBarFiller);
+                Image_DrawPro(healthBarSprite);
+                Image_DrawPro(healthBarFillerP);
+                Image_DrawPro(healthBarSpriteP);
+            }
 
             if(IsKeyPressed(KEY_ESCAPE)){
                 int retural = menuOpen();
@@ -1367,19 +1407,22 @@ GAMESTATE fightScreen(Resources resources){
                 }
             }
 
-            if(introduction){
+            if(!introduction2 && introduction){
                 elapsedN += deltaTime;
                 
                 float pg = elapsedN / 2.0f;
                 float t = -pow(pg-1, 4.0f) + 1;
 
-                bc->destination.y = Slerp(startPointC, finalPointC, t);
-                bb->destination.y = Slerp(startPointB, finalPointB, t);
+                //bc->destination.y = Slerp(startPointC, finalPointC, t);
+                //bb->destination.y = Slerp(startPointB, finalPointB, t);
+
+                bc->color.a = Slerp(0, 120, t);
+                bb->color.a = Slerp(0, 120, t);
+                bp->color.a = Slerp(0, 255, t);
+                nv->color.a = Slerp(0, 255, t);
+                nn->color.a = Slerp(0, 255, t);
 
                 if(pg > 1.0f){
-                    //Player_MoveTo(enemy, (Vector2){(GetScreenWidth() - 130.0f) - enemyDestRec.width/2, playerDestRec.y + playerDestRec.height - enemyDestRec.height}, 1.0f);
-                    //Player_MoveTo(player, (Vector2){130.0f - playerDestRec.width/2, 350.0f - playerDestRec.height}, 1.0f);
-
                     introduction = false;
                     elapsedN = 0;
                 }
@@ -1392,9 +1435,9 @@ GAMESTATE fightScreen(Resources resources){
 
             Image_DrawPro(bb);
             Image_DrawPro(bc);
-            //Image_DrawPro(nv);
-            //Image_DrawPro(nn);
-            //Image_DrawPro(bp);
+            Image_DrawPro(nv);
+            Image_DrawPro(nn);
+            Image_DrawPro(bp);
 
             if(Button_Hovering(showStats, mousePos)){
                 if(!statsShowing) introductionStats = true;
@@ -1450,6 +1493,7 @@ GAMESTATE fightScreen(Resources resources){
             Button_DrawIcon(run);
             
             Button_Draw(showStats);
+            Button_Draw(toggleHealthBar);
 
             if(whoseTurn.animationBegin) cameraZoomIn = !cameraZoomIn;
 
@@ -1515,6 +1559,14 @@ GAMESTATE fightScreen(Resources resources){
             //
 
             Image_Draw(resources.cursor);
+
+            if(playerTookDamage.hurt) overlay.a = 120;
+
+            if(overlay.a > 0) overlay.a -= 3;
+
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), overlay);
+            Image_DrawPro(resources.grainOverlay);
+
         EndDrawing();
     }
     return 0;
@@ -1531,6 +1583,7 @@ GAMESTATE telaJogo(Resources resources){
     Lista* chao = criaLista();
     itens = criaLista();
     inimigos = criaLista();
+    traps = criaLista();
 
     ImageObject* parede = Image_Init("sprites/white.png");
     ImageObject* borda = Image_Init("sprites/white.png");
@@ -1547,20 +1600,31 @@ GAMESTATE telaJogo(Resources resources){
     ImageObject* mimic = Image_Init(NULL);
     ImageObject* heal = Image_Init(NULL);
     ImageObject* chest = Image_Init(NULL);
+    ImageObject* warning = Image_Init(NULL);
+    ImageObject* trap = Image_Init(NULL);
 
     Image_CopyImage(incense, spritesheetItems);
     Image_CopyImage(mimic, spritesheetItems);
     Image_CopyImage(heal, spritesheetItems);
     Image_CopyImage(chest, spritesheetItems);
+    Image_CopyImage(warning, spritesheetItems);
 
     incense->source = (Rectangle){0, 64.0f*2.0f, 64.0f, 64.0f};
     mimic->source = (Rectangle){0, 64.0f*4.0f, 64.0f, 64.0f};
     heal->source = (Rectangle){0, 64.0f*1.0f, 64.0f, 64.0f};
     chest->source = (Rectangle){0, 64.0f*3.0f, 64.0f, 64.0f};
 
+    Image_Copy(spritesheetItems, warning, true);
+    warning->source = (Rectangle){0, 64.0f*5.0f, 64.0f, 64.0f};
+    warning->destination = (Rectangle){-squaresize, -squaresize, squaresize*0.8f, squaresize*0.8f};
+
     Image_Copy(spritesheetItems, misteryBox, true);
     misteryBox->source = (Rectangle){0, 0, 64.0f, 64.0f};
     misteryBox->destination = (Rectangle){-squaresize, -squaresize, squaresize*0.8f, squaresize*0.8f};
+
+    Image_Copy(spritesheetItems, trap, true);
+    trap->source = (Rectangle){0, 64.0f*6.0f, 64.0f, 64.0f};
+    trap->destination = (Rectangle){-squaresize, -squaresize, squaresize*0.8f, squaresize*0.8f};
 
     paredesTileSet->source = (Rectangle){0, 0, 16, 16};
     paredesTileSet->destination = (Rectangle){0, 0, squaresize/2, squaresize/2};
@@ -1583,7 +1647,10 @@ GAMESTATE telaJogo(Resources resources){
     Player_ChangeCharacter(enemy);
 
     ImageObject* grama = Image_Init("sprites/grass.png");
-    grama->color = (Color){150,180,170,255};
+    grama->color = (Color){255,255,255,255};
+
+    grama->source = (Rectangle){0, 0, 32.0f, 32.0f};
+    grama->destination = (Rectangle){0, 0, squaresize, squaresize};
 
     //////////////////////
 
@@ -1626,8 +1693,6 @@ GAMESTATE telaJogo(Resources resources){
 
     ////////////////////////////////////////////
 
-    
-
     // INICIALIZA O MAPA (INTERFACE)
     for(int i = 0; i < TAM; i++){
         for(int j = 0; j < TAM; j++){
@@ -1636,33 +1701,54 @@ GAMESTATE telaJogo(Resources resources){
             CreateGround(mapa, i, j, squaresize, chao, chaoTileSet);
 
             // WALLS
-            HandleTile(mapa, i, j, squaresize, paredes, paredesTileSet);
+            HandleTile(mapa, i, j, squaresize, paredes, paredesTileSet, 2);
 
-            if(mapa[i][j] == 6){
+            int grassChance = rand() % 100;
+
+            if(mapa[i][j] == 6){ // ITEM
                 ImageObject* msInstance = Image_Init(NULL);
                 Image_Copy(misteryBox, msInstance, true);
                 msInstance->destination.x = j*squaresize + squaresize/2 - misteryBox->destination.width/2;
                 msInstance->destination.y = i*squaresize + squaresize/2 - misteryBox->destination.height/2;
                 
                 msInstance->save = msInstance->destination.y;
-                
+
                 inserirFim(itens, msInstance);
+
+                grassChance = 100;
             }
 
-            if(mapa[i][j] == 7){
-                Player* enemyInstance = Player_CopyF(enemy);
-                Player_MoveTo(enemyInstance, (Vector2){(int)j*squaresize, (int)i*squaresize}, 0.0f);
+            if(mapa[i][j] == 7){ // ENEMY
+                ImageObject* enemyInstance = Image_Init(NULL);
+                Image_Copy(warning, enemyInstance, true);
+                enemyInstance->destination.x = j*squaresize + squaresize/2 - enemyInstance->destination.width/2;
+                enemyInstance->destination.y = i*squaresize + squaresize/2 - enemyInstance->destination.height/2;
+                
+                enemyInstance->save = enemyInstance->destination.y;
+
                 inserirFim(inimigos, enemyInstance);
+
+                grassChance = 100;
             }
 
-            if(mapa[i][j] != 0) continue;
+            if(mapa[i][j] == 5){
+                ImageObject* trapInstance = Image_Init(NULL);
+                Image_Copy(trap, trapInstance, true);
+                trapInstance->destination.x = j*squaresize + squaresize/2 - trapInstance->destination.width/2;
+                trapInstance->destination.y = i*squaresize + squaresize/2 - trapInstance->destination.height/2;
+                
+                trapInstance->save = trapInstance->destination.y;
 
-            // GENERATE GRASS ONLY ON '0' SQUARES
-            //generateGrass(effects, grama, (Vector2){i, j}, squaresize);
+                inserirFim(traps, trapInstance);
+
+                grassChance = 100;
+            }
+
+            if(grassChance < 40 || mapa[i][j] == 2) continue;
+            
+            generateGrass(effects, grama, (Vector2){i, j}, squaresize);
         }
     }
-
-    printf("\nListaInimigos = %d", listaTamanho(inimigos));
 
     printMapa(mapa, TAM);
 
@@ -1715,9 +1801,6 @@ GAMESTATE telaJogo(Resources resources){
         resources.cursor->x = mouseposW.x;
         resources.cursor->y = mouseposW.y;
 
-        //Player_Update(player, deltaTime);
-        percorrerListaRel(inimigos, updatePlayer, &deltaTime);
-
         Rectangle playerDestRec = Player_getDestRec(player);
         Stats playerStats = Player_getStats(player);
 
@@ -1743,12 +1826,7 @@ GAMESTATE telaJogo(Resources resources){
 
         bool lockPlayer = triggerCutscene || chestAnimation.animationBool || inventoryAnimation.animationBool || chestAnimation.animating || inventoryAnimation.animating;
 
-        if(lockPlayer){
-            Player_setLocked(player, true);
-        }
-        else{
-            Player_setLocked(player, false);
-        }
+        Player_setLocked(player, lockPlayer);
 
         bool altUpdateSprite = (!lockPlayer && ((IsKeyDown(mapKeys.up) || IsKeyDown(mapKeys.down) || IsKeyDown(mapKeys.left) || IsKeyDown(mapKeys.right)) || Player_getAnimationPositionAnimating(player)));
 
@@ -1773,7 +1851,6 @@ GAMESTATE telaJogo(Resources resources){
         if(IsKeyDown(KEY_D) && !Player_getAnimationPositionAnimating(player)){ // UNDO TRIGGER
             Vector2 moveBack = desfazerMovimento(mapa, TAM, player);
             Player_StepTo(player, moveBack, true);
-            printMapa(mapa, TAM);
         }
         if((collidedWithEnemy || mimicTrigger)){ // FIGHT TRIGGER
             triggerCutscene = true;
@@ -1781,9 +1858,8 @@ GAMESTATE telaJogo(Resources resources){
             collidedWithEnemy = false;
         }
 
-        if(onWayMove){
+        if(IsKeyPressed(KEY_M)){
             printMapa(mapa, TAM);
-            onWayMove = false;
         }
 
         if(chestAnimation.animationBool){
@@ -1828,7 +1904,10 @@ GAMESTATE telaJogo(Resources resources){
 
         percorrerListaRel(itens, upDownFunction, &deltaTime);
         percorrerListaRel(itens, isCollidingWithPlayer, player); // DeletedMisteryBox
+        percorrerListaRel(inimigos, upDownFunction, &deltaTime);
         percorrerListaRel(inimigos, isCollidingWithPlayerEnemy, player); // CollidedWithEnemy
+        percorrerListaRel(traps, upDownFunction, &deltaTime);
+        percorrerListaRel(traps, isCollidingWithPlayerTrap, player); // CollidedWithEnemy
 
         if(deletedMisteryBox){ // ITEM UI TRIGGER
             int item = sortearItem(true);
@@ -1889,9 +1968,10 @@ GAMESTATE telaJogo(Resources resources){
             imprimirListaRel(effects, player, imprimirImageObjectProBH);
 
             imprimirLista(itens, imprimirImageObjectPro);
+            imprimirLista(inimigos, imprimirImageObjectPro);
+            imprimirLista(traps, imprimirImageObjectPro);
 
             Player_Draw(player);
-            //imprimirLista(inimigos, imprimirPlayer);
 
             if(triggerCutscene){
                 Text_Pos(fightNotification, (Vector2){playerDestRec.x + playerDestRec.width/2 - MeasureText(fightNotification->text, fightNotification->fontsize)/2, playerDestRec.y - fightNotification->fontsize});
@@ -1967,6 +2047,7 @@ GAMESTATE telaJogo(Resources resources){
             Image_DrawPro(healthBarSpriteP);
 
             Image_Draw(resources.cursor);
+            Image_DrawPro(resources.grainOverlay);
         EndDrawing();
     }
 
@@ -2007,7 +2088,7 @@ int telaInicial(Resources resources){
         cursor->x = mousePos.x;
         cursor->y = mousePos.y;
 
-        if(IsKeyPressed(KEY_B)){
+        if(Button_IsPressed(iniciar, mousePos)){
             UnloadTexture(background->image);
             free(background);
             return INTRODUCTION;
@@ -2023,6 +2104,7 @@ int telaInicial(Resources resources){
             Button_Draw(sair);
 
             Image_Draw(cursor);
+            Image_DrawPro(resources.grainOverlay);
         EndDrawing();
     }
     return 0;
@@ -2060,7 +2142,19 @@ int main(){
     ImageObject* cursor = Image_Init("sprites/cursor.png");
     Image_Resize(cursor, 32, 32);
 
-    Resources resources = {player, enemy, squaresize, &playerCoordsSave, mapa, cursor};
+    ImageObject* grainOverlay = Image_Init("sprites/grainOverlay.jpg");
+
+    //float newWidth = GetScreenWidth();
+    //float newHeight = (newWidth*grainOverlay->source.height)/grainOverlay->source.width;
+
+    float newHeight = GetScreenHeight();
+    float newWidth = (newHeight*grainOverlay->source.width)/grainOverlay->source.height;
+
+    grainOverlay->destination = (Rectangle){0, 0, newWidth, newHeight};
+
+    grainOverlay->color = (Color){255, 255, 255, 10};
+
+    Resources resources = {player, enemy, squaresize, &playerCoordsSave, mapa, cursor, grainOverlay};
 
     GAMESTATE gamestate = MAINSCREEN;
 

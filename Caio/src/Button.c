@@ -1,5 +1,7 @@
 #include "Button.h"
 
+static Lista* allButtons = NULL;
+
 static bool hoveringButton = false;
 
 Button* Button_Init(const char* txt){
@@ -23,6 +25,8 @@ Button* Button_Init(const char* txt){
 
     btn->colors = (Pattern){WHITE, BLACK, WHITE, BLACK, (Color){0, 0, 0, 150}};
     btn->activeColor = (ActivePattern){WHITE, BLACK, BLACK};
+
+    if(allButtons != NULL) inserirFim(allButtons, btn);
 
     return btn;
 }
@@ -152,4 +156,12 @@ void Button_DrawIcon(Button* btn){
         btn->icon->color = btn->colors.hoverColor;
     }
     Image_DrawPro(btn->icon);
+}
+
+void Button_InitList(){
+    if(allButtons == NULL) allButtons = criaLista();
+}
+
+void Button_Free() {
+    limparLista(allButtons, true);
 }

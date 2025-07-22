@@ -203,14 +203,15 @@ void* getItemLista(Lista* lista, int pos){
     return cel->item;
 }
 
-void limparLista(Lista* lista) {
+void limparLista(Lista* lista, bool freeItems) {
     if (!lista) return;
 
     Celula* atual = lista->inicio;
     while (atual != NULL) {
         Celula* temp = atual;
         atual = atual->prox;
-        free(temp); // Only free the node, NOT the item
+        if(freeItems) free(temp->item);
+        free(temp);
     }
 
     lista->inicio = NULL;

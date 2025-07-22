@@ -84,6 +84,8 @@ void abrirInventario(Player* player){
         
         int count = 0;
 
+        if(isListaVazia(lista)) printf("\n - Your inventory is empty... - \n");
+
         imprimirListaRel(lista, &count, inventoryPrintStd);
 
         opc = menuInventario();

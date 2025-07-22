@@ -19,12 +19,14 @@ bool mover(int** mapa, int tam, Player* player, Vector2 direction){
 
     int numpad = numPadEquivalent(direction);
 
-    printf("\nMoving -> ");
+    if(LOG){
+        printf("\nMoving -> ");
 
-    if(direction.x == 1) printf("rightwards");
-    if(direction.x == -1) printf("leftwards");
-    if(direction.y == -1) printf("upwards");
-    if(direction.y == 1) printf("downwards");
+        if(direction.x == 1) printf("rightwards");
+        if(direction.x == -1) printf("leftwards");
+        if(direction.y == -1) printf("upwards");
+        if(direction.y == 1) printf("downwards");
+    }
 
     int j = pos.x + direction.x;
     int i = pos.y + direction.y;
@@ -32,15 +34,16 @@ bool mover(int** mapa, int tam, Player* player, Vector2 direction){
     int move = mapa[i][j];
     switch(move){
         case 2: // Caminho bloqueado por parede
-            printf("\nThe path ");
+            if(LOG){
+                printf("\nThe path ");
 
-            if(direction.x == 1) printf("rightwards");
-            if(direction.x == -1) printf("leftwards");
-            if(direction.y == -1) printf("upwards");
-            if(direction.y == 1) printf("downwards");
+                if(direction.x == 1) printf("rightwards");
+                if(direction.x == -1) printf("leftwards");
+                if(direction.y == -1) printf("upwards");
+                if(direction.y == 1) printf("downwards");
 
-            printf(" is blocked");
-
+                printf(" is blocked");
+            }
             return false;
         case 0: // Caminho está livre
             mapa[i][j] = 1;
@@ -76,7 +79,9 @@ bool mover(int** mapa, int tam, Player* player, Vector2 direction){
            
             break;
     }
-    printf("\nMoved");
+
+    if(LOG) printf("\nMoved");
+    
     return true;
 }
 
@@ -89,7 +94,7 @@ Vector2 desfazerMovimento(int** mapa, int tam, Player* player){
     int move = 0;
     move = pop(s);
 
-    printf("\nMove = %d", move);
+    if(LOG) printf("\nUndoing Movement.");
 
     switch(move){
         case 8: direction = (Vector2){0, 1}; break;

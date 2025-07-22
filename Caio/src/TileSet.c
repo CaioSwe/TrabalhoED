@@ -10,18 +10,18 @@ void CreateGround(int** mapa, int i, int j, int squaresize, Lista* chao, ImageOb
     inserirFim(chao, c);
 }
 
-void HandleTile(int** mapa, int i, int j, int squaresize, Lista* paredes, ImageObject* tileSet){
-    if (mapa[i][j] != 2) return;
+void HandleTile(int** mapa, int i, int j, int squaresize, Lista* paredes, ImageObject* tileSet, int target){
+    if (mapa[i][j] != target) return;
 
-    bool up = (i > 0) && mapa[i-1][j] == 2;
-    bool down = (i < TAM-1) && mapa[i+1][j] == 2;
-    bool left = (j > 0) && mapa[i][j-1] == 2;
-    bool right = (j < TAM-1) && mapa[i][j+1] == 2;
+    bool up = (i > 0) && mapa[i-1][j] == target;
+    bool down = (i < TAM-1) && mapa[i+1][j] == target;
+    bool left = (j > 0) && mapa[i][j-1] == target;
+    bool right = (j < TAM-1) && mapa[i][j+1] == target;
 
-    bool topleft = (i > 0 && j > 0) && mapa[i-1][j-1] == 2;
-    bool topright = (i > 0 && j < TAM-1) && mapa[i-1][j+1] == 2;
-    bool bottomleft = (i < TAM-1 && j > 0) && mapa[i+1][j-1] == 2;
-    bool bottomright = (i < TAM-1 && j < TAM-1) && mapa[i+1][j+1] == 2;
+    bool topleft = (i > 0 && j > 0) && mapa[i-1][j-1] == target;
+    bool topright = (i > 0 && j < TAM-1) && mapa[i-1][j+1] == target;
+    bool bottomleft = (i < TAM-1 && j > 0) && mapa[i+1][j-1] == target;
+    bool bottomright = (i < TAM-1 && j < TAM-1) && mapa[i+1][j+1] == target;
 
     ImageObject* tl = Image_Init(NULL);
     ImageObject* tr = Image_Init(NULL);
@@ -113,7 +113,7 @@ void HandleTile(int** mapa, int i, int j, int squaresize, Lista* paredes, ImageO
 }
 
 void UpdateTile(int** mapa, int posX, int posY, int squaresize, Lista* paredes, ImageObject* tileSet){
-    HandleTile(mapa, posX, posY, squaresize, paredes, tileSet);
+    HandleTile(mapa, posX, posY, squaresize, paredes, tileSet, 2);
 }
 
 void UpdateNeighborTiles(int** mapa, int posY, int posX, int squaresize, Lista* paredes, ImageObject* tileSet){

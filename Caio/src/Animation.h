@@ -3,6 +3,7 @@
 
 #include "Utils.h"
 #include "Delimiters.h"
+#include "Lista.h"
 
 typedef struct PositionAnimation {
     float elapsed;
@@ -52,6 +53,12 @@ typedef struct Turn{
     bool animating;
 } Turn;
 
+PositionAnimation* PositionAnimation_Init();
+
+ScaleAnimation* ScaleAnimation_Init();
+
+FramesAnimation* FramesAnimation_Init();
+
 void MoveItemTo(PositionAnimation* item, Vector2 startPoint, Vector2 finalPoint, float duration);
 
 Vector2 UpdateItemPosition(PositionAnimation* item, float deltaTime);
@@ -67,5 +74,9 @@ void Animation_PositionCopy(PositionAnimation* posFrom, PositionAnimation* posTo
 void Animation_ScaleCopy(ScaleAnimation* scaleFrom, ScaleAnimation* scaleTo);
 
 void Animation_FramesCopy(FramesAnimation* framesFrom, FramesAnimation* framesTo);
+
+void Animation_InitList();
+
+void Animation_Free();
 
 #endif

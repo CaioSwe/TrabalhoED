@@ -9,4 +9,6 @@
 
 #define TAM 20
 
+static bool LOG = false;
+
 #endif

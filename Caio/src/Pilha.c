@@ -5,7 +5,7 @@ typedef struct cel{
     struct cel* prox;
 }Celula;
 
-typedef struct pilha{
+typedef struct Pilha{
     Celula* topo;
     int     tamanho;
 }Pilha;
