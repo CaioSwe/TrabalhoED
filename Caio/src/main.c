@@ -2202,5 +2202,16 @@ int main(){
 
     freeAllLists();
 
+    UnloadTexture(player->spriteSheet);
+    UnloadTexture(enemy->spriteSheet);
+    UnloadTexture(cursor->image);
+    UnloadTexture(grainOverlay->image);
+
+    free(player);
+    free(enemy);
+    free(cursor);
+    free(grainOverlay);
+    
+
     return 0;
 }
