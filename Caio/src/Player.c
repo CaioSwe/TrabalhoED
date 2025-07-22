@@ -1,5 +1,7 @@
 #include "Player.h"
 
+static Lista* allPlayers = NULL;
+
 typedef struct Moving{
     bool up;
     bool down;
@@ -80,6 +82,8 @@ Player* Player_Init(Rectangle source, Rectangle destination, const char* spriteS
     player->isControlled = true;
 
     player->pilha = criarPilha();
+
+    if(allPlayers != NULL) inserirFim(allPlayers, player);
 
     return player;
 }
@@ -527,4 +531,12 @@ void Player_addGold(Player* player, int amount){
 
 void Player_subRepelent(Player* player, int amount){
     player->stats.repelent = (player->stats.repelent >= amount) ? player->stats.repelent - amount : 0;
+}
+
+void Player_InitList(){
+    if(allPlayers == NULL) allPlayers = criaLista();
+}
+
+void Player_Free(){
+    limparLista(allPlayers, true);
 }
