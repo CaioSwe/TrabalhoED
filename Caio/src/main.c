@@ -2197,6 +2197,7 @@ int main(){
             default:
                 break;
         }
+        freeAllLists();
     }
 
     freeAllLists();
