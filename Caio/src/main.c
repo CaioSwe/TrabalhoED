@@ -164,13 +164,18 @@ void imprimirItensInventario(const void* item, const void* target, const void* p
     t += 1;
 
     if(t == listaTamanho(Player_getInventarioUtils((Player*)player))) t = 0;
+}
+
+void imprimirItensDescInventario(const void* item, const void* target){
+    const Item* obj = (const Item*)item;
+    const Player* player = (const Player*)target;
 
     Vector2 mousePos = GetMousePosition();
 
     if(CheckCollisionPointRec(mousePos, (((Item*)obj)->sprite->destination))){
-        DrawRectangle(mousePos.x, mousePos.y, MeasureText(getItemDescription((Item*)obj), 10), 20.0f, WHITE); // TEXT BOX
-        DrawText(getItemName((Item*)obj), mousePos.x, mousePos.y, 10, BLACK);
-        DrawText(TextFormat("\n%s", getItemDescription((Item*)obj)), mousePos.x, mousePos.y, 10, BLACK);
+        DrawRectangle(mousePos.x, mousePos.y - 50.0f, MeasureText(getItemDescription((Item*)obj), 20), 50.0f, WHITE); // TEXT BOX
+        DrawText(getItemName((Item*)obj), mousePos.x, mousePos.y - 45.0f, 20, BLACK);
+        DrawText(TextFormat("\n%s", getItemDescription((Item*)obj)), mousePos.x, mousePos.y - 45.0f, 20, BLACK);
 
         if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) printf("\n%s", getItemDescription((Item*)obj)); // ITEM USAGE
         if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) usarItem2(((Item*)obj), (Player*)player);
@@ -1503,6 +1508,8 @@ GAMESTATE fightScreen(Resources resources){
             Image_DrawPro(inventoryBackground);
             imprimirListaRelRel(Player_getInventarioUtils(player), inventoryBackground, player, imprimirItensInventario);
 
+            imprimirListaRel(Player_getInventarioUtils(player), player, imprimirItensDescInventario);
+
             // PARAMETRIZAÇÃO DO INVENTARIO
             //percorrerLista(Player_getInventario(player), imprimirInventario);
             //
@@ -1931,6 +1938,8 @@ GAMESTATE telaJogo(Resources resources){
 
             Image_DrawPro(inventoryBackground);
             imprimirListaRelRel(Player_getInventarioUtils(player), inventoryBackground, player, imprimirItensInventario);
+            imprimirListaRel(Player_getInventarioUtils(player), player, imprimirItensDescInventario);
+            
             //Image_DrawPro(chestBackground);
             //Image_DrawPro(itemPlaceHolder);
             Image_DrawPro(itemObj->sprite);
@@ -1964,8 +1973,59 @@ GAMESTATE telaJogo(Resources resources){
     return 0;
 }
 
-int telaInicial(){
-    return INTRODUCTION;
+int telaInicial(Resources resources){
+    ImageObject* cursor = resources.cursor;
+    ImageObject* background = Image_Init("sprites/MainScreen/background.jpg");
+
+    Image_Fit(background);
+
+    TextObject* titulo = Text_Init("Dungeon Crawler");
+    TextObject* creditos = Text_Init("Andre Ijiri Ribeiro e Caio Sweiver de Carvalho");
+    TextObject* versao = Text_Init("Trabalho 1 - Estrutura de Dados");
+
+    titulo->fontsize = 50;
+
+    Text_Pos(titulo, (Vector2){GetScreenWidth()/2 - MeasureText(titulo->text, titulo->fontsize)/2, GetScreenHeight()*1/3 - titulo->fontsize/2});
+
+    creditos->fontsize = 16;
+
+    Text_Pos(creditos, (Vector2){GetScreenWidth()/2 - MeasureText(creditos->text, creditos->fontsize)/2, titulo->y + titulo->fontsize + creditos->fontsize/2});
+
+    Button* iniciar = Button_Init("Iniciar");
+    Button* sair = Button_Init("Sair");
+
+    Button_FitSizeToText(iniciar, 50, (Vector2){3, 3});
+    Button_FitSizeToText(sair, 50, (Vector2){3, 3});
+
+    sair->width = iniciar->width;
+
+    Button_Pos(iniciar, (Vector2){GetScreenWidth()/2 - (iniciar->width/2 + iniciar->padding.x), GetScreenHeight()*2/3});
+    Button_Pos(sair, (Vector2){GetScreenWidth()/2 - (sair->width/2 + sair->padding.x), iniciar->y + iniciar->height + iniciar->padding.y*2});
+
+    while(!WindowShouldClose()){
+        Vector2 mousePos = GetMousePosition();
+        cursor->x = mousePos.x;
+        cursor->y = mousePos.y;
+
+        if(IsKeyPressed(KEY_B)){
+            UnloadTexture(background->image);
+            free(background);
+            return INTRODUCTION;
+        }
+        
+        BeginDrawing();
+            Image_Draw(background);
+
+            Text_DrawS(titulo);
+            Text_DrawS(creditos);
+
+            Button_Draw(iniciar);
+            Button_Draw(sair);
+
+            Image_Draw(cursor);
+        EndDrawing();
+    }
+    return 0;
 }
 
 GAMESTATE telaIntroducao(Resources resources){
@@ -2002,12 +2062,12 @@ int main(){
 
     Resources resources = {player, enemy, squaresize, &playerCoordsSave, mapa, cursor};
 
-    GAMESTATE gamestate = FREE;
+    GAMESTATE gamestate = MAINSCREEN;
 
     while(!WindowShouldClose()){
         switch (gamestate){
             case MAINSCREEN:
-                gamestate = telaInicial();
+                gamestate = telaInicial(resources);
                 break;
             case INTRODUCTION:
                 gamestate = telaIntroducao(resources);
