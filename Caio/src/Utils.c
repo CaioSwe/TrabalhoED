@@ -56,9 +56,3 @@ float quadraticFunction(float t){
 float rootFunction(float t){
     return pow(t, 0.5f);
 }
-
-void TexturesArray_Free(const void* array){
-    const Texture2D** arrayTexture = (const Texture2D**) array;
-    
-    
-}

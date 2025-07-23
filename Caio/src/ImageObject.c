@@ -107,11 +107,11 @@ void Image_InitList(){
     if(allImageObjects == NULL) allImageObjects = criaLista();
 }
 
+void freeTexture_ImageObject(const void* item){
+    UnloadTexture(((const ImageObject*)item)->image);
+} 
+
 void Image_Free(){
     percorrerLista(allImageObjects, freeTexture_ImageObject);
     limparLista(allImageObjects, true);
 }
-
-void freeTexture_ImageObject(const void* item){
-    UnloadTexture(((const ImageObject*)item)->image);
-} 

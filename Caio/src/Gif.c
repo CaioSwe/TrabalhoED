@@ -57,7 +57,16 @@ void Gif_InitList(){
     if(allGifs == NULL) allGifs = criaLista();
 }
 
-void Gif_Free() {
+void FreeTexture_Gif(const void* item){
+    UnloadTexture(*(const Texture2D*)item);
+}
+
+void TexturesArray_Free(const void* array){
+    percorrerLista(((const Gif*)array)->image, FreeTexture_Gif);
+    limparLista(((const Gif*)array)->image, true);
+}
+
+void Gif_Free(){
     percorrerLista(allGifs, TexturesArray_Free);
     limparLista(allGifs, true);
 }

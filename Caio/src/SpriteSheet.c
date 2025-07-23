@@ -1,6 +1,6 @@
 #include "SpriteSheet.h"
 
-static Lista* allSpriteSheets = NULL:
+static Lista* allSpriteSheets = NULL;
 
 typedef struct Animation{
     PositionAnimation* position;
@@ -25,18 +25,41 @@ SpriteSheet* SpriteSheet_Init(const char* path, FramesAnimation framesAnimation)
     spriteSheet->anim = (Animation*)malloc(sizeof(Animation));
     spriteSheet->anim->position = (PositionAnimation*)malloc(sizeof(PositionAnimation));
     spriteSheet->anim->scale = (ScaleAnimation*)malloc(sizeof(ScaleAnimation));
-    spriteSheet->spriteSheet = LoadTexture(path);
+    
+    if(path != NULL) spriteSheet->spriteSheet = LoadTexture(path);
+    
     spriteSheet->anim->position->function = linearFunction;
     spriteSheet->anim->frames = framesAnimation;
 
-    spriteSheet->source = (Rectangle){0, 0, 120.0f, 120.0f};
-    spriteSheet->destination = (Rectangle){0, 0, 120.0f, 120.0f};
+    spriteSheet->source = (Rectangle){0, 0, spriteSheet->spriteSheet.width, spriteSheet->spriteSheet.height};
+    spriteSheet->destination = (Rectangle){0, 0, 0, 0};
     spriteSheet->display = (Vector2){0, 0};
     spriteSheet->delta = (Vector2){0, 0};
 
     if(allSpriteSheets != NULL) inserirFim(allSpriteSheets, spriteSheet);
 
     return spriteSheet;
+}
+
+SpriteSheet* SpriteSheet_Copy(SpriteSheet* source){
+    SpriteSheet* spriteSheet = SpriteSheet_Init(NULL, source->anim->frames);
+    
+    SpriteSheet_SetTexture(spriteSheet, source->spriteSheet);
+    spriteSheet->source = source->source;
+    spriteSheet->destination = source->destination;
+    spriteSheet->display = source->display;
+    spriteSheet->delta = source->delta;
+
+    return spriteSheet;
+}
+
+Texture2D SpriteSheet_GetTexture(SpriteSheet* spriteSheet){
+    return spriteSheet->spriteSheet;
+}
+
+void SpriteSheet_SetTexture(SpriteSheet* spriteSheet, Texture2D texture){
+    spriteSheet->spriteSheet = texture;
+    spriteSheet->source = (Rectangle){0, 0, spriteSheet->spriteSheet.width, spriteSheet->spriteSheet.height};
 }
 
 Turn SpriteSheet_UpdateSprite(SpriteSheet* spriteSheet, bool reverse, bool loop){
@@ -144,11 +167,11 @@ void SpriteSheet_InitList(){
     if(allSpriteSheets == NULL) allSpriteSheets = criaLista();
 }
 
+void freeTexture_SpriteSheet(const void* item){
+    UnloadTexture(((const SpriteSheet*)item)->spriteSheet);
+}
+
 void SpriteSheet_Free(){
     percorrerLista(allSpriteSheets, freeTexture_SpriteSheet);
     limparLista(allSpriteSheets, true);
 }
-
-void freeTexture_SpriteSheet(const void* item){
-    UnloadTexture(((const SpriteSheet*)item)->spriteSheet);
-} 

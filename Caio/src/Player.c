@@ -390,7 +390,8 @@ void Player_UpdateDef(Player* player, float newDef){
 }
 
 void Player_getHealing(Player* player, float heal){
-    player->stats.health += heal;
+    if(player->stats.health + heal > player->stats.maxHealth) player->stats.health = player->stats.maxHealth;
+    else player->stats.health += heal;
 }
 
 void Player_Print(Player* player){
@@ -461,6 +462,10 @@ MoveSet Player_getMoveSet(Player* player){
 
 bool Player_getLocked(Player* player){
     return player->locked;
+}
+
+Texture2D Player_getSprite(Player* player){
+    return player->spriteSheet;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -537,11 +542,11 @@ void Player_InitList(){
     if(allPlayers == NULL) allPlayers = criaLista();
 }
 
+void freeTexture_Player(const void* item){
+    UnloadTexture(((const Player*)item)->spriteSheet);
+}
+
 void Player_Free(){
     percorrerLista(allPlayers, freeTexture_Player);
     limparLista(allPlayers, true);
 }
-
-void freeTexture_Player(const void* item){
-    UnloadTexture(((const Player*)item)->spriteSheet);
-} 

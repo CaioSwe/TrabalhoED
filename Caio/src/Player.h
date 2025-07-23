@@ -1,7 +1,6 @@
 #ifndef _Player_h_
 #define _Player_h_
 
-#include "ImageObject.h"
 #include "Utils.h"
 #include "Delimiters.h"
 #include "Lista.h"
@@ -147,6 +146,8 @@ Pilha* Player_getPilha(Player* player);
 MoveSet Player_getMoveSet(Player* player);
 
 bool Player_getLocked(Player* player);
+
+Texture2D Player_getSprite(Player* player);
 
 /////////////////////////////////////////////////////////////////////////////
 

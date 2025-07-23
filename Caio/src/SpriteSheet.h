@@ -12,6 +12,12 @@ typedef struct SpriteSheet SpriteSheet;
 
 SpriteSheet* SpriteSheet_Init(const char* path, FramesAnimation framesAnimation);
 
+SpriteSheet* SpriteSheet_Copy(SpriteSheet* source);
+
+Texture2D SpriteSheet_GetTexture(SpriteSheet* spriteSheet);
+
+void SpriteSheet_SetTexture(SpriteSheet* spriteSheet, Texture2D texture);
+
 Turn SpriteSheet_UpdateSprite(SpriteSheet* spriteSheet, bool reverse, bool loop);
 
 void SpriteSheet_SetDisplay(SpriteSheet* spriteSheet, Vector2 display);
