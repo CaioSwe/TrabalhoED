@@ -62,6 +62,7 @@ void encounterEnemy(Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam
                 break;
         }
     }while(getPlayerHP(p) > 0 && getEnemyHP(e) > 0 && escape == 0);
+    criarEnemy();
 }
 
 void attackEnemy(Player* p, Enemy* e){
