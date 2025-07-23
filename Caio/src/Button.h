@@ -6,6 +6,8 @@
 #include "ImageObject.h"
 #include "Lista.h"
 
+typedef struct ImageObject ImageObject;
+
 typedef struct Pattern{
     Color baseColor;
     Color borderColor;

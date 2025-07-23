@@ -1,6 +1,6 @@
 #include "SpriteSheet.h"
 
-static Lista* allSpriteSheets = NULL:
+static Lista* allSpriteSheets = NULL;
 
 typedef struct Animation{
     PositionAnimation* position;
@@ -167,11 +167,11 @@ void SpriteSheet_InitList(){
     if(allSpriteSheets == NULL) allSpriteSheets = criaLista();
 }
 
+void freeTexture_SpriteSheet(const void* item){
+    UnloadTexture(((const SpriteSheet*)item)->spriteSheet);
+}
+
 void SpriteSheet_Free(){
     percorrerLista(allSpriteSheets, freeTexture_SpriteSheet);
     limparLista(allSpriteSheets, true);
 }
-
-void freeTexture_SpriteSheet(const void* item){
-    UnloadTexture(((const SpriteSheet*)item)->spriteSheet);
-} 

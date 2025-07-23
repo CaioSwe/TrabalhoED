@@ -42,7 +42,7 @@ void Text_DrawX(TextObject* txt, float rectX, float rectY){
     DrawText(txt->text, txt->x, txt->y, txt->fontsize, txt->color);
 }
 
-void Text_InitLIst(){
+void Text_InitList(){
     if(allTextObjects == NULL) allTextObjects = criaLista();
 }
 

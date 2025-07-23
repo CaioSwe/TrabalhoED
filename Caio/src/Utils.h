@@ -37,6 +37,4 @@ float quadraticFunction(float t);
 
 float rootFunction(float t);
 
-void TexturesArray_Free(const void* array);
-
 #endif

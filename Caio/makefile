@@ -1,12 +1,14 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11
+CFLAGS = -Wall -Wextra -std=c11 -Isrc -Isrc/utils -Iinclude
 
 # Output file
 TARGET = ED.exe
 
-# Source and object files
+# Directories
 SRC_DIR = src
+
+# Source and object files
 SRC = $(wildcard $(SRC_DIR)/*.c)
 OBJ = $(SRC:.c=.o)
 
@@ -16,17 +18,16 @@ LIBS = -lraylib -lopengl32 -lgdi32 -lwinmm
 # Default build
 all: $(TARGET)
 
-# Link the executable
+# Link
 $(TARGET): $(OBJ)
 	$(CC) $(OBJ) -o $@ $(LIBS)
 
-# Compile .c to .o
-$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
+# Compile
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Clean build artifacts
+# Clean
 clean:
-	rm -f $(SRC_DIR)/*.o $(TARGET)
+	rm -f $(OBJ) $(TARGET)
 
-# Mark phony targets
 .PHONY: all clean
