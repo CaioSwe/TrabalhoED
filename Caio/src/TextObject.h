@@ -24,4 +24,5 @@ void Text_Scale(TextObject* txt, float scaling);
 void Text_DrawS(TextObject* txt);
 
 void Text_DrawX(TextObject* txt, float rectX, float rectY);
+
 #endif

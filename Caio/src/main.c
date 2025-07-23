@@ -57,6 +57,8 @@ Lista* itens;
 Lista* inimigos;
 Lista* traps;
 
+Lista* trapsReal;
+
 bool deletedMisteryBox = false;
 bool collidedWithEnemy = false;
 bool collidedWithTrap = false;
@@ -90,6 +92,11 @@ void imprimirImageObject(const void* item) {
 void imprimirImageObjectPro(const void* item) {
     const ImageObject* image = (const ImageObject*)item;
     Image_DrawPro((ImageObject*)image);
+}
+
+void imprimirSpriteSheet(const void* item) {
+    const SpriteSheet* image = (const SpriteSheet*)item;
+    SpriteSheet_Draw((SpriteSheet*)image);
 }
 
 bool compararItem(const void* item, const void* comparar){
@@ -150,7 +157,6 @@ void imprimirImageObjectProFW(const void* item, const void* target) {
         Image_DrawPro((ImageObject*)image);
     }
 }
-
 
 void imprimirItensInventario(const void* item, const void* target, const void* p){
     static int t = 0;
@@ -231,6 +237,24 @@ void isCollidingWithPlayerTrap(const void* item, const void* target){
         remover(traps, compararItem, item, true);
         collidedWithTrap = true;
     }
+}
+
+void isCollidingWithPlayerRealTrap(const void* item, const void* target){
+    const SpriteSheet* image = (const SpriteSheet*)item;
+    const Player* player = (const Player*)target;
+
+    Rectangle playerDestRec = Player_getDestRec((Player*)player);
+    Rectangle imageDestRec = SpriteSheet_GetDestRec((SpriteSheet*)image);
+
+    if(CheckCollisionRecs(playerDestRec, imageDestRec)){  
+        SpriteSheet_setAnimationFramesAnimating((SpriteSheet*)image, true);
+    }
+}
+
+void voidSpriteSheetUpdate(const void* item){
+    const SpriteSheet* sprite = (const SpriteSheet*)item;
+
+    SpriteSheet_UpdateSprite((SpriteSheet*)sprite, false, false);
 }
 
 void formatButtons(const void* item){
@@ -1584,6 +1608,7 @@ GAMESTATE telaJogo(Resources resources){
     itens = criaLista();
     inimigos = criaLista();
     traps = criaLista();
+    trapsReal = criaLista();
 
     ImageObject* parede = Image_Init("sprites/white.png");
     ImageObject* borda = Image_Init("sprites/white.png");
@@ -1693,6 +1718,16 @@ GAMESTATE telaJogo(Resources resources){
 
     ////////////////////////////////////////////
 
+    SpriteSheet* bearTrap = SpriteSheet_Init("sprites/trapAnimation.png", (FramesAnimation){false, 0.0f, 0.0f, 1, 0, 7, 0, 12, 12});
+
+    SpriteSheet_SetSourceRec(bearTrap, (Rectangle){0, 0, 60.0f, 60.0f});
+    SpriteSheet_SetDisplay(bearTrap, (Vector2){0.0f, 0.0f});
+
+    SpriteSheet_SetDestRec(bearTrap, (Rectangle){0-squaresize, 0-squaresize, squaresize, squaresize});
+    SpriteSheet_SetDelta(bearTrap, (Vector2){60.0f, 0.0f});
+
+    Turn bearTrapAnimState = {false, false, false, false};
+
     // INICIALIZA O MAPA (INTERFACE)
     for(int i = 0; i < TAM; i++){
         for(int j = 0; j < TAM; j++){
@@ -1704,6 +1739,8 @@ GAMESTATE telaJogo(Resources resources){
             HandleTile(mapa, i, j, squaresize, paredes, paredesTileSet, 2);
 
             int grassChance = rand() % 100;
+
+            // GENERALIZAR IFs
 
             if(mapa[i][j] == 6){ // ITEM
                 ImageObject* msInstance = Image_Init(NULL);
@@ -1742,6 +1779,20 @@ GAMESTATE telaJogo(Resources resources){
                 inserirFim(traps, trapInstance);
 
                 grassChance = 100;
+            }
+
+            ///////////////////
+
+            if(mapa[i][j] == 5){
+                SpriteSheet* trapAnimationInstance = SpriteSheet_Copy(bearTrap);
+
+                Rectangle trapRec = SpriteSheet_GetDestRec(bearTrap);
+                trapRec.x = j*squaresize + squaresize/2 - trapRec.width/2;
+                trapRec.y = i*squaresize + squaresize/2 - trapRec.height/2;
+
+                SpriteSheet_SetDestRec(trapAnimationInstance, trapRec);
+
+                inserirFim(trapsReal, trapAnimationInstance);
             }
 
             if(grassChance < 40 || mapa[i][j] == 2) continue;
@@ -1793,6 +1844,9 @@ GAMESTATE telaJogo(Resources resources){
 
     healedOrHurt playerTookDamage = {false, false};
 
+    bool trapAnimation = false;
+    float elapsedTrap = 0;
+
     while(!WindowShouldClose()){
         float deltaTime = GetFrameTime();
         Vector2 mousepos = GetScreenToWorld2D(GetMousePosition(), camera);
@@ -1824,7 +1878,7 @@ GAMESTATE telaJogo(Resources resources){
             playerCanMove = moved;
         }
 
-        bool lockPlayer = triggerCutscene || chestAnimation.animationBool || inventoryAnimation.animationBool || chestAnimation.animating || inventoryAnimation.animating;
+        bool lockPlayer = trapAnimation || triggerCutscene || chestAnimation.animationBool || inventoryAnimation.animationBool || chestAnimation.animating || inventoryAnimation.animating;
 
         Player_setLocked(player, lockPlayer);
 
@@ -1841,26 +1895,7 @@ GAMESTATE telaJogo(Resources resources){
 
         Player_setAnimationFramesAnimating(player, altUpdateSprite);
 
-        if(IsKeyPressed(KEY_T) && !inventoryAnimation.animating){ // INVENTORY UI TRIGGER
-            inventoryShowing = true;
-
-            if(!inventoryAnimation.animationBool){
-                abrirInventario(player);
-            }
-        }
-        if(IsKeyDown(KEY_D) && !Player_getAnimationPositionAnimating(player)){ // UNDO TRIGGER
-            Vector2 moveBack = desfazerMovimento(mapa, TAM, player);
-            Player_StepTo(player, moveBack, true);
-        }
-        if((collidedWithEnemy || mimicTrigger)){ // FIGHT TRIGGER
-            triggerCutscene = true;
-            mimicTrigger = false;
-            collidedWithEnemy = false;
-        }
-
-        if(IsKeyPressed(KEY_M)){
-            printMapa(mapa, TAM);
-        }
+        if(IsKeyPressed(KEY_M)) printMapa(mapa, TAM);
 
         if(chestAnimation.animationBool){
             if((Button_IsPressed(getItem, mouseposW) || IsKeyPressed(getItemKey)) && !chestShowing){
@@ -1897,9 +1932,7 @@ GAMESTATE telaJogo(Resources resources){
 
         if(IsKeyPressed(KEY_ESCAPE)){
             int returnal = menuOpen();
-            if(returnal == 3){
-                CloseWindow();
-            }
+            if(returnal == 3) CloseWindow();
         }
 
         percorrerListaRel(itens, upDownFunction, &deltaTime);
@@ -1908,6 +1941,10 @@ GAMESTATE telaJogo(Resources resources){
         percorrerListaRel(inimigos, isCollidingWithPlayerEnemy, player); // CollidedWithEnemy
         percorrerListaRel(traps, upDownFunction, &deltaTime);
         percorrerListaRel(traps, isCollidingWithPlayerTrap, player); // CollidedWithEnemy
+
+        percorrerListaRel(trapsReal, isCollidingWithPlayerRealTrap, player);
+
+        percorrerLista(trapsReal, voidSpriteSheetUpdate);
 
         if(deletedMisteryBox){ // ITEM UI TRIGGER
             int item = sortearItem(true);
@@ -1949,6 +1986,37 @@ GAMESTATE telaJogo(Resources resources){
 
             deletedMisteryBox = false;
         }
+        if(IsKeyPressed(KEY_T) && !inventoryAnimation.animating){ // INVENTORY UI TRIGGER
+            inventoryShowing = true;
+
+            if(!inventoryAnimation.animationBool){
+                abrirInventario(player);
+            }
+        }
+        if(IsKeyDown(KEY_D) && !Player_getAnimationPositionAnimating(player)){ // UNDO TRIGGER
+            Vector2 moveBack = desfazerMovimento(mapa, TAM, player);
+            Player_StepTo(player, moveBack, true);
+        }
+        if((collidedWithEnemy || mimicTrigger)){ // FIGHT TRIGGER
+            triggerCutscene = true;
+            mimicTrigger = false;
+            collidedWithEnemy = false;
+        }
+        if(collidedWithTrap){
+            Player_TakeDamage(player, 1.5f);
+            if(LOG) printf("\nOuch.. stepped on a trap\n");
+            collidedWithTrap = false;
+            trapAnimation = true;
+        }
+
+        if(trapAnimation){
+            elapsedTrap += deltaTime;
+
+            if(elapsedTrap / 2.0f > 1.0f){
+                elapsedTrap = 0;
+                trapAnimation = false;
+            }
+        }
 
         percorrerListaRel(Player_getInventarioUtils(player), deleteUsedItems, player);
 
@@ -1965,6 +2033,9 @@ GAMESTATE telaJogo(Resources resources){
 
             imprimirLista(chao, imprimirImageObject);
             imprimirLista(paredes, imprimirImageObjectPro);
+
+            imprimirLista(trapsReal, imprimirSpriteSheet);
+
             imprimirListaRel(effects, player, imprimirImageObjectProBH);
 
             imprimirLista(itens, imprimirImageObjectPro);
