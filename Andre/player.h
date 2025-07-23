@@ -9,7 +9,7 @@ typedef struct player Player;
 typedef struct enemy Enemy;
 typedef struct stats Stats;
 
-/* FUNÇÕES REFERENTES AO PLAYER */
+/*      FUNÇÕES REFERENTES AO PLAYER      */
 Player* criarPlayer();
 Enemy*  criarEnemy ();
 
@@ -29,9 +29,13 @@ int*  getPlayerPos(Player*          );
 void  setPlayerPos(Player*, int, int);
 
 float getPlayerMaxHP(Player*);
+float getPlayerDodge(Player*);
 float getPlayerDefense(Player*);
+float getPlayerEvasionRate(Player*);
+/*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-/* FUNÇÕES REFERENTES AO INIMIGO */
+
+/*      FUNÇÕES REFERENTES AO INIMIGO     */
 float getEnemyHP(Enemy*       );
 void  setEnemyHP(Enemy*, float);
 
@@ -40,5 +44,6 @@ float getEnemyDefense(Enemy*);
 
 bool  getEnemyMimic(Enemy*      );
 void  setEnemyMimic(Enemy*, bool);
+/*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 #endif

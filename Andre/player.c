@@ -1,5 +1,6 @@
 #include "player.h"
 
+/*  ESTRUTURAS DO PLAYER E INIMIGO  */
 typedef struct stats{
     int   repelent;
     float maxHealth;
@@ -25,7 +26,11 @@ typedef struct enemy{
     float defense;
     bool  defending;
 }Enemy;
+/*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
+
+
+/*  INICIALIZAÇÃO DO PLAYER E INIMIGO   */
 Player* criarPlayer(){
     Player* p = (Player*)malloc(sizeof(Player));
 
@@ -45,7 +50,6 @@ Player* criarPlayer(){
 
     return p;
 }
-
 Enemy* criarEnemy(){
     Enemy* e = (Enemy*)malloc(sizeof(Enemy));
 
@@ -58,8 +62,11 @@ Enemy* criarEnemy(){
 
     return e;
 }
+/*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-/* FUNÇÕES REFERENTES AO PLAYER */
+
+
+/*                          FUNÇÕES REFERENTES AO PLAYER                         */
 float getPlayerHP(Player* p              ) { return p->stats.health;   }
 void  setPlayerHP(Player* p, float health) { p->stats.health = health; }
 
@@ -72,8 +79,10 @@ void  setPlayerRepelent(Player* p, int amount) { p->stats.repelent = amount; }
 float getPlayerAttack(Player* p              ) { return p->stats.attack;   }
 void  setPlayerAttack(Player* p, float attack) { p->stats.repelent = attack; }
 
-float getPlayerMaxHP  (Player* p) { return p->stats.maxHealth; }
-float getPlayerDefense(Player* p) { return p->stats.defense;   }
+float getPlayerMaxHP      (Player* p) { return p->stats.maxHealth;  }
+float getPlayerDodge      (Player* p) { return p->stats.dodge;      }
+float getPlayerDefense    (Player* p) { return p->stats.defense;    }
+float getPlayerEvasionRate(Player* p) { return p->stats.evasionRate;}
 
 int*  getPlayerPos(Player* p              ) {
     int* pos = (int*)malloc(2*sizeof(int));
@@ -86,8 +95,11 @@ void  setPlayerPos(Player* p, int x, int y) {
     p->x = x; 
     p->y = y;
 }
+/*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
-/* FUNÇÕES REFERENTES AO INIMIGO */
+
+
+/*                  FUNÇÕES REFERENTES AO INIMIGO                   */
 float getEnemyHP(Enemy* e              ) { return e->health;   }
 void  setEnemyHP(Enemy* e, float health) { e->health = health; }
 
@@ -96,3 +108,4 @@ float getEnemyDefense(Enemy* e) { return e->defense; }
 
 bool  getEnemyMimic(Enemy* e            ) { return e->mimic;  }
 void  setEnemyMimic(Enemy* e, bool mimic) { e->mimic = mimic; }
+/*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
