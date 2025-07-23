@@ -5,17 +5,19 @@ void encounterEnemy(Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam
 
     srand(time(NULL));
 
+    // Gera aleatóriamente a chance do baú ser um mímico
     if(getEnemyMimic(e) == true) printf("\nIt is a Mimic!\n");
     else{
         e = criarEnemy();
         int enemiesOpt = rand() % 2;
         printf("\tYou've encountere an enemy!");
         switch(enemiesOpt){
-            case 0: printf("\nIt is a X!\n"); break;
-            case 1: printf("\nIt is a Y!\n"); break;
+            case 0: printf("\nIt is a Skeleton!\n"); break;
+            case 1: printf("\nIt is a Slime!\n"); break;
         }Sleep(3000);
     }
     
+    // Menu de combate entre o jogador e o inimigo
     int opc = 0;
     int escape = 0;
     do{
@@ -31,6 +33,13 @@ void encounterEnemy(Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam
         printf("\t4 - ESCAPE\n");
         scanf("%d", &opc);
     
+        /*
+            CASOS:
+            1: Atacar
+            2: Defender
+            3: Usar item
+            4: Tentar escapar
+        */
         switch(opc){
             case 1:
                 attackEnemy(p, e);
@@ -48,7 +57,7 @@ void encounterEnemy(Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam
                 break;
     
             case 4:
-                escape = tryEscape(); Sleep(3000);
+                escape = tryEscape(p); Sleep(3000);
                 if(escape == 0) enemyTurn(p, e, s, l, mapa, tam);
                 break;
         }
@@ -88,10 +97,12 @@ void defendFromEnemy(Player* p, Enemy* e, Pilha* s, Lista* l, int** mapa, int ta
     printf("\nPLAYER:\t%.2f", getPlayerHP(p));
 
     printf("\n\nYou rise your shield, defending yourself");
-    printf("\n-%.2f", attack);
-    setPlayerHP(p, getPlayerHP(p) - attack);
-
-    int playerDead = isPlayerDead(p, e, s, l, mapa, tam);
+    float chance = rand() % 100 + 1;
+    if(chance > getPlayerDodge(p)){
+        printf("\n-%.2f", attack);
+        setPlayerHP(p, getPlayerHP(p) - attack);    
+        int playerDead = isPlayerDead(p, e, s, l, mapa, tam);
+    }else printf("\nBut you manage to dodge it's attack!");
 
     printf("\n\nRecovering from it's attack, you manage to find a small opening and nick it");
     float dmg = (getPlayerAttack(p) - getPlayerAttack(p)*getEnemyDefense(e))/2;
@@ -111,12 +122,12 @@ void defendFromEnemy(Player* p, Enemy* e, Pilha* s, Lista* l, int** mapa, int ta
     }
 }
 
-bool tryEscape(){
+bool tryEscape(Player* p){
     system("cls");
 
     printf("You've tried to escape the encounter");
-    int chance = rand() % 100 + 1;
-    if(chance <= 10){
+    float chance = rand() % 100 + 1;
+    if(chance <= getPlayerEvasionRate(p)){
         printf(" and succeded!");
         return 1;
     }
@@ -137,12 +148,23 @@ void enemyTurn(Player* p, Enemy* e, Pilha* s, Lista* l, int** mapa, int tam){
 
     printf("\n\nIt is the enemy's turn, he ");
 
+    /*                  
+                CONDICIONAL
+            SIM             NÃO
+    ____________________________________________
+    ____________________________________________
+
+                HPInimigo <= 1/2
+        Cura HP                 HPJogador <= 1/4
+                           Ataca                HPJogador <= 1/2
+                                   Ataca/Defende                Ataca
+    */
     if(getEnemyHP(e) <= getEnemyHP(e)/2){
         int chance = rand() % 100 + 1;
         if(chance <= 10) { setEnemyHP(e, getEnemyHP(e)+20); printf(" recovered +20 HP"); }
         else               printf(" tried to recover, but failed");
 
-    }else if(getPlayerHP(p) < getPlayerHP(p)*0.25){
+    }else if(getPlayerHP(p) <= getPlayerHP(p)*0.25){
         setPlayerHP(p, getPlayerHP(p) - attack);
         printf(" attacked you");
         printf("\n-%.2f", attack);
