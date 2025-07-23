@@ -1,6 +1,10 @@
 #include "game.h"
 
 void startGame(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
+
+    /*
+        Textos decorativos para introduzir o jogo :D
+    */
     system("cls");
     printf("\t\tWelcome to the game!");
     printf("\n\n\t\t\tBy");
@@ -42,6 +46,7 @@ void startGame(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
     system("pause");
     system("cls");
 
+    // Inicializa o jogo de fato
     gameMenu(mapa, tam, s, l, p, e);
 }
 
@@ -58,62 +63,61 @@ void restartGame(int** mapa, int tam, Player* p, Enemy* e, Pilha* s, Lista* l){
 
 void gameOver(int** mapa, int tam, int end, Player* p, Enemy* e, Pilha* s, Lista* l){
     system("cls");
+
+    /* EXECUTA O FINAL CORRETO DO JOGO */
+    // Limpa e libera todas as estruturas e objetos
+    free(p);
+    free(e);
+    limparPilha(s);
+    limparLista(l);
+    limparMapa(mapa, tam);
+    /*  
+        CASOS:
+        0: Player morreu
+        1: Ganhou o jogo
+        2: Player desistiu
+    */
     switch(end){
         case 1:
-            free(p);
-            free(e);
-            limparPilha(s);
-            limparLista(l);
-
             printf("\tCongratulations!\n");
             printf("\nYou've beaten the dungeon!");
-            limparMapa(mapa, tam);
             printf("\n\n*Crumbling noises");
             printf("\n\nAs you leave the dungeon, you hear it crumbling behind you\n\n");
             system("pause");
             break;
         
         case 0: 
-            free(p);
-            free(e);
-            limparPilha(s);
-            limparLista(l);
-            
             printf("\tGAME OVER\n");
             printf("\nAfter arduos hours battling enemies and braving the dungeon,");
             printf("\nYou unfortunately succumb to you wounds");
-            limparMapa(mapa, tam);
             printf("\nAnd the light slowly fades from your eyes\n\n");
             system("pause");
             break;
 
         case 2: 
-            free(p);
-            free(e);
-            limparPilha(s);
-            limparLista(l);
-            
             printf("\tIt was simply too much\n");
             printf("\nIt seems the safety and comfort of your bed and mother's arms was much more attractive than your explorer spirit\n\n");
-            limparMapa(mapa, tam);
             system("pause");
             break;
     }
 
+    // Recomeça ou encerra o jogo
     int opc;
     do{
         system("cls");
         printf("\nPress 1 to restart the game");
         printf("\nPress 0 to exit the game\n");
         scanf("%d", &opc);
-        if     (opc == 1) restartGame(mapa, tam, p, e, s, l);
-        else if(opc == 0) exit(1);
+        if     (opc == 1)  restartGame(mapa, tam, p, e, s, l);
+        else if(opc == 0)  exit(1);
         else              {printf("\nInvalid choice"); opc = 10;}
     }while(opc == 10);
 }
 
 void gameMenu(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     system("cls");
+
+    // Menu inicial básico do jogo (imprime o mapa e as escolhas de ações para o jogador)
     int choice;
     do{
         printMapa(mapa, tam);
@@ -128,8 +132,8 @@ void gameMenu(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             case 1: moveMenu(mapa, tam, s, l, p, e);    break;
             case 2: abrirInventario(l, p);              break;
             case 3: gameOver(mapa, tam, 2, p, e, s, l); break;
-        }
-        system("cls");
+        }system("cls");
+
     }while(choice);
 }
 
@@ -140,11 +144,11 @@ void moveMenu(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     printMapa(mapa, tam);
     
     printf("\n\n\tWhere would you like to go?\n");
-    printf("\n\t\t8 - Go Upwards");
-    printf("\n4 - Go Leftwards");
-    printf("\t\t6 - Go Rightwards");
+    printf("\n\t\t8 - Go Upwards");                     /*              8 - Go Upwards                     */
+    printf("\n4 - Go Leftwards");                       /*      4 - Go Leftwards    6 - Go Rightwards      */
+    printf("\t\t6 - Go Rightwards");                    /*              2 - Go Downwards                   */
     printf("\n\t\t2 - Go Downwards");
-    printf("\n\n\t\t1 - Take a step backwards\n\n");
+    printf("\n\n\t\t1 - Take a step backwards\n\n");    /*         1 - Take a step backwards               */
     scanf("%d", &choice);
     
     switch(choice){

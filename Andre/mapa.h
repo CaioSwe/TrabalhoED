@@ -13,11 +13,11 @@
 
 typedef struct player Player;
 
-void  criarMapa (int***, Player*, int                                    );
-void   populaMapa(int**, int                                      );
-void   printMapa (int**, int                                      );
-void   limparMapa(int**, int                                      );
-void   ativarTrap(int**, int, Player*, Enemy*, Pilha*, Lista*     );
-void   gameOver  (int**, int, int, Player*, Enemy*, Pilha*, Lista*);
+int**  criarMapa  (Player*, int                                    );
+void   populaMapa (int**, int                                      );
+void   printMapa  (int**, int                                      );
+void   limparMapa (int**, int                                      );
+void   ativarTrap (int**, int, Player*, Enemy*, Pilha*, Lista*     );
+void   gameOver   (int**, int, int, Player*, Enemy*, Pilha*, Lista*);
 
 #endif

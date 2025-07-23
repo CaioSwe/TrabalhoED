@@ -3,10 +3,12 @@
 void criarMapa(int*** mapa, Player* p, int tam){
     srand(time(NULL));
 
+    // Inicializa o player na posição (1, 1)
     setPlayerPos(p, 1, 1);
     *mapa = (int**)malloc(tam*sizeof(int*));
     int input;
 
+    // Gera aleatóriamente a posição da saída da dungeon
     int i_chance = rand() % (tam-2)+1;
     
     //*mapa = (int**)malloc(tam*sizeof(int*));
@@ -16,6 +18,7 @@ void criarMapa(int*** mapa, Player* p, int tam){
         (*mapa)[i] = (int*)malloc(tam*sizeof(int));
         if((*mapa) == NULL){ printf("\nERROR: Insuficient Memory!"); exit(1); }
 
+        // Gera a estrutura básica do mapa
         for(int j = 0; j < tam; j++){
             if     (i == 1 && j == 1)                             {(*mapa)[i][j] = 1; } // Representa o jogador
             else if(i == i_chance && j == tam-1)                  {(*mapa)[i][j] = 4; } // A saída da dungeon
@@ -74,23 +77,19 @@ void populaMapa(int** mapa, int tam){
     int chance;
 
     // Atribui a chance de uma das casas ser o seguinte evento
-    int trap    = 8;  // 8% = ~5 casas
-    int enemies = 15; // 15% = ~10 casas
-    int items   = 12; // 12% = ~7  casas
-
     for(int i = 0; i < tam; i++){
         for(int j = 0; j < tam; j++){
             if(mapa[i][j] == 0){
                 chance = rand() % 100;
-                if(chance < trap){
-                    mapa[i][j] = 5;
-                }
-                else if(chance < items){
-                    mapa[i][j] = 6;
-                }
-                else if(chance < enemies){
-                    mapa[i][j] = 7;
-                }
+                /*
+                    CASOS:
+                    5: Armadilha
+                    6: Itens
+                    7: Inimigos
+                */
+                if     (0  <= chance && chance <= 10) mapa[i][j] = 5;
+                else if(11 <= chance && chance <= 30) mapa[i][j] = 6;
+                else if(31 <= chance && chance <= 45) mapa[i][j] = 7;
             }
         }
     }
@@ -109,14 +108,14 @@ void printMapa(int** mapa, int tam){
     // Imprime o mapa com os props gráficos
     for(int i = 0; i < tam; i++){
         for(int j = 0; j < tam; j++){
-            if     (mapa[i][j] == 7) {printf(" ! ");} // Representa inimigos
-            if     (mapa[i][j] == 6) {printf(" * ");} // Representa itens
-            if     (mapa[i][j] == 5) {printf(" X ");} // Representa armadilhas
-            if     (mapa[i][j] == 4) {printf(" O ");}
-            else if(mapa[i][j] == 3) {printf(" # ");}
-            else if(mapa[i][j] == 2) {printf(" # ");}
-            else if(mapa[i][j] == 1) {printf(" @ ");}
-            else if(mapa[i][j] == 0) {printf("   ");}
+            if     (mapa[i][j] == 7) {printf(" X ");} // Representa inimigos
+            else if(mapa[i][j] == 6) {printf(" $ ");} // Representa itens
+            else if(mapa[i][j] == 5) {printf(" ! ");} // Representa armadilhas
+            else if(mapa[i][j] == 4) {printf(" O ");} // Representa a saída da dungeon
+            else if(mapa[i][j] == 3) {printf(" # ");} // Representa as paredes da dungeon
+            else if(mapa[i][j] == 2) {printf(" # ");} // Representa as paredes da dungeon
+            else if(mapa[i][j] == 1) {printf(" @ ");} // Representa o player
+            else if(mapa[i][j] == 0) {printf("   ");} // Representa espaços livres (em branco)
         }printf("\n");
     }printf("\n");
 }

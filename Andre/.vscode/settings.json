@@ -5,6 +5,7 @@
         "stdlib.h": "c",
         "movimentacao.h": "c",
         "inventario.h": "c",
-        "player.h": "c"
+        "player.h": "c",
+        "mapa.h": "c"
     }
 }
