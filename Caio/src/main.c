@@ -2211,7 +2211,6 @@ int main(){
     free(enemy);
     free(cursor);
     free(grainOverlay);
-    
 
     return 0;
 }
