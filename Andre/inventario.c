@@ -10,32 +10,37 @@ int itemChoice(){
     return input;
 }
 
-void coletarItem(int opc, Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam){
+void coletarItem(int opc, Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam){    
+    /*
+    CASOS:
+    1: Poção de vida
+    2: Repelente/Incenso de monstros
+    3: Baú com moedas de ouro
+    */
     int input;
     do{
         switch(opc){
-        // Health Potion
         case 1: 
             input = itemChoice();
             if(input == 1) inserirFim(l, 1);
             opc = 0;
             break;
 
-        // Monster's Repelent
         case 2: 
             input = itemChoice();
             if(input == 1) inserirFim(l, 2);
             opc = 0;
             break;
 
-        // Treasure Chest
-        case 3: 
+        case 3:   
             int gold = rand() % 100 + 1;
             printf(" with %d coins of gold!", gold);
             input = itemChoice();
             if(input == 1){
                 setPlayerGold(p, getPlayerGold(p)+gold);
                 printf("\nYou've collected the coins");
+
+                // Gera uma chance do baú virar um mímico
                 int mimic = rand() % 10;
                 if(mimic <= 3){
                     system("cls");
@@ -58,13 +63,20 @@ void coletarItem(int opc, Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, i
 }
 
 void menuItem(Lista* l, Player* p, Enemy* e, Pilha* s, int** mapa, int tam){
+    system("cls");
+
     srand(time(NULL));
     int item = rand() % 3 + 1;
 
-    system("cls");
     printf("You found an item!");
 
-    // Escolhe qual item o usuário encontrou
+    // Escolhe qual item o jogador encontrou
+    /*
+        CASOS:
+        1: Poção de vida
+        2: Repelente/Incenso de monstros
+        3: Baú com moedas de ouro
+    */
     switch(item){ 
         case 1:
             printf("\nIt is a Health Potion!");
@@ -101,6 +113,7 @@ int menuInventario(){
 
 void abrirInventario(Lista* l, Player* p){
     system("cls");
+
     printf("You opened your inventory!");
     int opc = 0;
     do{
@@ -108,6 +121,14 @@ void abrirInventario(Lista* l, Player* p){
         printf("GOLD: %d", getPlayerGold(p));
         imprimirLista(l);
         opc = menuInventario();
+        
+        /*
+            CASOS:
+            1: Usar item
+            2: Descartar item
+            3: Inspecionar item
+            4: Fechar inventário
+        */
         switch(opc){
             case 1: 
                 usarItem(l, p);
@@ -124,7 +145,7 @@ void abrirInventario(Lista* l, Player* p){
                 system("cls");
                 opc = 0;
                 break;
-            case 4: // Fecha o inventário
+            case 4:
                 system("cls");
                 opc = 4;
                 break;
@@ -139,17 +160,21 @@ void abrirInventario(Lista* l, Player* p){
 }
 
 void usarItem(Lista* l, Player* p){
-    int opc;
     system("cls");
+
+    int opc;
     printf("\nWhich item would you like to use?");
     imprimirLista(l);
     scanf("%d", &opc);
 
     Celula* item = buscarElemento(l, opc);
     if(item != NULL){
+        /*
+            CASOS:
+            1: Poção de vida
+            2: Repelente/Incenso de monstros
+        */
         switch (getValor(item)){
-
-            // Health Potion
             case 1:
                 printf("\nHP: %.2f", getPlayerHP(p));
 
@@ -163,7 +188,6 @@ void usarItem(Lista* l, Player* p){
                 Sleep(1500);
                 break;
 
-            // Monster's Repelent
             case 2:
                 setPlayerRepelent(p, 10);
                 printf("\nMonster's Repelent used!");
@@ -175,14 +199,13 @@ void usarItem(Lista* l, Player* p){
                 Sleep(1500);
                 break;
         }removerMeio(l, opc);
-    }else{
-        printf("\nItem not found in inventory.");
-    }
+    }else printf("\nItem not found in inventory.");
 }
 
 void descartarItem(Lista* l){
-    int opc;
     system("cls");
+
+    int opc;
     printf("\nWhich item would you like to drop?");
     imprimirLista(l);
     scanf("%d", &opc);
@@ -190,25 +213,27 @@ void descartarItem(Lista* l){
 }
 
 void inspecionarItem(Lista* l){
-    int opc;
     system("cls");
+
+    int opc;
     printf("\nWhich item would you like to inspect?");
     imprimirLista(l);
     scanf("%d", &opc);
 
     Celula* item = buscarElemento(l, opc);
-
     if(item != NULL){
+        /*
+            CASOS:
+            1: Poção de vida
+            2: Repelente/Incenso de monstros
+        */
         switch (getValor(item)){
-
-            // Health Potion
             case 1:
                 printf("\nThis is a Health Potion");
                 printf("\nIt considerably heals you life energy!");
                 Sleep(3000);
                 break;
 
-            // Monster's Repelent
             case 2:
                 printf("\nThis is a Monster's Repelent");
                 printf("\nIt makes it so your scent is undetectable to monsters");
