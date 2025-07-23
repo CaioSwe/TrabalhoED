@@ -7,14 +7,23 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     int j = pos[1];
     int move = mapa[i][j];
     switch(move){
-        case 3: // Caminho bloqueado por parede
+        /*
+            CASOS:
+            0: Espaço livre
+            3: Parede
+            4: Saída da dungeon
+            5: Armadilha
+            6: Item
+            7: Inimigo
+        */
+        case 3:
             printf("\nThe path upwards is blocked");
             Sleep(1500);
 
             return false;
             break;
 
-        case 0: // Caminho está livre
+        case 0:
             mapa[ i ][j] = 1;
             mapa[i+1][j] = 0;
             setPlayerPos(p, i, j);
@@ -22,11 +31,11 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
            
             break;
 
-        case 4: // Saída da dungeon, fim do jogo
+        case 4:
             gameOver(mapa, tam, 1, p, e, s, l);
             break;
 
-        case 5: // Pisou em uma armadilha
+        case 5:
             ativarTrap(mapa, tam, p, e, s, l);
 
             mapa[ i ][j] = 1;
@@ -36,7 +45,7 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
            
             break;
         
-        case 6: // Passou por cima de um item
+        case 6:
             menuItem(l, p, e, s, mapa, tam);
 
             mapa[ i ][j] = 1;
@@ -46,7 +55,7 @@ bool moverCima(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
             
             break;
 
-        case 7: // Encontrou um inimigo
+        case 7:
             if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e, s, mapa, tam);
 
             mapa[ i ][j] = 1;
@@ -66,14 +75,23 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     int j = pos[1];
     int move = mapa[i][j];
     switch(move){
-        case 3: // Caminho bloqueado por parede
+        /*
+            CASOS:
+            0: Espaço livre
+            3: Parede
+            4: Saída da dungeon
+            5: Armadilha
+            6: Item
+            7: Inimigo
+        */
+        case 3:
             printf("\nThe path downwards is blocked");
             Sleep(1500);
 
             return false;
             break;
 
-        case 0: // Caminho está livre
+        case 0:
             mapa[ i ][j] = 1;
             mapa[i-1][j] = 0;
             setPlayerPos(p, i, j);
@@ -81,11 +99,11 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
                        
             break;
 
-        case 4: // Saída da dungeon, fim do jogo
+        case 4:
             gameOver(mapa, tam, 1, p, e, s, l);
             break;
 
-        case 5: // Pisou em uma armadilha
+        case 5:
             ativarTrap(mapa, tam, p, e, s, l);
 
             mapa[ i ][j] = 1;
@@ -95,7 +113,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
                        
             break;
         
-        case 6: // Passou por cima de um item
+        case 6:
             menuItem(l, p, e, s, mapa, tam);
 
             mapa[ i ][j] = 1;
@@ -105,7 +123,7 @@ bool moverBaixo(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
                         
             break;
 
-        case 7: // Encontrou um inimigo
+        case 7:
             if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e, s, mapa, tam);
 
             mapa[ i ][j] = 1;
@@ -125,14 +143,23 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
     int j = pos[1] - 1;
     int move = mapa[i][j];
     switch(move){
-        case 3: // Caminho bloqueado por parede
+        /*
+            CASOS:
+            0: Espaço livre
+            3: Parede
+            4: Saída da dungeon
+            5: Armadilha
+            6: Item
+            7: Inimigo
+        */
+        case 3:
             printf("\nThe path leftwards is blocked");
             Sleep(1500);
             
             return false;
             break;
 
-        case 0: // Caminho está livre
+        case 0:
             mapa[i][ j ] = 1;
             mapa[i][j+1] = 0;
             setPlayerPos(p, i, j);
@@ -140,11 +167,11 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
                        
             break;
 
-        case 4: // Saída da dungeon, fim do jogo
+        case 4:
             gameOver(mapa, tam, 1, p, e, s, l);
             break;
 
-        case 5: // Pisou em uma armadilha
+        case 5:
             ativarTrap(mapa, tam, p, e, s, l);
 
             mapa[i][ j ] = 1;
@@ -154,7 +181,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
                        
             break;
         
-        case 6: // Passou por cima de um item
+        case 6:
             menuItem(l, p, e, s, mapa, tam);
 
             mapa[i][ j ] = 1;
@@ -164,7 +191,7 @@ bool moverEsquerda(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e)
                         
             break;
 
-        case 7: // Encontrou um inimigo
+        case 7:
             if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e, s, mapa, tam);
       
             mapa[i][ j ] = 1;
@@ -184,14 +211,23 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
     int j = pos[1] + 1;
     int move = mapa[i][j];
     switch(move){
-        case 3: // Caminho bloqueado por parede
+        /*
+            CASOS:
+            0: Espaço livre
+            3: Parede
+            4: Saída da dungeon
+            5: Armadilha
+            6: Item
+            7: Inimigo
+        */
+        case 3:
             printf("\nThe path rightwards is blocked");
             Sleep(1500);
             
             return false;
             break;
 
-        case 0: // Caminho está livre
+        case 0:
             mapa[i][ j ] = 1;
             mapa[i][j-1] = 0;
             setPlayerPos(p, i, j);
@@ -199,11 +235,11 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
                        
             break;
 
-        case 4: // Saída da dungeon, fim do jogo
+        case 4:
             gameOver(mapa, tam, 1, p, e, s, l);
             break;
 
-        case 5: // Pisou em uma armadilha
+        case 5:
             ativarTrap(mapa, tam, p, e, s, l);
 
             mapa[i][ j ] = 1;
@@ -213,7 +249,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
            
             break;
         
-        case 6: // Passou por cima de um item
+        case 6:
             menuItem(l, p, e, s, mapa, tam);
 
             mapa[i][ j ] = 1;
@@ -223,7 +259,7 @@ bool moverDireita(int** mapa, int tam, Pilha* s, Lista* l, Player* p, Enemy* e){
                         
             break;
 
-        case 7: // Encontrou um inimigo
+        case 7:
             if(getPlayerRepelent(p) <= 0) encounterEnemy(l, p, e, s, mapa, tam);
 
             mapa[i][ j ] = 1;
