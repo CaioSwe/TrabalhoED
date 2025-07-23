@@ -185,6 +185,8 @@ void Player_addGold(Player* player, int amount);
 
 void Player_subRepelent(Player* player, int amount);
 
+bool Player_tryRun(Player* player);
+
 /////////////////////////////////////////////////////////////////////////////
 
 void Player_InitList();

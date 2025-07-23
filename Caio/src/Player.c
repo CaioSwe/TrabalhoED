@@ -538,6 +538,12 @@ void Player_subRepelent(Player* player, int amount){
     player->stats.repelent = (player->stats.repelent >= amount) ? player->stats.repelent - amount : 0;
 }
 
+bool Player_tryRun(Player* player){
+    return (rand()%100 < player->stats.evasionRate);
+}
+
+//////////////////////////////////////////////////////////////////////
+
 void Player_InitList(){
     if(allPlayers == NULL) allPlayers = criaLista();
 }

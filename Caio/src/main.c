@@ -63,6 +63,11 @@ Lista* traps;
 
 Lista* trapsReal;
 
+const char* SpritesPath = "sprites/";
+const char* TileSetSkin = "spriteMapas/Terra/";
+
+bool darkenMap = true;
+
 bool deletedMisteryBox = false;
 bool collidedWithEnemy = false;
 bool collidedWithTrap = false;
@@ -848,32 +853,32 @@ GAMESTATE gameWon(Resources resources){
     TextObject* gameover = Text_Init("Congratulations!");
     
     TextObject* subtitle = Text_Init("You have beaten the dungeon!");
-    TextObject* subtitle2 = Text_Init("*Crumbling noises*");
-    TextObject* followuptext = Text_Init("As you leave the dungeon, you hear it crumbling behind you");
+    //TextObject* subtitle2 = Text_Init("*Crumbling noises*");
+    //TextObject* followuptext = Text_Init("As you leave the dungeon, you hear it crumbling behind you");
 
     gameover->fontsize = 60;
-    subtitle->fontsize = 19;
-    subtitle2->fontsize = 19;
+    subtitle->fontsize = 23;
+    //subtitle2->fontsize = 19;
 
-    followuptext->fontsize = 17;
+    //followuptext->fontsize = 17;
 
     Text_Pos(gameover, (Vector2){GetScreenWidth()/2 - MeasureText(gameover->text, gameover->fontsize)/2, GetScreenHeight()*1/6});
     Text_Pos(subtitle, (Vector2){GetScreenWidth()/2 - MeasureText(subtitle->text, subtitle->fontsize)/2, gameover->y + gameover->fontsize});
-    Text_Pos(subtitle2, (Vector2){GetScreenWidth()/2 - MeasureText(subtitle2->text, subtitle2->fontsize)/2, subtitle->y + subtitle->fontsize});
+    //Text_Pos(subtitle2, (Vector2){GetScreenWidth()/2 - MeasureText(subtitle2->text, subtitle2->fontsize)/2, subtitle->y + subtitle->fontsize});
 
-    Text_Pos(followuptext, (Vector2){GetScreenWidth()/2 - MeasureText(followuptext->text, followuptext->fontsize)/2, subtitle2->y + subtitle2->fontsize*2});
+    //Text_Pos(followuptext, (Vector2){GetScreenWidth()/2 - MeasureText(followuptext->text, followuptext->fontsize)/2, subtitle2->y + subtitle2->fontsize*2});
 
     gameover->color = WHITE;
     subtitle->color = WHITE;
-    subtitle2->color = WHITE;
-    followuptext->color = WHITE;
+    //subtitle2->color = WHITE;
+    //followuptext->color = WHITE;
 
     gameover->color.a = 0;
     subtitle->color.a = 0;
-    subtitle2->color.a = 0;
-    followuptext->color.a = 0;
+    //subtitle2->color.a = 0;
+    //followuptext->color.a = 0;
 
-    ImageObject* background = Image_Init("sprites/gameoverBackground.png");
+    ImageObject* background = Image_Init(TextFormat("%s%sgameWinBackground.png", SpritesPath, TileSetSkin));
 
     camera.offset = (Vector2){0, 0};
     camera.rotation = 0.0f;
@@ -884,11 +889,12 @@ GAMESTATE gameWon(Resources resources){
 
     bool outro = true;
 
-    ImageObject* player = Image_Init("sprites/PlayerDead.png");
+    ImageObject* player = Image_Init(TextFormat("%sPlayerGameWon.png", SpritesPath));
 
     float playerWidth = GetScreenWidth()*1/3;
 
-    player->destination = (Rectangle){GetScreenWidth()/2 - playerWidth/2, background->destination.height - playerWidth - 250.0f, playerWidth, playerWidth};
+    player->destination = (Rectangle){359.0f - playerWidth/2, background->destination.height - GetScreenHeight() + 490.0f - playerWidth, playerWidth, playerWidth};
+    player->color = (Color){255, 255, 255, 200};
 
     float totalElapsed = 0;
 
@@ -906,10 +912,13 @@ GAMESTATE gameWon(Resources resources){
 
     exit->width = restart->width;
 
-    Button_Pos(restart, (Vector2){GetScreenWidth()/2 - (restart->width + restart->padding.x*10), GetScreenHeight() - restart->height*3});
-    Button_Pos(exit, (Vector2){GetScreenWidth()/2 + (exit->padding.x*10), GetScreenHeight() - exit->height*3});
+    Button_Pos(exit, (Vector2){GetScreenWidth()/2 - (exit->width + exit->padding.x*10), GetScreenHeight() - exit->height*3});
+    Button_Pos(restart, (Vector2){exit->x, exit->y - (restart->height + restart->padding.y*2)});
 
     bool buttons = false;
+
+    Button_SetPattern(restart, (Pattern){BLACK, BLACK, WHITE, DARKBLUE, (Color){150,150,150,150}});
+    Button_SetPattern(exit, (Pattern){BLACK, BLACK, WHITE, RED, (Color){150,150,150,150}});
 
     restart->colors.baseColor.a = 0;
     exit->colors.baseColor.a = 0;
@@ -920,6 +929,8 @@ GAMESTATE gameWon(Resources resources){
     restart->colors.borderColor.a = 0;
     exit->colors.borderColor.a = 0;
 
+    float t1 = 0, t2 = 0, t3 = 0;
+
     while(!WindowShouldClose()){
         float deltaTime = GetFrameTime();
         Vector2 mousePos = GetMousePosition();
@@ -927,6 +938,10 @@ GAMESTATE gameWon(Resources resources){
         resources.cursor->y = mousePos.y;
 
         totalElapsed += deltaTime;
+
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            printf("\nx = %.1f, y = %.1f", mousePos.x, mousePos.y);
+        }
 
         if(Button_IsPressed(restart, mousePos) || IsKeyPressed(KEY_ONE)){
             Player_getHealing(resources.player, Player_getStats(resources.player).maxHealth);
@@ -937,50 +952,6 @@ GAMESTATE gameWon(Resources resources){
         if(Button_IsPressed(exit, mousePos) || IsKeyPressed(KEY_ZERO)){
             return EXIT;
         }
-
-        if(textAnimation && totalElapsed/2.0f > 1.0f){
-            elapsed2 += deltaTime;
-            
-            float pg = elapsed2 / 2.0f;
-            float t = linearFunction(pg);
-
-            gameover->color.a = Slerp(0, 255, t);
-
-            if(pg > 1.0f){
-                textAnimation = false;
-                anim3 = true;
-                elapsed2 = 0;
-            }
-        }
-        if(anim3 && totalElapsed/2.0f > 1.0f){
-            elapsed2 += deltaTime;
-            
-            float pg = elapsed2 / 5.0f;
-            float t = linearFunction(pg);
-
-            subtitle->color.a = Slerp(0, 255, t);
-            subtitle2->color.a = Slerp(0, 255, t);
-
-            if(pg > 1.0f){
-                subtitleShow = true;
-                anim3 = false;
-                elapsed2 = 0;
-            }
-        }
-        if(subtitleShow && totalElapsed/2.0f > 1.0f){
-            elapsed2 += deltaTime;
-            
-            float pg = elapsed2 / 5.0f;
-            float t = linearFunction(pg);
-
-            followuptext->color.a = Slerp(0, 255, t);
-
-            if(pg > 1.0f){
-                subtitleShow = false;
-                elapsed2 = 0;
-            }
-        }
-
 
         if(outro && totalElapsed/1.0f > 1.0f){
             static float elapsed = 0;
@@ -993,6 +964,11 @@ GAMESTATE gameWon(Resources resources){
             camera.target.y = Slerp(0, (background->destination.height - GetScreenHeight()), t);
             camera.target.x = 0;
 
+            gameover->color = ColorLerp(WHITE, BLACK, t);
+            subtitle->color = ColorLerp(WHITE, BLACK, t);
+            //subtitle2->color = ColorLerp(WHITE, BLACK, t);
+            //followuptext->color = ColorLerp(WHITE, BLACK, t);
+
             if(pg > 1.0f){
                 outro = false;
                 buttons = true;
@@ -1002,6 +978,47 @@ GAMESTATE gameWon(Resources resources){
                 printf("\nPress 0 to exit the game\n");
             }
         }
+
+        if(textAnimation && totalElapsed/2.0f > 1.0f){
+            elapsed2 += deltaTime;
+            
+            float pg = elapsed2 / 2.0f;
+            t1 = linearFunction(pg);
+
+            if(pg > 1.0f){
+                textAnimation = false;
+                anim3 = true;
+                elapsed2 = 0;
+            }
+        }
+        if(anim3 && totalElapsed/2.0f > 1.0f){
+            elapsed2 += deltaTime;
+            
+            float pg = elapsed2 / 5.0f;
+            t2 = linearFunction(pg);
+
+            if(pg > 1.0f){
+                subtitleShow = true;
+                anim3 = false;
+                elapsed2 = 0;
+            }
+        }
+        if(subtitleShow && totalElapsed/2.0f > 1.0f){
+            elapsed2 += deltaTime;
+            
+            float pg = elapsed2 / 5.0f;
+            t3 = linearFunction(pg);
+
+            if(pg > 1.0f){
+                subtitleShow = false;
+                elapsed2 = 0;
+            }
+        }
+
+        gameover->color.a = Slerp(0, 255, t1);
+        subtitle->color.a = Slerp(0, 255, t2);
+        //subtitle2->color.a = Slerp(0, 255, t2);
+        //followuptext->color.a = Slerp(0, 255, t3);
 
         if(buttons && totalElapsed/1.0f > 1.0f){
             static float elapsed = 0;
@@ -1014,8 +1031,11 @@ GAMESTATE gameWon(Resources resources){
             restart->colors.baseColor.a = Slerp(0, 255, t);
             exit->colors.baseColor.a = Slerp(0, 255, t);
 
-            restart->colors.backgroundColor.a = Slerp(0, 255, t);
-            exit->colors.backgroundColor.a = Slerp(0, 255, t);
+            restart->colors.backgroundColor.a = Slerp(0, 150, t);
+            exit->colors.backgroundColor.a = Slerp(0, 150, t);
+
+            restart->colors.borderColor.a = Slerp(0, 255, t);
+            exit->colors.borderColor.a = Slerp(0, 255, t);
 
             if(pg > 1.0f){
                 buttons = false;
@@ -1031,8 +1051,8 @@ GAMESTATE gameWon(Resources resources){
         EndMode2D();
             Text_DrawS(gameover);
             Text_DrawS(subtitle);
-            Text_DrawS(subtitle2);
-            Text_DrawS(followuptext);
+            //Text_DrawS(subtitle2);
+            //Text_DrawS(followuptext);
 
             Button_Draw(restart);
             Button_Draw(exit);
@@ -1073,7 +1093,7 @@ GAMESTATE gameOver(Resources resources){
     subtitle2->color.a = 0;
     followuptext->color.a = 0;
 
-    ImageObject* background = Image_Init("sprites/gameoverBackground.png");
+    ImageObject* background = Image_Init(TextFormat("%s%sgameoverBackground.png", SpritesPath, TileSetSkin));
 
     camera.offset = (Vector2){0, 0};
     camera.rotation = 0.0f;
@@ -1084,7 +1104,7 @@ GAMESTATE gameOver(Resources resources){
 
     bool outro = true;
 
-    ImageObject* player = Image_Init("sprites/PlayerDead.png");
+    ImageObject* player = Image_Init(TextFormat("%sPlayerDead.png", SpritesPath));
 
     float playerWidth = GetScreenWidth()*1/3;
 
@@ -1110,6 +1130,9 @@ GAMESTATE gameOver(Resources resources){
     Button_Pos(exit, (Vector2){GetScreenWidth()/2 + (exit->padding.x*10), GetScreenHeight() - exit->height*3});
 
     bool buttons = false;
+    
+    Button_SetPattern(restart, (Pattern){WHITE, WHITE, BLACK, DARKBLUE, (Color){0,0,0,150}});
+    Button_SetPattern(exit, (Pattern){WHITE, WHITE, BLACK, RED, (Color){0,0,0,150}});
 
     restart->colors.baseColor.a = 0;
     exit->colors.baseColor.a = 0;
@@ -1119,6 +1142,9 @@ GAMESTATE gameOver(Resources resources){
 
     restart->colors.borderColor.a = 0;
     exit->colors.borderColor.a = 0;
+
+    float t1 = 0, t2 = 0, t3 = 0;
+
 
     while(!WindowShouldClose()){
         float deltaTime = GetFrameTime();
@@ -1217,6 +1243,9 @@ GAMESTATE gameOver(Resources resources){
             restart->colors.backgroundColor.a = Slerp(0, 255, t);
             exit->colors.backgroundColor.a = Slerp(0, 255, t);
 
+            restart->colors.borderColor.a = Slerp(0, 255, t);
+            exit->colors.borderColor.a = Slerp(0, 255, t);
+
             if(pg > 1.0f){
                 buttons = false;
                 elapsed = 0;
@@ -1254,7 +1283,7 @@ GAMESTATE fightScreen(Resources resources){
     // nv (3) cima
     // nn (3) baixo
 
-    ImageObject* bc = Image_Init("sprites/parallax.png");
+    ImageObject* bc = Image_Init(TextFormat("%sparallax.png", SpritesPath));
     bc->source = (Rectangle){0, 0, 2560.0f, 640.0f};
 
     float bc_height = ((float)GetScreenWidth()*bc->source.height)/bc->source.width;
@@ -1276,7 +1305,7 @@ GAMESTATE fightScreen(Resources resources){
 
     Image_FlipHPro(bc);
 
-    ImageObject* bp = Image_Init("sprites/parallax.png");
+    ImageObject* bp = Image_Init(TextFormat("%sparallax.png", SpritesPath));
     bp->source = (Rectangle){2560.0f, 0, 2560.0f, 640.0f};
 
     float bp_height = ((float)GetScreenWidth()*2*bp->source.height)/bp->source.width;;
@@ -1289,7 +1318,7 @@ GAMESTATE fightScreen(Resources resources){
 
     int minSpeed = 10;
 
-    ImageObject* nv = Image_Init("sprites/parallax.png");
+    ImageObject* nv = Image_Init(TextFormat("%sparallax.png", SpritesPath));
     nv->source = (Rectangle){0, 640.0f, 2560.0f, 640.0f};
 
     float nv_height = ((float)GetScreenWidth()*2*nv->source.height)/nv->source.width;
@@ -1313,7 +1342,7 @@ GAMESTATE fightScreen(Resources resources){
     float elapsedN = 0;
 
     Player_setName(player, "Player");
-    Player_SetSpriteSheet(player, "sprites/PlayerAnim/PlayerSpriteSheet2.png");
+    Player_SetSpriteSheet(player, TextFormat("%sPlayerAnim/PlayerSpriteSheet2.png", SpritesPath));
     Player_setCharacter(player, 0.0f);
 
     Player_setControl(player, false);
@@ -1331,7 +1360,7 @@ GAMESTATE fightScreen(Resources resources){
     Player_MoveTo(player, (Vector2){0.0f - playerDestRec.width, 350.0f - playerDestRec.height}, 0.0f);
 
     Player_setName(enemy, "Enemy");
-    Player_SetSpriteSheet(enemy, "sprites/skeletonAnim/SkeletonEnemy.png");
+    Player_SetSpriteSheet(enemy, TextFormat("%sskeletonAnim/SkeletonEnemy.png", SpritesPath));
     Player_setCharacter(enemy, 0.0f);
 
     Player_setControl(enemy, false);
@@ -1352,14 +1381,14 @@ GAMESTATE fightScreen(Resources resources){
 
     // BACKGROUND
 
-    ImageObject* background = Image_Init("sprites/battleBackground.png");
+    ImageObject* background = Image_Init(TextFormat("%s%sbattleBackground.png", SpritesPath, TileSetSkin));
     background->destination = (Rectangle){0, 0, GetScreenWidth(), (background->image.height * GetScreenWidth())/background->image.width};
 
     // END BACKGROUND
 
     // BUTTONS
 
-    ImageObject* icons = Image_Init("sprites/icons.png");
+    ImageObject* icons = Image_Init(TextFormat("%sicons.png", SpritesPath));
 
     ImageObject* healthSprite = Image_Init(NULL);
     ImageObject* atkSprite = Image_Init(NULL);
@@ -1502,7 +1531,7 @@ GAMESTATE fightScreen(Resources resources){
 
     /////
 
-    ImageObject* inventoryBackground = Image_Init("sprites/inventoryBackground.png");
+    ImageObject* inventoryBackground = Image_Init(TextFormat("%sinventoryBackground.png", SpritesPath));
 
     float newWidth = GetScreenWidth()*0.92f;
     float newHeight = (newWidth*inventoryBackground->source.height)/inventoryBackground->source.width;
@@ -1534,7 +1563,7 @@ GAMESTATE fightScreen(Resources resources){
     bool enemyTookAction = false;
     bool playerTookAction = false;
 
-    SpriteSheet* confetti = SpriteSheet_Init("sprites/Confetti.png", (FramesAnimation){false, 0.0f, 0.0f, 1, 0, 63, 0, 24, 24});
+    SpriteSheet* confetti = SpriteSheet_Init(TextFormat("%sConfetti.png", SpritesPath), (FramesAnimation){false, 0.0f, 0.0f, 1, 0, 63, 0, 24, 24});
 
     SpriteSheet_SetSourceRec(confetti, (Rectangle){0, 0, 150.0f, 120.0f});
     SpriteSheet_SetDisplay(confetti, (Vector2){0.0f, 0.0f});
@@ -1551,11 +1580,11 @@ GAMESTATE fightScreen(Resources resources){
 
     float worldSpeed = 1.0f;
 
-    ImageObject* healthBarSprite = Image_Init("sprites/healthBarLayout.png");
-    ImageObject* healthBarFiller = Image_Init("sprites/healthBarBlend.png");
+    ImageObject* healthBarSprite = Image_Init(TextFormat("%shealthBarLayout.png", SpritesPath));
+    ImageObject* healthBarFiller = Image_Init(TextFormat("%shealthBarBlend.png", SpritesPath));
 
-    ImageObject* healthBarSpriteP = Image_Init("sprites/healthBarLayout.png");
-    ImageObject* healthBarFillerP = Image_Init("sprites/healthBarBlend.png");
+    ImageObject* healthBarSpriteP = Image_Init(TextFormat("%shealthBarLayout.png", SpritesPath));
+    ImageObject* healthBarFillerP = Image_Init(TextFormat("%shealthBarBlend.png", SpritesPath));
 
     float SpriteNewW = enemyDestRec.width*4/5;
     float SpriteNewH = (SpriteNewW*healthBarSprite->source.height)/healthBarSprite->source.width;
@@ -1576,6 +1605,17 @@ GAMESTATE fightScreen(Resources resources){
     toggleHealthBar->colors = showStats->colors;
 
     bool showHealthBar = true;
+    bool displayRunState = false;
+
+    Color runOverlay = {255, 0, 0, 0};
+
+    TextObject* runInfo = Text_Init("");
+
+    runInfo->fontsize = 30;
+
+    const char* defaultRun = "You've tried to escape the encounter... ";
+    const char* successRun = "and succeded!";
+    const char* failedRun = "and failed.";
 
     float totalElapsed = 0;
 
@@ -1769,6 +1809,24 @@ GAMESTATE fightScreen(Resources resources){
             inventoryShowing = true;
         }
 
+        if(Button_IsPressed(run, mousePos) && whoseTurn.animationBool && !playerTookAction){
+            bool hasRan = Player_tryRun(player);
+
+            displayRunState = true;
+            playerTookAction = true;
+
+            if(hasRan){
+                runOverlay = (Color){0, 255, 0, 0};
+                Text_Set(runInfo, TextFormat("%s%s", defaultRun, successRun));
+            }
+            else{
+                runOverlay = (Color){255, 0, 0, 0};
+                Text_Set(runInfo, TextFormat("%s%s", defaultRun, failedRun));
+            }
+
+            Text_Pos(runInfo, (Vector2){GetScreenWidth()/2 - MeasureText(runInfo->text, runInfo->fontsize)/2, 0 + runInfo->fontsize*3/2});
+        }
+
         if(inventoryAnimation.animationBool && IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !CheckCollisionPointRec(mousePos, inventoryBackground->destination)){
             inventoryShowing = true;
         }
@@ -1941,6 +1999,17 @@ GAMESTATE fightScreen(Resources resources){
                 }
             }
 
+            if(displayRunState){
+                runOverlay.a = 240;
+                displayRunState = false;
+            }
+
+            if(runOverlay.a > 0) runOverlay.a -= 3;
+
+            runInfo->color = runOverlay;
+
+            Text_DrawS(runInfo);
+
             if(cameraZoomIn && doZoom){            
                 bool w = cameraAnimation(&camera, (Vector2){GetScreenWidth()/2, GetScreenHeight()/2}, (Vector2){enemyDestRec.x + enemyDestRec.width/2, enemyDestRec.y + enemyDestRec.height/2}, deltaTime);
                 if(w){
@@ -1979,10 +2048,6 @@ GAMESTATE fightScreen(Resources resources){
 
             imprimirListaRel(Player_getInventarioUtils(player), player, imprimirItensDescInventario);
 
-            // PARAMETRIZAÇÃO DO INVENTARIO
-            //percorrerLista(Player_getInventario(player), imprimirInventario);
-            //
-
             Image_Draw(resources.cursor);
 
             if(playerTookDamage.hurt) overlay.a = 120;
@@ -2013,15 +2078,15 @@ GAMESTATE telaJogo(Resources resources){
     traps = criaLista();
     trapsReal = criaLista();
 
-    ImageObject* parede = Image_Init("sprites/white.png");
-    ImageObject* borda = Image_Init("sprites/white.png");
-    ImageObject* chaoTileSet = Image_Init("sprites/chaoTileSet.png");
+    ImageObject* parede = Image_Init(TextFormat("%swhite.png", SpritesPath));
+    ImageObject* borda = Image_Init(TextFormat("%swhite.png", SpritesPath));
+    ImageObject* chaoTileSet = Image_Init(TextFormat("%s%schaoTileSet.png", SpritesPath, TileSetSkin));
 
-    ImageObject* crosshair = Image_Init("sprites/white.png");
+    ImageObject* crosshair = Image_Init(TextFormat("%swhite.png", SpritesPath));
 
-    ImageObject* paredesTileSet = Image_Init("sprites/paredes.png");
+    ImageObject* paredesTileSet = Image_Init(TextFormat("%s%sparedes.png", SpritesPath, TileSetSkin));
 
-    ImageObject* spritesheetItems = Image_Init("sprites/Itens/Items.png");
+    ImageObject* spritesheetItems = Image_Init(TextFormat("%sItens/Items.png", SpritesPath));
 
     ImageObject* misteryBox = Image_Init(NULL);
     ImageObject* incense = Image_Init(NULL);
@@ -2074,7 +2139,7 @@ GAMESTATE telaJogo(Resources resources){
     Player_SetStepSize(enemy, squaresize);
     Player_ChangeCharacter(enemy);
 
-    ImageObject* grama = Image_Init("sprites/grass.png");
+    ImageObject* grama = Image_Init(TextFormat("%s%sgrass.png", SpritesPath, TileSetSkin));
     grama->color = (Color){255,255,255,255};
 
     grama->source = (Rectangle){0, 0, 32.0f, 32.0f};
@@ -2090,7 +2155,7 @@ GAMESTATE telaJogo(Resources resources){
 
     bool moved = false;
 
-    ImageObject* chestBackground = Image_Init("sprites/Chest_GUI.png");
+    ImageObject* chestBackground = Image_Init(TextFormat("%sChest_GUI.png", SpritesPath));
     
     float chestBGw = GetScreenWidth()*0.8f;
     float chestBGh = (chestBGw*chestBackground->source.height)/chestBackground->source.width;
@@ -2107,7 +2172,7 @@ GAMESTATE telaJogo(Resources resources){
 
     ///////////////////////////////////////////
 
-    ImageObject* inventoryBackground = Image_Init("sprites/inventoryBackground.png");
+    ImageObject* inventoryBackground = Image_Init(TextFormat("%sinventoryBackground.png", SpritesPath));
     
     float newWidth = GetScreenWidth()*0.92f;
     float newHeight = (newWidth*inventoryBackground->source.height)/inventoryBackground->source.width;
@@ -2121,7 +2186,7 @@ GAMESTATE telaJogo(Resources resources){
 
     ////////////////////////////////////////////
 
-    SpriteSheet* bearTrap = SpriteSheet_Init("sprites/trapAnimation.png", (FramesAnimation){false, 0.0f, 0.0f, 1, 0, 7, 0, 12, 12});
+    SpriteSheet* bearTrap = SpriteSheet_Init(TextFormat("%strapAnimation.png", SpritesPath), (FramesAnimation){false, 0.0f, 0.0f, 1, 0, 7, 0, 12, 12});
 
     SpriteSheet_SetSourceRec(bearTrap, (Rectangle){0, 0, 60.0f, 60.0f});
     SpriteSheet_SetDisplay(bearTrap, (Vector2){0.0f, 0.0f});
@@ -2154,6 +2219,7 @@ GAMESTATE telaJogo(Resources resources){
             switch (mapa[i][j]){
                 case 4:
                     saida = (Vector2){j, i};
+                    break;
                 case 5:
                     Image_Copy(trap, selectedSprite, true);
                     selectedList = traps;
@@ -2205,7 +2271,7 @@ GAMESTATE telaJogo(Resources resources){
 
     CutsceneFunctions battleTransition = {quadraticFunction, battleTransitionF, battleTransitionR};
 
-    ImageObject* itemPlaceHolder = Image_Init("sprites/Itens/Items.png");
+    ImageObject* itemPlaceHolder = Image_Init(TextFormat("%sItens/Items.png", SpritesPath));
     Item* itemObj = Item_Init(0, NULL);
 
     TextObject* itemNameText = Text_Init("Top Text");
@@ -2234,8 +2300,8 @@ GAMESTATE telaJogo(Resources resources){
     fightNotification->fontsize = 40;
     fightNotification->color = RED;
 
-    ImageObject* healthBarFillerP = Image_Init("sprites/healthBarBlend.png");
-    ImageObject* healthBarSpriteP = Image_Init("sprites/healthBarLayout.png");
+    ImageObject* healthBarFillerP = Image_Init(TextFormat("%shealthBarBlend.png", SpritesPath));
+    ImageObject* healthBarSpriteP = Image_Init(TextFormat("%shealthBarLayout.png", SpritesPath));
 
     float SpriteNewW = GetScreenWidth()*2/5;
     float SpriteNewH = (SpriteNewW*healthBarSpriteP->source.height)/healthBarSpriteP->source.width;
@@ -2476,10 +2542,10 @@ GAMESTATE telaJogo(Resources resources){
 
             // DARKEN FUNC
 
-            //DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), (Color){0, 0, 0, 210});
-            //drawLightSource((Vector2){playerDestRec.x + playerDestRec.width/2, playerDestRec.y + playerDestRec.height/2}, squaresize*4, 80.0f);
-
-            //
+            if(darkenMap){
+                DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), (Color){0, 0, 0, 210});
+                drawLightSource((Vector2){playerDestRec.x + playerDestRec.width/2, playerDestRec.y + playerDestRec.height/2}, squaresize*4, 80.0f);
+            }
 
             EndMode2D();
 
@@ -2540,7 +2606,7 @@ GAMESTATE telaJogo(Resources resources){
 
 int telaInicial(Resources resources){
     ImageObject* cursor = resources.cursor;
-    ImageObject* background = Image_Init("sprites/MainScreen/background.jpg");
+    ImageObject* background = Image_Init(TextFormat("%sMainScreen/background.jpg", SpritesPath));
 
     Image_Fit(background);
 
@@ -2609,8 +2675,8 @@ int main(){
     Rectangle source = {0.0f, 120.0f, 160.0f, 200.0f};
     Rectangle dest = {0, 0, squaresize, squaresize};
 
-    Player* player = Player_Init(source, dest, "sprites/Player_spritesheet.png");
-    Player* enemy = Player_Init(source, dest, "sprites/Player_spritesheet.png");
+    Player* player = Player_Init(source, dest, TextFormat("%sPlayer_spritesheet.png", SpritesPath));
+    Player* enemy = Player_Init(source, dest, TextFormat("%sPlayer_spritesheet.png", SpritesPath));
     Vector2 playerCoordsSave = {1, 1};
 
     int** mapa = NULL;
@@ -2621,10 +2687,10 @@ int main(){
     populaMapa(mapa, TAM);
 
     HideCursor();
-    ImageObject* cursor = Image_Init("sprites/cursor.png");
+    ImageObject* cursor = Image_Init(TextFormat("%scursor.png", SpritesPath));
     Image_Resize(cursor, 32, 32);
 
-    ImageObject* grainOverlay = Image_Init("sprites/grainOverlay.jpg");
+    ImageObject* grainOverlay = Image_Init(TextFormat("%sgrainOverlay.jpg", SpritesPath));
 
     //float newWidth = GetScreenWidth();
     //float newHeight = (newWidth*grainOverlay->source.height)/grainOverlay->source.width;
@@ -2638,7 +2704,7 @@ int main(){
 
     Resources resources = {player, enemy, squaresize, &playerCoordsSave, mapa, cursor, grainOverlay, 255};
 
-    GAMESTATE gamestate = GAMEOVER;
+    GAMESTATE gamestate = GAMEWON;
 
     initAllLists();
 
