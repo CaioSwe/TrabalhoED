@@ -42,8 +42,8 @@ Player* criarPlayer(){
     p->stats.attack      = 25.0;
     p->stats.repelent    = 0;
     p->stats.defense     = 0.05;
-    p->stats.dodge       = 0.1;
-    p->stats.evasionRate = 0.1;
+    p->stats.dodge       = 25;
+    p->stats.evasionRate = 10;
     p->stats.defending   = false;
 
     p->stats.gold        = 0;
