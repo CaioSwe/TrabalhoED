@@ -3,6 +3,7 @@
 
 #include "Utils.h"
 #include "Delimiters.h"
+#include "Lista.h"
 
 typedef struct TextObject{
     char text[MAX_STRSIZE];
@@ -24,5 +25,9 @@ void Text_Scale(TextObject* txt, float scaling);
 void Text_DrawS(TextObject* txt);
 
 void Text_DrawX(TextObject* txt, float rectX, float rectY);
+
+void Text_InitList();
+
+void Text_Free();
 
 #endif

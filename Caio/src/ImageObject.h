@@ -3,6 +3,7 @@
 
 #include "Utils.h"
 #include "Delimiters.h"
+#include "Lista.h"
 
 typedef struct ImageObject {
     int id;
@@ -45,5 +46,11 @@ void Image_Draw(ImageObject* img);
 void Image_DrawPro(ImageObject* img);
 
 void Image_CopyImage(ImageObject* img, ImageObject* from);
+
+void Image_InitList();
+
+void Image_Free();
+
+// void freeTexture_ImageObject(const void* item);
 
 #endif

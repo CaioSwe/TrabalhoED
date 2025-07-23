@@ -1,5 +1,7 @@
 #include "SpriteSheet.h"
 
+static Lista* allSpriteSheets = NULL:
+
 typedef struct Animation{
     PositionAnimation* position;
     ScaleAnimation* scale;
@@ -33,6 +35,8 @@ SpriteSheet* SpriteSheet_Init(const char* path, FramesAnimation framesAnimation)
     spriteSheet->destination = (Rectangle){0, 0, 0, 0};
     spriteSheet->display = (Vector2){0, 0};
     spriteSheet->delta = (Vector2){0, 0};
+
+    if(allSpriteSheets != NULL) inserirFim(allSpriteSheets, spriteSheet);
 
     return spriteSheet;
 }
@@ -158,3 +162,16 @@ Rectangle SpriteSheet_GetSourceRec(SpriteSheet* spriteSheet){
 Rectangle SpriteSheet_GetDestRec(SpriteSheet* spriteSheet){
     return spriteSheet->destination;
 }
+
+void SpriteSheet_InitList(){
+    if(allSpriteSheets == NULL) allSpriteSheets = criaLista();
+}
+
+void SpriteSheet_Free(){
+    percorrerLista(allSpriteSheets, freeTexture_SpriteSheet);
+    limparLista(allSpriteSheets, true);
+}
+
+void freeTexture_SpriteSheet(const void* item){
+    UnloadTexture(((const SpriteSheet*)item)->spriteSheet);
+} 

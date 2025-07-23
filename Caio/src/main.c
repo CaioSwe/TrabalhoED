@@ -72,11 +72,28 @@ void moveRandom(Player* instance, double interval){
 #pragma region "VoidPointers"
 
 void initAllLists(){
+    Animation_InitList();
     Button_InitList();
+    Gif_InitList();
+    Image_InitList();
+    Input_InitList();
+    Item_InitList();
+    Player_InitList();
+    SpriteSheet_InitList();
+    Text_InitList();
 }
 
 void freeAllLists(){
+    Animation_Free();
     Button_Free();
+    Gif_Free();
+    Image_Free();
+    Input_Free();
+    Item_Free();
+    Player_Free();
+    SpriteSheet_Free();
+    Text_Free();
+
 }
 
 void imprimirPlayer(const void* p){
@@ -2229,6 +2246,8 @@ int main(){
 
     GAMESTATE gamestate = MAINSCREEN;
 
+    initAllLists();
+
     while(!WindowShouldClose()){
         switch (gamestate){
             case MAINSCREEN:
@@ -2249,7 +2268,21 @@ int main(){
             default:
                 break;
         }
+        freeAllLists();
     }
+
+    freeAllLists();
+
+    UnloadTexture(player->spriteSheet);
+    UnloadTexture(enemy->spriteSheet);
+    UnloadTexture(cursor->image);
+    UnloadTexture(grainOverlay->image);
+
+    free(player);
+    free(enemy);
+    free(cursor);
+    free(grainOverlay);
+    
 
     return 0;
 }

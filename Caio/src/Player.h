@@ -184,4 +184,12 @@ void Player_addGold(Player* player, int amount);
 
 void Player_subRepelent(Player* player, int amount);
 
+/////////////////////////////////////////////////////////////////////////////
+
+void Player_InitList();
+
+void Player_Free();
+
+// void freeTexture_Player(const void* item);
+
 #endif

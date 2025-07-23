@@ -3,6 +3,7 @@
 
 #include "Utils.h"
 #include "Delimiters.h"
+#include "Lista.h"
 #include "Player.h"
 #include "ImageObject.h"
 
@@ -46,5 +47,9 @@ void setItemName(Item* item, const char* text);
 void setItemSprite(Item* item, ImageObject* sprite);
 
 void ItemDestroy(Item* item);
+
+void Item_InitList();
+
+void Item_Free();
 
 #endif

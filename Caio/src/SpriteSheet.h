@@ -4,6 +4,7 @@
 #include "ImageObject.h"
 #include "Delimiters.h"
 #include "Animation.h"
+#include "Lista.h"
 
 typedef struct Animation Animation;
 
@@ -44,5 +45,13 @@ FramesAnimation SpriteSheet_GetAnimationFrames(SpriteSheet* spriteSheet);
 Rectangle SpriteSheet_GetSourceRec(SpriteSheet* spriteSheet);
 
 Rectangle SpriteSheet_GetDestRec(SpriteSheet* spriteSheet);
+
+///////////////////////////////////////////////
+
+void SpriteSheet_InitList();
+
+void SpriteSheet_Free();
+
+// void freeTexture_SpriteSheet(const void* item);
 
 #endif

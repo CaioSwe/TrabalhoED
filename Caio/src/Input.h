@@ -2,6 +2,7 @@
 #define _Input_h_
 
 #include "Utils.h"
+#include "Lista.h"
 #include "Delimiters.h"
 
 typedef struct{
@@ -41,5 +42,9 @@ void Input_RaiseError(Input *input, const char* msgErro, Color errorColor);
 void Input_Draw(Input *input);
 
 void Input_DrawBox(Input *input);
+
+void Input_InitList();
+
+void Input_Free();
 
 #endif

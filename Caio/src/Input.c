@@ -1,5 +1,7 @@
 #include "Input.h"
 
+static Lista* allInputs = NULL;
+
 Input* Input_Init(){
     Input* input = (Input*)malloc(sizeof(Input));
 
@@ -10,6 +12,8 @@ Input* Input_Init(){
     input->text[0] = '\0';
     input->blip = false;
     input->lastUpdate = 0;
+
+    if(allInputs != NULL) inserirFim(allInputs, input);
 
     return input;
 }
@@ -94,4 +98,12 @@ void Input_DrawBox(Input *input){
         }
         DrawRectangle(blip_x, input->y + input->fontsize, MeasureText("e", input->fontsize), 5, WHITE);
     }
+}
+
+void Input_InitList(){
+    if(allInputs == NULL) allInputs = criaLista();
+}
+
+void Input_Free(){
+    limparLista(allInputs, true);
 }
